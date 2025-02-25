@@ -12,7 +12,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Change static mount for tickets folder to avoid collision
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
 
