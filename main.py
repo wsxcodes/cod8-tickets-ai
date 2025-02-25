@@ -3,14 +3,14 @@ import os
 import time
 from pathlib import Path
 
-from openai import OpenAI
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from openai import OpenAI
 from pydantic import BaseModel
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
@@ -21,7 +21,6 @@ templates = Jinja2Templates(directory="templates")
 
 TICKETS_DIR = Path("tickets")
 TICKETS_DIR.mkdir(exist_ok=True)
-
 
 
 class Question(BaseModel):
@@ -81,12 +80,12 @@ async def ask_endpoint(payload: Question):
                 try:
                     ticket = json.load(f)
                     tickets.append(ticket)
-                except Exception as e:
+                except Exception as e:  # NoQA
                     # Skip files that can't be parsed
                     continue
         # Combine ticket info into one context string
         tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-        
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
