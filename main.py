@@ -75,11 +75,17 @@ async def api_list_tickets():
 async def ask_endpoint(payload: Question):
     # The user’s question is in payload.question
     try:
-        response = client.chat.completions.create(model="gpt-4o-mini",
-        messages=[{"role": "user", "content": payload.question}],
-        temperature=0.7,
-        max_tokens=150)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."},
+                {"role": "user", "content": payload.question}
+            ],
+            temperature=0.7,
+            max_tokens=150
+        )
         answer = response.choices[0].message.content
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
