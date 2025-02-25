@@ -54,10 +54,26 @@
       margin: 0;
     }
     .tickets li {
-      margin: 5px 0;
+      margin: 10px 0;
+      padding: 10px;
       background-color: #3a3a3a;
-      padding: 5px;
-      border-radius: 3px;
+      border-radius: 4px;
+    }
+    .ticket-header {
+      display: flex;
+      align-items: center;
+    }
+    .ticket-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+    .ticket-meta {
+      font-size: 0.9rem;
+    }
+    .ticket-title {
+      margin-top: 5px;
+      font-weight: bold;
     }
     /* Right panel (AI chat) */
     .right-panel {
@@ -147,7 +163,17 @@
         ticketList.innerHTML = '';
         tickets.forEach(ticket => {
           const li = document.createElement('li');
-          li.textContent = JSON.stringify(ticket);
+
+          li.innerHTML = `
+            <div class="ticket-header">
+              <img src="/static/images/ticket_icon.png" alt="Ticket Icon" class="ticket-icon">
+              <div class="ticket-meta">
+                <span class="ticket-id">${ticket.ticketID}</span> - 
+                <span class="ticket-requester">${ticket.requester}</span>
+              </div>
+            </div>
+            <div class="ticket-title">${ticket.title}</div>
+          `;
           ticketList.appendChild(li);
         });
       } catch (error) {
