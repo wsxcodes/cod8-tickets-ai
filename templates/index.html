@@ -70,6 +70,18 @@
     .chat-header {
       padding: 20px;
       border-bottom: 1px solid #4a4a4a;
+      display: flex;
+      align-items: center;
+    }
+    .chat-header img {
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .chat-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      display: inline-block;
     }
     .chat-window {
       flex-grow: 1;
@@ -122,6 +134,7 @@
     <!-- Right side: AI Chat -->
     <div class="right-panel">
       <div class="chat-header">
+        <img src="/static/images/cod8logo_blue.png" alt="Logo">
         <h2>AI Support Chat</h2>
       </div>
       <div class="chat-window">
@@ -138,10 +151,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       const uploadArea = document.getElementById('upload-area');
 
-      // Hidden file input
+      // Hidden file input (allows multiple files)
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = '.json';
+      fileInput.multiple = true; // allow multiple file selection
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
 
@@ -151,7 +165,9 @@
       // File input handler
       fileInput.addEventListener('change', async (e) => {
         if (e.target.files.length > 0) {
-          await uploadFile(e.target.files[0]);
+          for (const file of e.target.files) {
+            await uploadFile(file);
+          }
         }
       });
 
@@ -168,7 +184,9 @@
         e.preventDefault();
         uploadArea.style.borderColor = '#4a4a4a';
         if (e.dataTransfer.files.length > 0) {
-          await uploadFile(e.dataTransfer.files[0]);
+          for (const file of e.dataTransfer.files) {
+            await uploadFile(file);
+          }
         }
       });
 
@@ -184,10 +202,10 @@
             body: JSON.stringify(data)
           });
           if (!response.ok) throw new Error('Failed to upload ticket');
-          alert('Ticket uploaded successfully');
-          window.location.reload();
+          console.log(`Uploaded ${file.name}`);
         } catch (error) {
-          alert('Error uploading ticket: ' + error.message);
+          console.error(`Error uploading ticket ${file.name}: `, error);
+          alert(`Error uploading ${file.name}: ${error.message}`);
         }
       }
     });
