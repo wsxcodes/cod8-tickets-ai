@@ -18,7 +18,7 @@
     }
     /* Left panel (ticket upload/list) */
     .left-panel {
-      width: 360px; /* Increased width from 300px to 360px */
+      width: 385px; /* Increased width */
       background-color: #242424;
       display: flex;
       flex-direction: column;
@@ -72,6 +72,7 @@
       background-color: #4a4a4a;
       text-decoration: none;
     }
+    /* Colored square icon */
     .ticket-icon {
       width: 24px;
       height: 24px;
@@ -141,7 +142,7 @@
   <div class="container">
     <!-- Left side: Tickets -->
     <div class="left-panel">
-      <h1>Support Tickets</h1>
+      <h1>COD8 Support Tickets</h1>
       <div class="upload-area" id="upload-area">
         Click to upload or drag and drop
         <br><small>JSON files only</small>
@@ -178,13 +179,14 @@
         const ticketList = document.getElementById('ticket-list');
         ticketList.innerHTML = '';
         tickets.forEach(ticket => {
+          // Set color based on priority:
+          const priority = ticket.priority.toLowerCase();
+          const color = priority === 'high' ? '#dc3545'
+                      : (priority === 'medium' ? '#ffc107' : '#28a745');
           const li = document.createElement('li');
           li.innerHTML = `
             <a href="/${ticket.path}" target="_blank" class="ticket-link">
-              <!-- Inline SVG icon -->
-              <svg class="ticket-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 9l2 2-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6l-2-2 2-2V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4z" />
-              </svg>
+              <div class="ticket-icon" style="background-color: ${color};"></div>
               <div class="ticket-details">
                 <div class="ticket-id-requester">
                   ${ticket.ticketID} - ${ticket.requester}
