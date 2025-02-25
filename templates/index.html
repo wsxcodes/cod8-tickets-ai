@@ -126,12 +126,16 @@
       position: relative;
     }
     .user-message {
-      text-align: right;
       color: #ffffff;
-      margin: 0 0 10px 0;
-      padding: 10px;
       background-color: #3f3f3f;
       border-radius: 4px;
+      padding: 10px;
+
+      /* Keep text on the right, and push bubble in from the edge */
+      text-align: right;
+      margin: 0 20px 10px auto; /* top=0, right=20px, bottom=10px, left=auto */
+      max-width: 60%; /* or whatever width you prefer */
+      display: inline-block; /* so it doesn’t expand to full width */
     }
     .ai-message {
       color: #bbbbbb;
