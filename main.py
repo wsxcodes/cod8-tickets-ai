@@ -93,6 +93,7 @@ async def ask_endpoint(payload: Question):
                         "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
                         "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
                         "Do not include any HTML tags—just use Markdown or plain text formatting."
+                        "Every question I ask relates to the context provided."
                     )
                 },
                 {
@@ -105,7 +106,7 @@ async def ask_endpoint(payload: Question):
                 },
             ],
             temperature=0.7,
-            max_tokens=150,
+            max_tokens=1000,
         )
         answer = response.choices[0].message.content
         return {"answer": answer}
