@@ -91,7 +91,10 @@ async def ask_endpoint(payload: Question):
         system_message = (
             "You are an expert in IT ticketing. Provide clear, concise, and technically accurate "
             "responses about the tickets. The user is only asking about these tickets, so if the "
-            "question seems ambiguous, interpret it as relating to the tickets.\n\n"
+            "question seems ambiguous, interpret it solely in relation to the tickets. "
+            "Do not bring in any external knowledge. Only base your response on the following ticket data. "
+            "If the user question cannot be answered from these tickets, respond with: "
+            "'No relevant ticket data available to answer that question.'.\n\n"
             f"Here is the context of all existing tickets:\n{tickets_context}"
         )
 
