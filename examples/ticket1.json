@@ -1,0 +1,8 @@
+{
+    "ticketID": "T-1001",
+    "title": "Broken Monitor",
+    "requester": "Max Power",
+    "description": "Monitor decided to give up on life mid-project. Black screen, no revival possible. Possibly a hardware funeral needed.",
+    "status": "Open",
+    "priority": "High"
+}
