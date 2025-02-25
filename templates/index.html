@@ -133,7 +133,7 @@
       border-radius: 4px;
       padding: 10px;
       text-align: right;
-      margin: 0 20px 10px auto; /* top=0, right=20px, bottom=10px, left=auto */
+      margin: 0 20px 10px auto;
       max-width: 60%;
       display: inline-block;
     }
@@ -145,6 +145,11 @@
       background-color: #2f2f2f;
       border-radius: 4px;
       white-space: pre-wrap; /* preserves line breaks in plain text */
+    }
+    /* Make <strong> text stand out more */
+    .ai-message strong {
+      font-weight: bold;
+      color: #fff;
     }
     .chat-input {
       border-top: 2px solid #4a4a4a;
@@ -235,7 +240,7 @@
       <div class="chat-window" id="chat-window">
         <!-- Generic AI greeting message -->
         <p class="ai-message">
-   Hello! I’m your tickets AI. Ask me anything about your tickets, and I’ll help you out.
+          Hello! I’m your tickets AI. Ask me anything about your tickets, and I’ll help you out.
         </p>
       </div>
       <div class="chat-input">
@@ -386,7 +391,12 @@
         userMessage.classList.add('user-message');
         userMessage.textContent = question;
         chatWindow.appendChild(userMessage);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // Scroll to bottom
+        chatWindow.scrollTo({
+          top: chatWindow.scrollHeight,
+          behavior: 'smooth'
+        });
 
         chatInput.value = '';
 
@@ -407,13 +417,24 @@
           // Use marked to parse Markdown
           aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
-          chatWindow.scrollTop = chatWindow.scrollHeight;
+
+          // Scroll to bottom again after AI response
+          chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: 'smooth'
+          });
         } catch (error) {
           console.error('Error:', error);
           const errorMessage = document.createElement('p');
           errorMessage.classList.add('ai-message');
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
           chatWindow.appendChild(errorMessage);
+
+          // Scroll to bottom
+          chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: 'smooth'
+          });
         }
       }
 
