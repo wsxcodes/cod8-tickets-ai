@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>Support Tickets</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       background-color: #1e1e1e;
       color: #ffffff;
       font-family: sans-serif;
+      font-size: 18px; /* Base font size */
     }
     .container {
       display: flex;
@@ -17,7 +18,7 @@
     }
     /* Left panel (ticket upload/list) */
     .left-panel {
-      width: 300px;
+      width: 360px; /* Increased width from 300px to 360px */
       background-color: #242424;
       display: flex;
       flex-direction: column;
@@ -55,14 +56,21 @@
     }
     .tickets li {
       margin: 10px 0;
-      padding: 10px;
       background-color: #3a3a3a;
       border-radius: 4px;
     }
-    /* Ticket layout */
-    .ticket-header {
+    /* Make the entire ticket a link */
+    .ticket-link {
       display: flex;
       align-items: flex-start;
+      text-decoration: none;
+      color: #ffffff;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .ticket-link:hover {
+      background-color: #4a4a4a;
+      text-decoration: none;
     }
     .ticket-icon {
       width: 24px;
@@ -81,7 +89,6 @@
       margin-top: 4px;
       font-weight: bold;
     }
-
     /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
@@ -104,6 +111,7 @@
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
+      font-size: 22px; /* Increased font size for chat window */
     }
     .chat-input {
       border-top: 1px solid #4a4a4a;
@@ -172,10 +180,9 @@
         tickets.forEach(ticket => {
           const li = document.createElement('li');
           li.innerHTML = `
-            <div class="ticket-header">
+            <a href="/${ticket.path}" target="_blank" class="ticket-link">
               <!-- Inline SVG icon -->
               <svg class="ticket-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <!-- A simple “ticket-like” shape -->
                 <path d="M2 9l2 2-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6l-2-2 2-2V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4z" />
               </svg>
               <div class="ticket-details">
@@ -183,10 +190,10 @@
                   ${ticket.ticketID} - ${ticket.requester}
                 </div>
                 <div class="ticket-title">
-                  <a href="/${ticket.path}" target="_blank">${ticket.title}</a>
+                  ${ticket.title}
                 </div>
               </div>
-            </div>
+            </a>
           `;
           ticketList.appendChild(li);
         });
