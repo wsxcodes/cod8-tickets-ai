@@ -59,22 +59,29 @@
       background-color: #3a3a3a;
       border-radius: 4px;
     }
+    /* Ticket layout */
     .ticket-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
     }
     .ticket-icon {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       margin-right: 8px;
+      flex-shrink: 0;
     }
-    .ticket-meta {
+    .ticket-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .ticket-id-requester {
       font-size: 0.9rem;
     }
     .ticket-title {
-      margin-top: 5px;
+      margin-top: 4px;
       font-weight: bold;
     }
+
     /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
@@ -138,6 +145,7 @@
         </ul>
       </div>
     </div>
+
     <!-- Right side: AI Chat -->
     <div class="right-panel">
       <div class="chat-header">
@@ -163,16 +171,20 @@
         ticketList.innerHTML = '';
         tickets.forEach(ticket => {
           const li = document.createElement('li');
-
           li.innerHTML = `
             <div class="ticket-header">
-              <img src="/static/images/ticket_icon.png" alt="Ticket Icon" class="ticket-icon">
-              <div class="ticket-meta">
-                <span class="ticket-id">${ticket.ticketID}</span> - 
-                <span class="ticket-requester">${ticket.requester}</span>
+              <!-- Inline SVG icon -->
+              <svg class="ticket-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- A simple “ticket-like” shape -->
+                <path d="M2 9l2 2-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6l-2-2 2-2V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4z" />
+              </svg>
+              <div class="ticket-details">
+                <div class="ticket-id-requester">
+                  ${ticket.ticketID} - ${ticket.requester}
+                </div>
+                <div class="ticket-title">${ticket.title}</div>
               </div>
             </div>
-            <div class="ticket-title">${ticket.title}</div>
           `;
           ticketList.appendChild(li);
         });
