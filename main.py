@@ -75,7 +75,7 @@ async def api_list_tickets():
 async def ask_endpoint(payload: Question):
     # The user’s question is in payload.question
     try:
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        response = client.chat.completions.create(model="gpt-4o-mini",
         messages=[{"role": "user", "content": payload.question}],
         temperature=0.7,
         max_tokens=150)
