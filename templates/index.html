@@ -418,6 +418,19 @@
           behavior: 'smooth'
         });
 
+        // Create a "Thinking..." placeholder
+        const thinkingMessage = document.createElement('p');
+        thinkingMessage.classList.add('ai-message');
+        thinkingMessage.textContent = 'Thinking';
+        chatWindow.appendChild(thinkingMessage);
+
+        // Animate the dots
+        let dots = 0;
+        const dotInterval = setInterval(() => {
+          dots = (dots + 1) % 4; // cycles through 0..3
+          thinkingMessage.textContent = 'Thinking' + '.'.repeat(dots);
+        }, 500);
+
         chatInput.value = '';
 
         try {
@@ -430,6 +443,10 @@
             throw new Error('Network response was not ok');
           }
           const data = await response.json();
+
+          // Clear the "Thinking..." interval and remove it
+          clearInterval(dotInterval);
+          chatWindow.removeChild(thinkingMessage);
 
           // AI message
           const aiMessage = document.createElement('p');
@@ -445,6 +462,11 @@
           });
         } catch (error) {
           console.error('Error:', error);
+
+          // Clear the "Thinking..." interval and remove it
+          clearInterval(dotInterval);
+          chatWindow.removeChild(thinkingMessage);
+
           const errorMessage = document.createElement('p');
           errorMessage.classList.add('ai-message');
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
