@@ -26,7 +26,7 @@
       padding: 20px;
     }
     .left-panel h1 {
-      margin: 0 0 20px 0; /* remove default top margin, keep bottom spacing */
+      margin: 0 0 20px 0;
     }
     .upload-area {
       border: 2px dashed #4a4a4a;
@@ -114,21 +114,29 @@
       align-items: center;
     }
     .chat-header h2 {
-      margin: 7px; /* remove default margin */
+      margin: 7px;
     }
     .chat-window {
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
       font-size: 22px;
-      position: relative; /* so we can position messages if needed */
+      position: relative;
     }
-    /* Example style for a simple "AI message" block */
+    .user-message {
+      text-align: right;
+      color: #ffffff;
+      margin: 0 0 10px 0;
+      padding: 10px;
+      background-color: #3f3f3f;
+      border-radius: 4px;
+    }
     .ai-message {
       color: #bbbbbb;
-      margin: 0;
-      padding-bottom: 10px;
-      font-size: 20px;
+      margin: 0 0 10px 0;
+      padding: 10px;
+      background-color: #2f2f2f;
+      border-radius: 4px;
     }
     .chat-input {
       border-top: 2px solid #4a4a4a;
@@ -217,7 +225,7 @@
         <h2>AI Support Chat</h2>
       </div>
       <div class="chat-window" id="chat-window">
-        <!-- Here’s the generic AI greeting message -->
+        <!-- Generic AI greeting message -->
         <p class="ai-message">
           Hello! I’m your tickets AI. Ask me anything about your tickets, and I’ll help you out.
         </p>
@@ -238,7 +246,7 @@
   </div>
 
   <script>
-    // Fetch tickets from the API and update the UI.
+    // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
       try {
         const response = await fetch('/tickets');
@@ -287,6 +295,7 @@
       }
     }
 
+    // Function to upload a file and post it as a ticket.
     async function uploadFile(file) {
       try {
         const text = await file.text();
@@ -318,14 +327,12 @@
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
 
-      // Click handler
+      // Click handler for file uploads
       uploadArea.addEventListener('click', () => fileInput.click());
 
-      // File input handler
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
       });
 
@@ -343,7 +350,6 @@
         uploadArea.style.borderColor = '#4a4a4a';
         const files = Array.from(e.dataTransfer.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
       });
 
@@ -357,6 +363,60 @@
           modal.style.display = 'none';
         }
       });
+
+      // --- Chat functionality ---
+      const chatInput = document.querySelector('.chat-input input');
+      const sendButton = document.querySelector('.chat-input button');
+      const chatWindow = document.getElementById('chat-window');
+
+      async function sendChatMessage() {
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        // Append user's message to chat window
+        const userMessage = document.createElement('p');
+        userMessage.classList.add('user-message');
+        userMessage.textContent = question;
+        chatWindow.appendChild(userMessage);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        chatInput.value = '';
+
+        try {
+          const response = await fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question })
+          });
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+
+          // Append AI's answer to chat window
+          const aiMessage = document.createElement('p');
+          aiMessage.classList.add('ai-message');
+          aiMessage.textContent = data.answer;
+          chatWindow.appendChild(aiMessage);
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        } catch (error) {
+          console.error('Error:', error);
+          const errorMessage = document.createElement('p');
+          errorMessage.classList.add('ai-message');
+          errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
+          chatWindow.appendChild(errorMessage);
+        }
+      }
+
+      // Submit on Enter key
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          sendChatMessage();
+        }
+      });
+
+      // Submit on Send button click
+      sendButton.addEventListener('click', sendChatMessage);
     });
   </script>
 </body>
