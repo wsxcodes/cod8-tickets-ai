@@ -7,8 +7,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+# Change static mount for tickets folder to avoid collision
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/tickets", StaticFiles(directory="tickets"), name="tickets")
+app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
 
 templates = Jinja2Templates(directory="templates")
 
@@ -33,7 +35,8 @@ async def list_tickets():
     for file in TICKETS_DIR.glob("*.json"):
         with file.open("r") as f:
             ticket = json.load(f)
-            ticket['path'] = str(file)
+            # Use the new mount path:
+            ticket['path'] = "ticket_files/" + file.name
             tickets.append(ticket)
     return JSONResponse(content=tickets)
 
