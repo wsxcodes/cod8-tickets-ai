@@ -73,12 +73,31 @@ async def api_list_tickets():
 
 @app.post("/ask")
 async def ask_endpoint(payload: Question):
-    # The user’s question is in payload.question
     try:
+        # Load all tickets to provide context to the AI
+        tickets = []
+        for file in TICKETS_DIR.glob("*.json"):
+            with file.open("r") as f:
+                try:
+                    ticket = json.load(f)
+                    tickets.append(ticket)
+                except Exception as e:
+                    # Skip files that can't be parsed
+                    continue
+        # Combine ticket info into one context string
+        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
+        
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert in IT ticketing. Provide clear, concise, "
+                        "and technically accurate responses. Here is the context of all "
+                        "existing tickets:\n" + tickets_context
+                    )
+                },
                 {"role": "user", "content": payload.question}
             ],
             temperature=0.7,
@@ -88,4 +107,3 @@ async def ask_endpoint(payload: Question):
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
