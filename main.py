@@ -32,7 +32,9 @@ async def list_tickets():
     tickets = []
     for file in TICKETS_DIR.glob("*.json"):
         with file.open("r") as f:
-            tickets.append(json.load(f))
+            ticket = json.load(f)
+            ticket['path'] = str(file)
+            tickets.append(ticket)
     return JSONResponse(content=tickets)
 
 @app.get("/api/tickets")
