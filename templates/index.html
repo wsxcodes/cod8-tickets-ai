@@ -27,6 +27,7 @@
     .left-panel h1 {
       margin-bottom: 20px;
     }
+    /* Upload area with plus icon */
     .upload-area {
       border: 2px dashed #4a4a4a;
       border-radius: 4px;
@@ -35,9 +36,19 @@
       margin-bottom: 20px;
       cursor: pointer;
       transition: border-color 0.2s ease;
+      display: flex;              /* new */
+      flex-direction: column;     /* new */
+      align-items: center;        /* new */
+      justify-content: center;    /* new */
     }
     .upload-area small {
       color: #bbbbbb;
+    }
+    /* The plus icon itself */
+    .plus-icon {
+      font-size: 48px;    /* big plus */
+      color: #bbbbbb;
+      margin-bottom: 10px;
     }
     .tickets {
       flex-grow: 1;
@@ -59,7 +70,6 @@
       background-color: #3a3a3a;
       border-radius: 4px;
     }
-    /* Make the entire ticket clickable */
     .ticket-link {
       display: flex;
       align-items: flex-start;
@@ -72,7 +82,6 @@
     .ticket-link:hover {
       background-color: #4a4a4a;
     }
-    /* Colored square icon */
     .ticket-icon {
       width: 24px;
       height: 24px;
@@ -90,7 +99,6 @@
       margin-top: 4px;
       font-weight: bold;
     }
-    /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
       display: flex;
@@ -181,7 +189,9 @@
     <!-- Left side: Tickets -->
     <div class="left-panel">
       <h1>COD8 Support Tickets</h1>
+      <!-- Added the plus icon here -->
       <div class="upload-area" id="upload-area">
+        <div class="plus-icon">+</div>
         Click to upload or drag and drop
         <br><small>JSON files only</small>
       </div>
@@ -253,7 +263,6 @@
             try {
               const res = await fetch(`/${ticketPath}`);
               const ticketData = await res.json();
-              // Pretty print JSON with 2-space indentation
               const prettyJSON = JSON.stringify(ticketData, null, 2);
               document.getElementById('ticket-json').textContent = prettyJSON;
               document.getElementById('ticket-modal').style.display = 'block';
@@ -287,6 +296,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Load tickets on page load
       fetchTickets();
 
       const uploadArea = document.getElementById('upload-area');
@@ -297,13 +307,18 @@
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
 
+      // Click handler
       uploadArea.addEventListener('click', () => fileInput.click());
+
+      // File input handler
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         await Promise.all(files.map(file => uploadFile(file)));
+        // Refresh ticket list after uploads
         fetchTickets();
       });
 
+      // Drag-and-drop handlers
       uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '#fff';
@@ -317,6 +332,7 @@
         uploadArea.style.borderColor = '#4a4a4a';
         const files = Array.from(e.dataTransfer.files);
         await Promise.all(files.map(file => uploadFile(file)));
+        // Refresh ticket list after uploads
         fetchTickets();
       });
 
@@ -326,7 +342,7 @@
       });
       window.addEventListener('click', (e) => {
         const modal = document.getElementById('ticket-modal');
-        if (e.target == modal) {
+        if (e.target === modal) {
           modal.style.display = 'none';
         }
       });
