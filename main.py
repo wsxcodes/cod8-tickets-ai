@@ -32,7 +32,8 @@ async def create_ticket(ticket: dict):
 @app.get("/tickets")
 async def list_tickets():
     tickets = []
-    for file in TICKETS_DIR.glob("*.json"):
+    files = sorted(TICKETS_DIR.glob("*.json"), key=lambda file: file.stat().st_ctime, reverse=True)
+    for file in files:
         with file.open("r") as f:
             ticket = json.load(f)
             # Use the new mount path:
