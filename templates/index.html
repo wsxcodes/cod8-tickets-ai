@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Support Tickets</title>
+  <!-- Include the Marked.js library for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -130,12 +132,10 @@
       background-color: #3f3f3f;
       border-radius: 4px;
       padding: 10px;
-
-      /* Keep text on the right, and push bubble in from the edge */
       text-align: right;
       margin: 0 20px 10px auto; /* top=0, right=20px, bottom=10px, left=auto */
-      max-width: 60%; /* or whatever width you prefer */
-      display: inline-block; /* so it doesn’t expand to full width */
+      max-width: 60%;
+      display: inline-block;
     }
     .ai-message {
       color: #bbbbbb;
@@ -144,7 +144,7 @@
       padding: 8;
       background-color: #2f2f2f;
       border-radius: 4px;
-      white-space: pre-wrap;
+      white-space: pre-wrap; /* preserves line breaks in plain text */
     }
     .chat-input {
       border-top: 2px solid #4a4a4a;
@@ -404,7 +404,8 @@
           // Append AI's answer to chat window
           const aiMessage = document.createElement('p');
           aiMessage.classList.add('ai-message');
-          aiMessage.textContent = data.answer;
+          // Use marked to parse Markdown
+          aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
           chatWindow.scrollTop = chatWindow.scrollHeight;
         } catch (error) {
