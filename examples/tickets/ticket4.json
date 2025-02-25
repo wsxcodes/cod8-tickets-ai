@@ -1,0 +1,8 @@
+{
+    "ticketID": "T-1004",
+    "title": "Old Server Upgrade",
+    "requester": "Rick Danger",
+    "description": "Server’s seen better days—running on steam and prayers. Upgrading could boost performance, possibly bringing in bigger clients.",
+    "status": "Open",
+    "priority": "High"
+}
