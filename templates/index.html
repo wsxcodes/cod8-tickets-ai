@@ -122,7 +122,7 @@
     }
     .chat-window {
       flex-grow: 1;
-      padding: 0; /* Remove the 20px offset */
+      padding: 0;
       overflow-y: auto;
       font-size: 22px;
       position: relative;
@@ -137,20 +137,40 @@
       max-width: 60%;
       display: inline-block;
     }
+
+    /* AI message styling (no pre-wrap; we rely on Markdown <p> etc.) */
     .ai-message {
-      color: #bbbbbb;
-      margin: 0 0 10px 0;
-      margin: 14;
-      padding: 8;
+      margin: 14px;
+      padding: 8px;
       background-color: #2f2f2f;
       border-radius: 4px;
-      white-space: pre-wrap; /* preserves line breaks in plain text */
+      color: #bbbbbb;
     }
-    /* Make <strong> text stand out more */
     .ai-message strong {
       font-weight: bold;
       color: #fff;
     }
+    /* Let Markdown elements breathe */
+    .ai-message p {
+      margin: 0.5em 0;
+    }
+    .ai-message h1,
+    .ai-message h2,
+    .ai-message h3,
+    .ai-message h4,
+    .ai-message h5,
+    .ai-message h6 {
+      margin: 1em 0 0.5em;
+    }
+    .ai-message ul,
+    .ai-message ol {
+      margin-left: 1.5em;
+      margin-bottom: 1em;
+    }
+    .ai-message li {
+      margin: 0.3em 0;
+    }
+
     .chat-input {
       border-top: 2px solid #4a4a4a;
       padding: 10px;
@@ -386,7 +406,7 @@
         const question = chatInput.value.trim();
         if (!question) return;
 
-        // Append user's message to chat window
+        // Append user's message
         const userMessage = document.createElement('p');
         userMessage.classList.add('user-message');
         userMessage.textContent = question;
@@ -411,10 +431,10 @@
           }
           const data = await response.json();
 
-          // Append AI's answer to chat window
+          // AI message
           const aiMessage = document.createElement('p');
           aiMessage.classList.add('ai-message');
-          // Use marked to parse Markdown
+          // Use Marked.js to parse Markdown
           aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
 
