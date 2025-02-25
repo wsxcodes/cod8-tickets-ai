@@ -14,6 +14,7 @@
     }
     .container {
       display: flex;
+      align-items: flex-start; /* Align both panels at the top */
       height: 100vh;
     }
     /* Left panel (ticket upload/list) */
@@ -24,29 +25,30 @@
       flex-direction: column;
       padding: 20px;
     }
+    /* Remove default top margin on h1, keep bottom spacing */
     .left-panel h1 {
-      margin-bottom: 20px;
+      margin: 0 0 20px 0;
     }
     /* Upload area with plus icon */
     .upload-area {
       border: 2px dashed #4a4a4a;
+      background-color: #2c2c2c; /* Slightly lighter color */
       border-radius: 4px;
       padding: 20px;
       text-align: center;
       margin-bottom: 20px;
       cursor: pointer;
       transition: border-color 0.2s ease;
-      display: flex;              /* new */
-      flex-direction: column;     /* new */
-      align-items: center;        /* new */
-      justify-content: center;    /* new */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .upload-area small {
       color: #bbbbbb;
     }
-    /* The plus icon itself */
     .plus-icon {
-      font-size: 48px;    /* big plus */
+      font-size: 48px;
       color: #bbbbbb;
       margin-bottom: 10px;
     }
@@ -99,22 +101,23 @@
       margin-top: 4px;
       font-weight: bold;
     }
+    /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       background-color: #1e1e1e;
     }
+    /* More prominent divider */
     .chat-header {
       padding: 20px;
-      border-bottom: 1px solid #4a4a4a;
+      border-bottom: 2px solid #4a4a4a;
       display: flex;
       align-items: center;
     }
+    /* Remove default margin on the chat header h2 */
     .chat-header h2 {
       margin: 0;
-      font-size: 1.2rem;
-      display: inline-block;
     }
     .chat-window {
       flex-grow: 1;
@@ -123,7 +126,7 @@
       font-size: 22px;
     }
     .chat-input {
-      border-top: 1px solid #4a4a4a;
+      border-top: 2px solid #4a4a4a;
       padding: 10px;
       display: flex;
     }
@@ -189,7 +192,6 @@
     <!-- Left side: Tickets -->
     <div class="left-panel">
       <h1>COD8 Support Tickets</h1>
-      <!-- Added the plus icon here -->
       <div class="upload-area" id="upload-area">
         <div class="plus-icon">+</div>
         Click to upload or drag and drop
@@ -209,7 +211,7 @@
         <h2>AI Support Chat</h2>
       </div>
       <div class="chat-window">
-        <!-- Chat messages would go here -->
+        <!-- Chat messages go here -->
       </div>
       <div class="chat-input">
         <input type="text" placeholder="Ask about your tickets...">
@@ -227,7 +229,7 @@
   </div>
 
   <script>
-    // Fetch tickets from the API and update the UI.
+    // Fetch tickets from the API and update the UI
     async function fetchTickets() {
       try {
         const response = await fetch('/tickets');
@@ -314,7 +316,6 @@
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
       });
 
@@ -332,7 +333,6 @@
         uploadArea.style.borderColor = '#4a4a4a';
         const files = Array.from(e.dataTransfer.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
       });
 
