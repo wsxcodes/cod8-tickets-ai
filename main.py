@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/tickets", StaticFiles(directory="tickets"), name="tickets")
 
 templates = Jinja2Templates(directory="templates")
 
@@ -26,13 +27,13 @@ async def create_ticket(ticket: dict):
         json.dump(ticket, f)
     return {"message": "Ticket saved", "file": str(file_path)}
 
-@app.get("/tickets", response_class=HTMLResponse)
-async def list_tickets(request: Request):
+@app.get("/tickets")
+async def list_tickets():
     tickets = []
     for file in TICKETS_DIR.glob("*.json"):
         with file.open("r") as f:
             tickets.append(json.load(f))
-    return templates.TemplateResponse("tickets.html", {"request": request, "tickets": tickets})
+    return JSONResponse(content=tickets)
 
 @app.get("/api/tickets")
 async def api_list_tickets():
