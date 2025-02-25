@@ -23,12 +23,15 @@ TICKETS_DIR.mkdir(exist_ok=True)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+
 class Question(BaseModel):
     question: str
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.post("/tickets/")
 async def create_ticket(ticket: dict):
@@ -40,6 +43,7 @@ async def create_ticket(ticket: dict):
     with file_path.open("w") as f:
         json.dump(ticket, f)
     return {"message": "Ticket saved", "file": str(file_path)}
+
 
 @app.get("/tickets")
 async def list_tickets():
@@ -56,6 +60,7 @@ async def list_tickets():
             ticket['path'] = "ticket_files/" + file.name
             tickets.append(ticket)
     return JSONResponse(content=tickets)
+
 
 @app.get("/api/tickets")
 async def api_list_tickets():
