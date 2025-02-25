@@ -182,7 +182,9 @@
                 <div class="ticket-id-requester">
                   ${ticket.ticketID} - ${ticket.requester}
                 </div>
-                <div class="ticket-title">${ticket.title}</div>
+                <div class="ticket-title">
+                  <a href="/${ticket.path}" target="_blank">${ticket.title}</a>
+                </div>
               </div>
             </div>
           `;
