@@ -69,7 +69,6 @@ async def api_list_tickets():
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
 
-
 @app.post("/ask")
 async def ask_endpoint(payload: Question):
     try:
@@ -80,8 +79,7 @@ async def ask_endpoint(payload: Question):
                 try:
                     ticket = json.load(f)
                     tickets.append(ticket)
-                except Exception as e:  # NoQA
-                    # Skip files that can't be parsed
+                except Exception:  # Skip files that can't be parsed
                     continue
         # Combine ticket info into one context string
         tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
@@ -93,14 +91,20 @@ async def ask_endpoint(payload: Question):
                     "role": "system",
                     "content": (
                         "You are an expert in IT ticketing. Provide clear, concise, "
-                        "and technically accurate responses. Here is the context of all "
-                        "existing tickets:\n" + tickets_context
+                        "and technically accurate responses."
                     )
                 },
-                {"role": "user", "content": payload.question}
+                {
+                    "role": "user",
+                    "content": (
+                        payload.question
+                        + "\nHere is the context of all existing tickets:\n"
+                        + tickets_context
+                    )
+                },
             ],
             temperature=0.7,
-            max_tokens=150
+            max_tokens=150,
         )
         answer = response.choices[0].message.content
         return {"answer": answer}
