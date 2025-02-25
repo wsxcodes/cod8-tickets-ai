@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support Tickets</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    /* Left panel (ticket upload/list) */
+    .left-panel {
+      width: 300px;
+      background-color: #242424;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .left-panel h1 {
+      margin-bottom: 20px;
+    }
+    .upload-area {
+      border: 2px dashed #4a4a4a;
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    .upload-area small {
+      color: #bbbbbb;
+    }
+    .tickets {
+      flex-grow: 1;
+      background-color: #2f2f2f;
+      border-radius: 4px;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .tickets h2 {
+      margin-top: 0;
+    }
+    .tickets ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .tickets li {
+      margin: 5px 0;
+      background-color: #3a3a3a;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    /* Right panel (AI chat) */
+    .right-panel {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #1e1e1e;
+    }
+    .chat-header {
+      padding: 20px;
+      border-bottom: 1px solid #4a4a4a;
+    }
+    .chat-window {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .chat-input {
+      border-top: 1px solid #4a4a4a;
+      padding: 10px;
+      display: flex;
+    }
+    .chat-input input {
+      flex-grow: 1;
+      background-color: #2f2f2f;
+      border: none;
+      color: #ffffff;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .chat-input button {
+      margin-left: 10px;
+      background-color: #3f3f3f;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left side: Tickets -->
+    <div class="left-panel">
+      <h1>Support Tickets</h1>
+      <div class="upload-area" id="upload-area">
+        Click to upload or drag and drop
+        <br><small>JSON files only</small>
+      </div>
+      <div class="tickets">
+        <h2>Tickets</h2>
+        <ul>
+          {% for ticket in tickets %}
+            <li>{{ ticket }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right side: AI Chat -->
+    <div class="right-panel">
+      <div class="chat-header">
+        <h2>AI Support Chat</h2>
+      </div>
+      <div class="chat-window">
+        <!-- Chat messages would go here -->
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Ask about your tickets...">
+        <button>Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const uploadArea = document.getElementById('upload-area');
+
+      // Hidden file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.json';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+
+      // Click handler
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      // File input handler
+      fileInput.addEventListener('change', async (e) => {
+        if (e.target.files.length > 0) {
+          await uploadFile(e.target.files[0]);
+        }
+      });
+
+      // Drag-and-drop
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#fff';
+      });
+      uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#4a4a4a';
+      });
+      uploadArea.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#4a4a4a';
+        if (e.dataTransfer.files.length > 0) {
+          await uploadFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      async function uploadFile(file) {
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          const response = await fetch('/tickets/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) throw new Error('Failed to upload ticket');
+          alert('Ticket uploaded successfully');
+          window.location.reload();
+        } catch (error) {
+          alert('Error uploading ticket: ' + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
