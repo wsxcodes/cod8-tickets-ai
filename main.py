@@ -3,7 +3,9 @@ import os
 import time
 from pathlib import Path
 
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +22,6 @@ templates = Jinja2Templates(directory="templates")
 TICKETS_DIR = Path("tickets")
 TICKETS_DIR.mkdir(exist_ok=True)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 class Question(BaseModel):
@@ -74,13 +75,11 @@ async def api_list_tickets():
 async def ask_endpoint(payload: Question):
     # The user’s question is in payload.question
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": payload.question}],
-            temperature=0.7,
-            max_tokens=150
-        )
-        answer = response["choices"][0]["message"]["content"]
+        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": payload.question}],
+        temperature=0.7,
+        max_tokens=150)
+        answer = response.choices[0].message.content
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
