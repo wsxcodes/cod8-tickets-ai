@@ -59,7 +59,6 @@
       padding: 5px;
       border-radius: 3px;
     }
-
     /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
@@ -72,11 +71,6 @@
       border-bottom: 1px solid #4a4a4a;
       display: flex;
       align-items: center;
-    }
-    .chat-header img {
-      height: 24px;
-      margin-right: 8px;
-      vertical-align: middle;
     }
     .chat-header h2 {
       margin: 0;
@@ -123,14 +117,11 @@
       </div>
       <div class="tickets">
         <h2>Tickets</h2>
-        <ul>
-          {% for ticket in tickets %}
-            <li>{{ ticket }}</li>
-          {% endfor %}
+        <ul id="ticket-list">
+          <!-- Tickets will be loaded here -->
         </ul>
       </div>
     </div>
-
     <!-- Right side: AI Chat -->
     <div class="right-panel">
       <div class="chat-header">
@@ -147,14 +138,53 @@
   </div>
 
   <script>
+    // Fetch tickets from the API and update the UI.
+    async function fetchTickets() {
+      try {
+        const response = await fetch('/tickets');
+        const tickets = await response.json();
+        const ticketList = document.getElementById('ticket-list');
+        ticketList.innerHTML = '';
+        tickets.forEach(ticket => {
+          const li = document.createElement('li');
+          li.textContent = JSON.stringify(ticket);
+          ticketList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+      }
+    }
+
+    async function uploadFile(file) {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const response = await fetch('/tickets/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to upload ticket');
+        console.log(`Uploaded ${file.name}`);
+      } catch (error) {
+        console.error(`Error uploading ticket ${file.name}:`, error);
+        alert(`Error uploading ${file.name}: ${error.message}`);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // Load tickets on page load
+      fetchTickets();
+
       const uploadArea = document.getElementById('upload-area');
 
       // Hidden file input (allows multiple files)
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = '.json';
-      fileInput.multiple = true; // allow multiple file selection
+      fileInput.multiple = true;
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
 
@@ -163,14 +193,13 @@
 
       // File input handler
       fileInput.addEventListener('change', async (e) => {
-        if (e.target.files.length > 0) {
-          for (const file of e.target.files) {
-            await uploadFile(file);
-          }
-        }
+        const files = Array.from(e.target.files);
+        await Promise.all(files.map(file => uploadFile(file)));
+        // Refresh ticket list after uploads
+        fetchTickets();
       });
 
-      // Drag-and-drop
+      // Drag-and-drop handlers
       uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '#fff';
@@ -182,31 +211,11 @@
       uploadArea.addEventListener('drop', async (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '#4a4a4a';
-        if (e.dataTransfer.files.length > 0) {
-          for (const file of e.dataTransfer.files) {
-            await uploadFile(file);
-          }
-        }
+        const files = Array.from(e.dataTransfer.files);
+        await Promise.all(files.map(file => uploadFile(file)));
+        // Refresh ticket list after uploads
+        fetchTickets();
       });
-
-      async function uploadFile(file) {
-        try {
-          const text = await file.text();
-          const data = JSON.parse(text);
-          const response = await fetch('/tickets/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-          });
-          if (!response.ok) throw new Error('Failed to upload ticket');
-          console.log(`Uploaded ${file.name}`);
-        } catch (error) {
-          console.error(`Error uploading ticket ${file.name}: `, error);
-          alert(`Error uploading ${file.name}: ${error.message}`);
-        }
-      }
     });
   </script>
 </body>
