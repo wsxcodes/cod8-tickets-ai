@@ -1,10 +1,14 @@
 import json
+import os
 import time
 from pathlib import Path
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
+
+import openai
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -16,6 +20,11 @@ templates = Jinja2Templates(directory="templates")
 
 TICKETS_DIR = Path("tickets")
 TICKETS_DIR.mkdir(exist_ok=True)
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+class Question(BaseModel):
+    question: str
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
@@ -55,3 +64,19 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
+
+
+@app.post("/ask")
+async def ask_endpoint(payload: Question):
+    # The user’s question is in payload.question
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": payload.question}],
+            temperature=0.7,
+            max_tokens=150
+        )
+        answer = response["choices"][0]["message"]["content"]
+        return {"answer": answer}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
