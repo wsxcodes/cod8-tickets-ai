@@ -10,7 +10,7 @@
       background-color: #1e1e1e;
       color: #ffffff;
       font-family: sans-serif;
-      font-size: 18px; /* Base font size */
+      font-size: 18px;
     }
     .container {
       display: flex;
@@ -18,7 +18,7 @@
     }
     /* Left panel (ticket upload/list) */
     .left-panel {
-      width: 385px; /* Increased width */
+      width: 385px;
       background-color: #242424;
       display: flex;
       flex-direction: column;
@@ -59,7 +59,7 @@
       background-color: #3a3a3a;
       border-radius: 4px;
     }
-    /* Make the entire ticket a link */
+    /* Make the entire ticket clickable */
     .ticket-link {
       display: flex;
       align-items: flex-start;
@@ -67,10 +67,10 @@
       color: #ffffff;
       padding: 10px;
       border-radius: 4px;
+      cursor: pointer;
     }
     .ticket-link:hover {
       background-color: #4a4a4a;
-      text-decoration: none;
     }
     /* Colored square icon */
     .ticket-icon {
@@ -112,7 +112,7 @@
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
-      font-size: 22px; /* Increased font size for chat window */
+      font-size: 22px;
     }
     .chat-input {
       border-top: 1px solid #4a4a4a;
@@ -126,7 +126,7 @@
       color: #ffffff;
       padding: 10px;
       border-radius: 4px;
-      font-size: 20px; /* Increased font size for chat input */
+      font-size: 20px;
     }
     .chat-input button {
       margin-left: 10px;
@@ -136,7 +136,43 @@
       padding: 10px 20px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 20px; /* Increased font size for send button */
+      font-size: 20px;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #ffffff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      color: #000;
+      border-radius: 4px;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-button:hover {
+      color: #000;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
   </style>
 </head>
@@ -172,6 +208,14 @@
     </div>
   </div>
 
+  <!-- Modal for displaying ticket content -->
+  <div id="ticket-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-modal" class="close-button">&times;</span>
+      <pre id="ticket-json"></pre>
+    </div>
+  </div>
+
   <script>
     // Fetch tickets from the API and update the UI.
     async function fetchTickets() {
@@ -181,13 +225,12 @@
         const ticketList = document.getElementById('ticket-list');
         ticketList.innerHTML = '';
         tickets.forEach(ticket => {
-          // Set color based on priority:
           const priority = ticket.priority.toLowerCase();
           const color = priority === 'high' ? '#dc3545'
                       : (priority === 'medium' ? '#ffc107' : '#28a745');
           const li = document.createElement('li');
           li.innerHTML = `
-            <a href="/${ticket.path}" target="_blank" class="ticket-link">
+            <a href="#" class="ticket-link" data-path="${ticket.path}">
               <div class="ticket-icon" style="background-color: ${color};"></div>
               <div class="ticket-details">
                 <div class="ticket-id-requester">
@@ -200,6 +243,24 @@
             </a>
           `;
           ticketList.appendChild(li);
+        });
+
+        // Attach click event listeners to ticket links
+        document.querySelectorAll('.ticket-link').forEach(link => {
+          link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const ticketPath = link.getAttribute('data-path');
+            try {
+              const res = await fetch(`/${ticketPath}`);
+              const ticketData = await res.json();
+              // Pretty print JSON with 2-space indentation
+              const prettyJSON = JSON.stringify(ticketData, null, 2);
+              document.getElementById('ticket-json').textContent = prettyJSON;
+              document.getElementById('ticket-modal').style.display = 'block';
+            } catch (err) {
+              console.error('Error fetching ticket details:', err);
+            }
+          });
         });
       } catch (error) {
         console.error('Error fetching tickets:', error);
@@ -226,12 +287,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Load tickets on page load
       fetchTickets();
 
       const uploadArea = document.getElementById('upload-area');
-
-      // Hidden file input (allows multiple files)
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = '.json';
@@ -239,18 +297,13 @@
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
 
-      // Click handler
       uploadArea.addEventListener('click', () => fileInput.click());
-
-      // File input handler
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
       });
 
-      // Drag-and-drop handlers
       uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = '#fff';
@@ -264,8 +317,18 @@
         uploadArea.style.borderColor = '#4a4a4a';
         const files = Array.from(e.dataTransfer.files);
         await Promise.all(files.map(file => uploadFile(file)));
-        // Refresh ticket list after uploads
         fetchTickets();
+      });
+
+      // Modal close handlers
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('ticket-modal').style.display = 'none';
+      });
+      window.addEventListener('click', (e) => {
+        const modal = document.getElementById('ticket-modal');
+        if (e.target == modal) {
+          modal.style.display = 'none';
+        }
       });
     });
   </script>
