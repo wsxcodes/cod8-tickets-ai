@@ -23,8 +23,11 @@ async def read_index(request: Request):
 
 @app.post("/tickets/")
 async def create_ticket(ticket: dict):
-    timestamp = int(time.time() * 1000)
-    file_path = TICKETS_DIR / f"ticket_{timestamp}.json"
+    file_name = ticket.get("filename")
+    if not file_name:
+        # Generate a unique filename using the current time in nanoseconds
+        file_name = f"ticket_{time.time_ns()}.json"
+    file_path = TICKETS_DIR / file_name
     with file_path.open("w") as f:
         json.dump(ticket, f)
     return {"message": "Ticket saved", "file": str(file_path)}
@@ -32,11 +35,15 @@ async def create_ticket(ticket: dict):
 @app.get("/tickets")
 async def list_tickets():
     tickets = []
-    files = sorted(TICKETS_DIR.glob("*.json"), key=lambda file: file.stat().st_ctime, reverse=True)
+    # Sort files by their modification time (most recent first)
+    files = sorted(
+        TICKETS_DIR.glob("*.json"),
+        key=lambda file: file.stat().st_mtime,
+        reverse=True
+    )
     for file in files:
         with file.open("r") as f:
             ticket = json.load(f)
-            # Use the new mount path:
             ticket['path'] = "ticket_files/" + file.name
             tickets.append(ticket)
     return JSONResponse(content=tickets)
