@@ -135,14 +135,14 @@
       font-size: 22px;
       position: relative;
     }
-    /* User messages appear in semi-light green with dark text */
+    /* User messages appear in semi-light green with dark text, offset 5px more to the right */
     .user-message {
       background-color: #90EE90;
       color: #000;
       border-radius: 4px;
       padding: 10px;
       text-align: right;
-      margin: 0 20px 10px auto;
+      margin: 0 25px 10px auto;  /* increased right margin by 5px */
       max-width: 60%;
       display: inline-block;
     }
@@ -420,17 +420,19 @@
         userMessage.textContent = question;
         chatWindow.appendChild(userMessage);
 
-        // Scroll to bottom
-        chatWindow.scrollTo({
-          top: chatWindow.scrollHeight,
-          behavior: 'smooth'
-        });
+        // Scroll to bottom after appending user's message
+        chatWindow.scrollTop = chatWindow.scrollHeight;
 
         // Create a "Thinking..." placeholder
         const thinkingMessage = document.createElement('p');
         thinkingMessage.classList.add('ai-message');
         thinkingMessage.textContent = 'Thinking';
         chatWindow.appendChild(thinkingMessage);
+
+        // Force scroll to bottom so "Thinking..." is visible.
+        setTimeout(() => {
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        }, 50);
 
         // Animate the dots
         let dots = 0;
@@ -463,11 +465,8 @@
           aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
 
-          // Scroll to bottom again after AI response
-          chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: 'smooth'
-          });
+          // Scroll to bottom after AI response
+          chatWindow.scrollTop = chatWindow.scrollHeight;
         } catch (error) {
           console.error('Error:', error);
 
@@ -480,11 +479,8 @@
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
           chatWindow.appendChild(errorMessage);
 
-          // Scroll to bottom
-          chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: 'smooth'
-          });
+          // Scroll to bottom after error message
+          chatWindow.scrollTop = chatWindow.scrollHeight;
         }
       }
 
