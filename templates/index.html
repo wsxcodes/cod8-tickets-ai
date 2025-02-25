@@ -60,6 +60,7 @@
     }
     .tickets h2 {
       margin-top: 0;
+      margin: 20px;
     }
     .tickets ul {
       list-style-type: none;
@@ -119,7 +120,7 @@
     }
     .chat-window {
       flex-grow: 1;
-      padding: 20px;
+      padding: 0; /* Remove the 20px offset */
       overflow-y: auto;
       font-size: 22px;
       position: relative;
@@ -135,7 +136,8 @@
     .ai-message {
       color: #bbbbbb;
       margin: 0 0 10px 0;
-      padding: 10px;
+      margin: 14;
+      padding: 8;
       background-color: #2f2f2f;
       border-radius: 4px;
       white-space: pre-wrap;
@@ -229,7 +231,7 @@
       <div class="chat-window" id="chat-window">
         <!-- Generic AI greeting message -->
         <p class="ai-message">
-          Hello! I’m your tickets AI. Ask me anything about your tickets, and I’ll help you out.
+   Hello! I’m your tickets AI. Ask me anything about your tickets, and I’ll help you out.
         </p>
       </div>
       <div class="chat-input">
