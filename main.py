@@ -1,24 +1,21 @@
 import json
+import logging
 import os
 import time
 from pathlib import Path
 
+import semantic_kernel as sk
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-import logging
-import asyncio
-
-import semantic_kernel as sk
+from semantic_kernel.connectors.ai.function_choice_behavior import \
+    FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import (
-    AzureChatPromptExecutionSettings,
-)
-from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
+    AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.utils.logging import setup_logging
 
 # Initialize the kernel
@@ -51,12 +48,15 @@ templates = Jinja2Templates(directory="templates")
 TICKETS_DIR = Path("tickets")
 TICKETS_DIR.mkdir(exist_ok=True)
 
+
 class Question(BaseModel):
     question: str
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.post("/tickets/")
 async def create_ticket(ticket: dict):
@@ -67,6 +67,7 @@ async def create_ticket(ticket: dict):
     with file_path.open("w") as f:
         json.dump(ticket, f)
     return {"message": "Ticket saved", "file": str(file_path)}
+
 
 @app.get("/tickets")
 async def list_tickets():
@@ -83,6 +84,7 @@ async def list_tickets():
             tickets.append(ticket)
     return JSONResponse(content=tickets)
 
+
 @app.get("/api/tickets")
 async def api_list_tickets():
     tickets = []
@@ -90,6 +92,7 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
+
 
 @app.post("/ask")
 async def ask_endpoint(payload: Question):
@@ -104,28 +107,28 @@ async def ask_endpoint(payload: Question):
                 except Exception:
                     continue
         tickets_context = "\n".join(json.dumps(ticket) for ticket in tickets)
-        
+
         # Build the combined user message with context
         user_message = f"{payload.question}\nContext of tickets:\n{tickets_context}"
-        
+
         # Create a ChatHistory and add the user's message
         history = ChatHistory()
         history.add_user_message(user_message)
-        
+
         # Set up prompt execution settings (enable automatic function choice if needed)
         execution_settings = AzureChatPromptExecutionSettings()
         execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
-        
+
         # Get chat response asynchronously using the AzureChatCompletion service
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
             settings=execution_settings,
             kernel=kernel,
         )
-        
+
         # Add the assistant's response to the history (optional for future context)
         history.add_message(result)
-        
+
         return {"answer": str(result)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
