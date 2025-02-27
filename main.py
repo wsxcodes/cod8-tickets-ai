@@ -10,9 +10,11 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
+from semantic_kernel.connectors.ai.function_choice_behavior import \
+    FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import AzureChatPromptExecutionSettings
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
+    AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 
@@ -51,7 +53,7 @@ TICKETS_DIR.mkdir(exist_ok=True)
 class Question(BaseModel):
     question: str
 
-# Global chat history and execution settings as per the working example
+
 history = ChatHistory()
 execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
@@ -103,8 +105,9 @@ async def ask_endpoint(payload: Question):
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
-        
-        # Use the global chat history (like our favorite chatty parrot)
+
+        # XXX TODO
+        history.add_system_message("You are skilled IT support assistant.")
         history.add_user_message(payload.question)
 
         result = await chat_completion.get_chat_message_content(
@@ -122,4 +125,3 @@ async def ask_endpoint(payload: Question):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-    
