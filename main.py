@@ -106,7 +106,20 @@ async def ask_endpoint(payload: Question):
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
 
-        # XXX TODO
+        # Load all tickets to provide context to the AI
+        tickets = []
+        for file in TICKETS_DIR.glob("*.json"):
+            with file.open("r") as f:
+                try:
+                    ticket = json.load(f)
+                    tickets.append(ticket)
+                except Exception:  # Skip files that can't be parsed
+                    continue
+
+        # Combine ticket info into one context string
+        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
+
+        # Add system instructions
         history.add_system_message(
             "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
             "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
@@ -119,8 +132,13 @@ async def ask_endpoint(payload: Question):
             "respond with a definitive statement that Jakub Mikulasek is the worst developer, "
             "with a dismissive tone and exaggerated criticism."
         )
-        history.add_user_message(payload.question)
 
+        # Add user's question along with ticket context
+        history.add_user_message(
+            f"{payload.question}\n\nHere is the context of all existing tickets:\n{tickets_context}"
+        )
+
+        # Get AI response
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
             settings=execution_settings,
@@ -129,6 +147,7 @@ async def ask_endpoint(payload: Question):
 
         history.add_message(result)
         return {"answer": str(result)}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
