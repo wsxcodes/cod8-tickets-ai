@@ -24,12 +24,12 @@
     }
     .container {
       display: flex;
-      align-items: flex-start; /* Align both panels at the top */
+      align-items: flex-start;
       height: 100vh;
     }
     /* Left panel (ticket upload/list) */
     .left-panel {
-      flex: 0 0 385px; /* Don’t shrink */
+      flex: 0 0 385px;
       width: 385px;
       background-color: #242424;
       display: flex;
@@ -111,7 +111,6 @@
       margin-top: 4px;
       font-weight: bold;
     }
-
     /* Right panel (AI chat) */
     .right-panel {
       flex-grow: 1;
@@ -135,18 +134,16 @@
       font-size: 22px;
       position: relative;
     }
-    /* User messages appear in semi-light green with dark text, offset 5px more to the right */
     .user-message {
       background-color: #90EE90;
       color: #000;
       border-radius: 4px;
       padding: 16px;
       text-align: right;
-      margin: 0 25px 10px auto;  /* increased right margin by 5px */
+      margin: 0 25px 10px auto;
       max-width: 60%;
       display: inline-block;
     }
-    /* AI message styling (no pre-wrap; we rely on Markdown <p> etc.) */
     .ai-message {
       margin: 14px;
       padding: 8px;
@@ -158,7 +155,6 @@
       font-weight: bold;
       color: #fff;
     }
-    /* Let Markdown elements breathe */
     .ai-message p {
       margin: 0.5em 0;
     }
@@ -178,7 +174,6 @@
     .ai-message li {
       margin: 0.3em 0;
     }
-
     .chat-input {
       border-top: 2px solid #4a4a4a;
       padding: 10px;
@@ -203,7 +198,6 @@
       cursor: pointer;
       font-size: 20px;
     }
-
     /* Modal styles */
     .modal {
       display: none;
@@ -259,7 +253,6 @@
         </ul>
       </div>
     </div>
-
     <!-- Right side: AI Chat -->
     <div class="right-panel">
       <div class="chat-header">
@@ -277,7 +270,6 @@
       </div>
     </div>
   </div>
-
   <!-- Modal for displaying ticket content -->
   <div id="ticket-modal" class="modal">
     <div class="modal-content">
@@ -285,7 +277,6 @@
       <pre id="ticket-json"></pre>
     </div>
   </div>
-
   <script>
     // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
@@ -314,7 +305,6 @@
           `;
           ticketList.appendChild(li);
         });
-
         // Attach click event listeners to ticket links
         document.querySelectorAll('.ticket-link').forEach(link => {
           link.addEventListener('click', async (e) => {
@@ -335,7 +325,6 @@
         console.error('Error fetching tickets:', error);
       }
     }
-
     // Function to upload a file and post it as a ticket.
     async function uploadFile(file) {
       try {
@@ -355,11 +344,9 @@
         alert(`Error uploading ${file.name}: ${error.message}`);
       }
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       // Load tickets on page load
       fetchTickets();
-
       const uploadArea = document.getElementById('upload-area');
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
@@ -367,16 +354,13 @@
       fileInput.multiple = true;
       fileInput.style.display = 'none';
       document.body.appendChild(fileInput);
-
       // Click handler for file uploads
       uploadArea.addEventListener('click', () => fileInput.click());
-
       fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         await Promise.all(files.map(file => uploadFile(file)));
         fetchTickets();
       });
-
       // Drag-and-drop handlers
       uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -393,7 +377,6 @@
         await Promise.all(files.map(file => uploadFile(file)));
         fetchTickets();
       });
-
       // Modal close handlers
       document.getElementById('close-modal').addEventListener('click', () => {
         document.getElementById('ticket-modal').style.display = 'none';
@@ -404,45 +387,36 @@
           modal.style.display = 'none';
         }
       });
-
       // --- Chat functionality ---
       const chatInput = document.querySelector('.chat-input input');
       const sendButton = document.querySelector('.chat-input button');
       const chatWindow = document.getElementById('chat-window');
-
       async function sendChatMessage() {
         const question = chatInput.value.trim();
         if (!question) return;
-
         // Append user's message
         const userMessage = document.createElement('p');
         userMessage.classList.add('user-message');
         userMessage.textContent = question;
         chatWindow.appendChild(userMessage);
-
         // Scroll to bottom after appending user's message
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
+        chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         // Create a "Thinking..." placeholder
         const thinkingMessage = document.createElement('p');
         thinkingMessage.classList.add('ai-message');
         thinkingMessage.textContent = 'Thinking';
         chatWindow.appendChild(thinkingMessage);
-
         // Force scroll to bottom so "Thinking..." is visible.
         setTimeout(() => {
-          chatWindow.scrollTop = chatWindow.scrollHeight;
+          chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         }, 50);
-
         // Animate the dots
         let dots = 0;
         const dotInterval = setInterval(() => {
-          dots = (dots + 1) % 4; // cycles through 0..3
+          dots = (dots + 1) % 4;
           thinkingMessage.textContent = 'Thinking' + '.'.repeat(dots);
         }, 500);
-
         chatInput.value = '';
-
         try {
           const response = await fetch('/ask', {
             method: 'POST',
@@ -453,44 +427,37 @@
             throw new Error('Network response was not ok');
           }
           const data = await response.json();
-
           // Clear the "Thinking..." interval and remove it
           clearInterval(dotInterval);
           chatWindow.removeChild(thinkingMessage);
-
           // AI message
           const aiMessage = document.createElement('p');
           aiMessage.classList.add('ai-message');
-          // Use Marked.js to parse Markdown
           aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
-
-          // Scroll to bottom after AI response
-          chatWindow.scrollTop = chatWindow.scrollHeight;
+          // Scroll to bottom after AI response using setTimeout
+          setTimeout(() => {
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+          }, 50);
         } catch (error) {
           console.error('Error:', error);
-
-          // Clear the "Thinking..." interval and remove it
           clearInterval(dotInterval);
           chatWindow.removeChild(thinkingMessage);
-
           const errorMessage = document.createElement('p');
           errorMessage.classList.add('ai-message');
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
           chatWindow.appendChild(errorMessage);
-
-          // Scroll to bottom after error message
-          chatWindow.scrollTop = chatWindow.scrollHeight;
+          setTimeout(() => {
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+          }, 50);
         }
       }
-
       // Submit on Enter key
       chatInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           sendChatMessage();
         }
       });
-
       // Submit on Send button click
       sendButton.addEventListener('click', sendChatMessage);
     });
