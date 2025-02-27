@@ -10,28 +10,27 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from semantic_kernel.connectors.ai.function_choice_behavior import \
-    FunctionChoiceBehavior
+from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
-    AzureChatPromptExecutionSettings
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 
 # Initialize the kernel
 kernel = sk.Kernel()
 
-# Get Azure OpenAI configuration from environment variables or use defaults
-deployment_name = os.getenv("AZURE_DEPLOYMENT_NAME", "your_models_deployment_name")
-api_key = os.getenv("OPENAI_API_KEY", "your_api_key")
-base_url = os.getenv("AZURE_BASE_URL", "your_base_url")
+# Use environment variables from the working example
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
+DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
 
-# Create the Azure Chat Completion service and add it to the kernel
+# Create the Azure Chat Completion service using the working example’s parameters
 chat_completion = AzureChatCompletion(
-    deployment_name=deployment_name,
-    api_key=api_key,
-    base_url=base_url,
+    deployment_name=DEPLOYMENT_NAME,
+    endpoint=OPENAI_ENDPOINT,
+    api_key=OPENAI_API_KEY,
 )
+
 kernel.add_service(chat_completion)
 
 # Set up logging for the kernel
@@ -51,6 +50,11 @@ TICKETS_DIR.mkdir(exist_ok=True)
 
 class Question(BaseModel):
     question: str
+
+# Global chat history and execution settings as per the working example
+history = ChatHistory()
+execution_settings = AzureChatPromptExecutionSettings()
+execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -97,42 +101,25 @@ async def api_list_tickets():
 @app.post("/ask")
 async def ask_endpoint(payload: Question):
     try:
-        # Load all tickets to provide context
-        tickets = []
-        for file in TICKETS_DIR.glob("*.json"):
-            with file.open("r") as f:
-                try:
-                    ticket = json.load(f)
-                    tickets.append(ticket)
-                except Exception:
-                    continue
-        tickets_context = "\n".join(json.dumps(ticket) for ticket in tickets)
+        if not payload.question.strip():
+            raise HTTPException(status_code=400, detail="Empty query was provided")
+        
+        # Use the global chat history (like our favorite chatty parrot)
+        history.add_user_message(payload.question)
 
-        # Build the combined user message with context
-        user_message = f"{payload.question}\nContext of tickets:\n{tickets_context}"
-
-        # Create a ChatHistory and add the user's message
-        history = ChatHistory()
-        history.add_user_message(user_message)
-
-        # Set up prompt execution settings (enable automatic function choice if needed)
-        execution_settings = AzureChatPromptExecutionSettings()
-        execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
-
-        # Get chat response asynchronously using the AzureChatCompletion service
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
             settings=execution_settings,
             kernel=kernel,
         )
 
-        # Add the assistant's response to the history (optional for future context)
         history.add_message(result)
-
         return {"answer": str(result)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    
