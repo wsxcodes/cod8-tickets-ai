@@ -21,7 +21,7 @@ services:
       --worker-class uvicorn.workers.UvicornWorker
       --workers ${NEURAL_API_WORKERS:-1}
       --bind 0.0.0.0:8880
-      frontend.main:app
+      main:app
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h neural-api-postgres -U postgres"]
       interval: 10s
