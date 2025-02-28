@@ -1,0 +1,33 @@
+services:
+  cod8-tickets-ai:
+    build: .
+    container_name: cod8-tickets-ai
+    ports:
+      - 8880:8880
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    environment:
+      - TZ=Europe/Bratislava
+    volumes:
+      - ./data:/code/data
+      - ./cert/letsencrypt:/etc/letsencrypt
+    command: >
+      gunicorn
+      --worker-class uvicorn.workers.UvicornWorker
+      --workers ${NEURAL_API_WORKERS:-1}
+      --bind 0.0.0.0:8880
+      frontend.main:app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h neural-api-postgres -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data_volume: {}
+  cert_volume: {}
