@@ -71,6 +71,10 @@ RUN pip install --upgrade pip \
 COPY . /code
 WORKDIR /code
 
+RUN ls -la
+
+RUN if [ -f .env ]; then cat .env; fi
+
 # Project initialization:
 RUN rm -rf /code/.venv && poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi --no-root
 
@@ -78,4 +82,3 @@ RUN rm -rf /code/.venv && poetry config virtualenvs.create false && poetry insta
 EXPOSE 80 443
 
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80"]
-

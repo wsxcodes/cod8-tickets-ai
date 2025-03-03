@@ -22,9 +22,13 @@ from semantic_kernel.utils.logging import setup_logging
 kernel = sk.Kernel()
 
 # Use environment variables from the working example
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
-DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
+# DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
+
+DEPLOYMENT_NAME = "gpt-4o-mini"
+OPENAI_ENDPOINT = "https://ticketsopenai.openai.azure.com/"
+OPENAI_API_KEY = "AkasEGwBXnJUie9yF1DyyyjfgZTiW9P6gr1J0ExjjPDQkG6WZSr4JQQJ99BBACYeBjFXJ3w3AAABACOGzWxV"
 
 # Create the Azure Chat Completion service using the working example’s parameters
 chat_completion = AzureChatCompletion(
