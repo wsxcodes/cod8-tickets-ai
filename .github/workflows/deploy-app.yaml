@@ -20,5 +20,5 @@ jobs:
         with:
           app-name: 'ticketai-chat'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_b51935be372d40f89178d3eef690d21c }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DF61573B574148A08334610436A80CF8 }}
           package: app.zip
