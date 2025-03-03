@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://mcr.microsoft.com/
-        username: ${{ secrets.AzureAppService_ContainerUsername_e8ad10305df7481d9ac8d5fb58b2a002 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_b9e8728d97764704a8d969f3082a9306 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_6ba064a1f4fe42fa87ef0d5767dc4cb2 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_23106b0b78b24804962283cbba368d78 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_e8ad10305df7481d9ac8d5fb58b2a002 }}/appsvc/staticsite:${{ github.sha }}
+        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_6ba064a1f4fe42fa87ef0d5767dc4cb2 }}/appsvc/staticsite:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'ticketai-chat'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_3b0aef45957144818cc85db536a41be1 }}
-        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_e8ad10305df7481d9ac8d5fb58b2a002 }}/appsvc/staticsite:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b51935be372d40f89178d3eef690d21c }}
+        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_6ba064a1f4fe42fa87ef0d5767dc4cb2 }}/appsvc/staticsite:${{ github.sha }}'
