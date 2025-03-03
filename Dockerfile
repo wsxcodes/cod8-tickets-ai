@@ -76,3 +76,6 @@ RUN rm -rf /code/.venv && poetry config virtualenvs.create false && poetry insta
 
 # Expose ports
 EXPOSE 80 443
+
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80"]
+
