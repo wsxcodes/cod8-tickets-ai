@@ -1,0 +1,24 @@
+name: Deploy Directly via Dockerfile to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Archive project files
+        run: zip -r app.zip .
+
+      - name: Deploy to Azure Web App
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: 'ticketai-chat'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_b51935be372d40f89178d3eef690d21c }}
+          package: app.zip
