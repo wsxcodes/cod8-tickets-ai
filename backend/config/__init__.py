@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 CODE_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.dirname(CODE_DIR)
@@ -25,3 +26,6 @@ DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME", "MISSING-DEPLOYMENT_NAME")
 OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT", "MISSING-OPENAI_ENDPOINT")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "MISSING-OPENAI_API_KEY")
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "MISSING-OPENAI_EMBEDDING_MODEL")
+
+TICKETS_DIR = Path("tickets")
+TICKETS_DIR.mkdir(exist_ok=True)
