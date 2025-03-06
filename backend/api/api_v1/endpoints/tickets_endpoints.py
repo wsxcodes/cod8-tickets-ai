@@ -2,7 +2,7 @@ import json
 import logging
 import time
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from backend import config
@@ -48,3 +48,12 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
+
+
+@router.delete("/tickets/{file_name}")
+async def delete_ticket(file_name: str):
+    file_path = TICKETS_DIR / file_name
+    if file_path.exists() and file_path.is_file():
+        file_path.unlink()
+        return {"message": "Ticket deleted", "file": file_name}
+    raise HTTPException(status_code=404, detail="Ticket not found")
