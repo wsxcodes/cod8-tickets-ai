@@ -2,7 +2,7 @@ import json
 import logging
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from backend import config
