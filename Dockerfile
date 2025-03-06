@@ -79,6 +79,9 @@ RUN if [ -f .env ]; then cat .env; fi
 # Project initialization:
 RUN rm -rf /code/.venv && poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi --no-root
 
+# Temp Environment Workaround
+COPY .env.devel .env
+
 # Expose ports
 EXPOSE 80 443
 
