@@ -2,7 +2,6 @@ import logging
 
 from fastapi import APIRouter
 
-from backend.decorators import log_endpoint
 from workers.process_tickets_worker import (process_ticket_csv, upload_ticket,
                                             vectorize_ticket)
 
@@ -12,7 +11,6 @@ router = APIRouter()
 
 
 @router.get("/process_tickets")
-@log_endpoint
 def process_tickets(csv_filename: str = "data/Bank_Design_Equipment_FY2024.csv"):
     tickets_df = process_ticket_csv(csv_filename)
     for _, ticket in tickets_df.iterrows():
