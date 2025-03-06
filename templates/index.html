@@ -281,7 +281,7 @@
     // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
       try {
-        const response = await fetch('/tickets');
+        const response = await fetch('/api/v1/tickets');
         const tickets = await response.json();
         const ticketList = document.getElementById('ticket-list');
         ticketList.innerHTML = '';
@@ -330,7 +330,7 @@
       try {
         const text = await file.text();
         const data = JSON.parse(text);
-        const response = await fetch('/tickets/', {
+        const response = await fetch('/api/v1/tickets/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -418,7 +418,7 @@
         }, 500);
         chatInput.value = '';
         try {
-          const response = await fetch('/ask', {
+          const response = await fetch('/api/v1/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question })
