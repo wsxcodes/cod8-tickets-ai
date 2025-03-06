@@ -25,7 +25,7 @@ azure_client = AzureSearchClient(
     vector_field="vector"
 )
 
-openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
+openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
 
 def process_ticket_csv(filename):
