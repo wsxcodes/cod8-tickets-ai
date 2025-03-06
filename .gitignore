@@ -148,3 +148,6 @@ __pycache__
 # Dev stuff
 .DS_Store
 xxx.py
+
+# Env
+.env
