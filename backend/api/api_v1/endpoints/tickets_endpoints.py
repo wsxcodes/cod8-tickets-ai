@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from backend import config
+from backend.decorators import log_endpoint
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/tickets/")
+@log_endpoint
 async def create_ticket(ticket: dict):
     file_name = ticket.get("filename")
     if not file_name:
@@ -26,6 +28,7 @@ async def create_ticket(ticket: dict):
 
 
 @router.get("/tickets")
+@log_endpoint
 async def list_tickets():
     tickets = []
     files = sorted(
@@ -42,6 +45,7 @@ async def list_tickets():
 
 
 @router.get("/api/tickets")
+@log_endpoint
 async def api_list_tickets():
     tickets = []
     for file in TICKETS_DIR.glob("*.json"):
