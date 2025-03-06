@@ -1,17 +1,12 @@
-import json
 import logging
 import os
-import time
-from pathlib import Path
 
 import semantic_kernel as sk
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 from semantic_kernel.connectors.ai.function_choice_behavior import \
     FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
@@ -20,7 +15,6 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import RedirectResponse
 
 from backend import config
 from backend.api.api_v1.routers import api_router
@@ -77,10 +71,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
 
 templates = Jinja2Templates(directory="templates")
-
-TICKETS_DIR = Path("tickets")
-TICKETS_DIR.mkdir(exist_ok=True)
-
 
 history = ChatHistory()
 execution_settings = AzureChatPromptExecutionSettings()
