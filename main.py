@@ -17,6 +17,16 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
     AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import HTMLResponse
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import RedirectResponse
+
+from backend import config
+from backend.api.api_v1.routers import api_router
+
+API_V1_STR = "/api/v1"
 
 # Initialize the kernel
 kernel = sk.Kernel()
@@ -43,7 +53,30 @@ kernel.add_service(chat_completion)
 setup_logging()
 logging.getLogger("kernel").setLevel(logging.DEBUG)
 
-app = FastAPI()
+app = FastAPI(
+    title="COD8 Neural API",
+    openapi_url=f"{API_V1_STR}/openapi.json",
+    docs_url=None,
+    redoc_url=None
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Add the Session Middleware
+app.add_middleware(
+    SessionMiddleware, secret_key=config.SECRET_KEY, max_age=3600  # 1 hour
+)
+
+# Include routers
+app.include_router(api_router, prefix=API_V1_STR)
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
