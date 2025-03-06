@@ -1,17 +1,8 @@
 import json
 import logging
-import os
-import time
-from pathlib import Path
-from typing import Dict
 
 import semantic_kernel as sk
-from fastapi import APIRouter, FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from semantic_kernel.connectors.ai.function_choice_behavior import \
     FunctionChoiceBehavior
@@ -19,21 +10,36 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
     AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.utils.logging import setup_logging
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import RedirectResponse
 
-from backend.decorators import log_endpoint
+from backend import config
 
 logger = logging.getLogger(__name__)
+router = APIRouter()
 
 
 class Question(BaseModel):
     question: str
 
 
+kernel = sk.Kernel()
+history = ChatHistory()
+execution_settings = AzureChatPromptExecutionSettings()
+execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
-@app.post("/ask")
+TICKETS_DIR = config.TICKETS_DIR
+
+
+# Create the Azure Chat Completion service using the working example’s parameters
+chat_completion = AzureChatCompletion(
+    deployment_name=config.DEPLOYMENT_NAME,
+    endpoint=config.OPENAI_ENDPOINT,
+    api_key=config.OPENAI_API_KEY,
+)
+
+kernel.add_service(chat_completion)
+
+
+@router.post("/ask")
 async def ask_endpoint(payload: Question):
     try:
         if not payload.question.strip():
