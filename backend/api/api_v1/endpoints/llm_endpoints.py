@@ -12,6 +12,7 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
+from backend.decorators import log_endpoint
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -40,6 +41,7 @@ kernel.add_service(chat_completion)
 
 
 @router.post("/ask")
+@log_endpoint
 async def ask_endpoint(payload: Question):
     try:
         if not payload.question.strip():
