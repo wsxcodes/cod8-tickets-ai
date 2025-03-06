@@ -1,0 +1,144 @@
+{
+  "name": "ticket_index",
+  "fields": [
+    {
+      "name": "id",
+      "type": "Edm.String",
+      "key": true,
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "ticket_id",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "vector",
+      "type": "Collection(Edm.Single)",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false,
+      "dimensions": 1536,
+      "vectorSearchProfile": "default"
+    },
+    {
+      "name": "Summary",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Status_Description",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Status",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Company_Name",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Date_Entered",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Type",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "ServiceLocation",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Priority",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Source",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "Team",
+      "type": "Edm.String",
+      "retrievable": true,
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    }
+  ],
+  "vectorSearch": {
+    "profiles": [
+      {
+        "name": "default",
+        "algorithm": "hnsw"
+      }
+    ],
+    "algorithms": [
+      {
+        "name": "hnsw",
+        "kind": "hnsw",
+        "hnswParameters": {
+          "m": 4,
+          "efConstruction": 400,
+          "efSearch": 100
+        }
+      }
+    ]
+  }
+}
