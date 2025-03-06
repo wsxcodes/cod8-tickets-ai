@@ -3,9 +3,12 @@ import logging
 import os
 import time
 from pathlib import Path
+from typing import Dict
 
 import semantic_kernel as sk
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -17,22 +20,16 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
     AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import HTMLResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
-
-import logging
-from typing import Dict
-
-from fastapi import APIRouter
 
 from backend.decorators import log_endpoint
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+
+TICKETS_DIR = Path("tickets")
+TICKETS_DIR.mkdir(exist_ok=True)
 
 
 @app.post("/tickets/")
