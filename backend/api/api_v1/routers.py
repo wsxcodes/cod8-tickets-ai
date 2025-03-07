@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from backend.api.api_v1.endpoints import (generic_endpoints, llm_endpoints,
-                                          rag_endpoints, tickets_endpoints,
+                                          search_endpoints, tickets_endpoints,
                                           workers_endpoints)
 
 api_router = APIRouter()
@@ -20,8 +20,8 @@ api_router.include_router(
 
 # RAG Endpoints
 api_router.include_router(
-    rag_endpoints.router,
-    tags=["RAG"]
+    search_endpoints.router,
+    tags=["Search"]
 )
 
 # Tickets Endpoints
