@@ -42,13 +42,19 @@ def hybrid_search(
 @router.get("/fulltext_search")
 def fulltext_search(
     text_query: str = Query(..., description="Text query for full-text search"),
-    top_k: int = Query(10, description="Number of top results to return")
+    top_k: int = Query(10, description="Number of top results to return"),
+    include_vector: bool = Query(False, description="Whether to include vector in the response")
 ):
     """Perform full-text search with the given query."""
     results = search_client.fulltext_search(
         text_query=text_query,
         top_k=top_k
     )
+
+    if not include_vector:
+        for result in results:
+            result.pop("vector", None)
+
     return results
 
 
