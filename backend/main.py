@@ -43,10 +43,10 @@ setup_logging()
 logging.getLogger("kernel").setLevel(logging.DEBUG)
 
 app = FastAPI(
-    title="COD8 Neural API",
+    title="COD8 Neural IT Support Tickets API",
     openapi_url=f"{API_V1_STR}/openapi.json",
     docs_url="/docs",
-    redoc_url=None
+    redoc_url="/redocs"
 )
 
 # Configure CORS
