@@ -1,11 +1,10 @@
-from fastapi import Query
-from typing import Optional, List
-from backend.interfaces.azure_ai_search import AzureSearchClient
-from backend import config
 import logging
-from typing import Dict
+from typing import List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
+
+from backend import config
+from backend.interfaces.azure_ai_search import AzureSearchClient
 
 logger = logging.getLogger(__name__)
 
