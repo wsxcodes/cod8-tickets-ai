@@ -24,57 +24,26 @@ execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
 
-class Question(BaseModel):
-    question: str
-
+class ChatCompletionRequest(BaseModel):
+    system_message: str
+    user_message: str
 
 class TextToVector(BaseModel):
     text: str
 
 
-# Create the Azure Chat Completion service using the working example’s parameters
-chat_completion = AzureChatCompletion(
-    deployment_name=config.DEPLOYMENT_NAME,
-    endpoint=config.OPENAI_ENDPOINT,
-    api_key=config.OPENAI_API_KEY,
-)
-
-kernel.add_service(chat_completion)
-
-TICKETS_DIR = config.TICKETS_DIR
-
-
-@router.post("/ask")
-async def ask_endpoint(payload: Question):
+@router.post("/chat_completion")
+async def chat_completion_endpoint(payload: ChatCompletionRequest):
     try:
-        if not payload.question.strip():
-            raise HTTPException(status_code=400, detail="Empty query was provided")
+        if not payload.system_message.strip() or not payload.user_message.strip():
+            raise HTTPException(status_code=400, detail="Both system and user messages must be provided")
 
-        # Load all tickets to provide context to the AI
-        tickets = []
-        for file in TICKETS_DIR.glob("*.json"):
-            with file.open("r") as f:
-                try:
-                    ticket = json.load(f)
-                    tickets.append(ticket)
-                except Exception:  # Skip files that can't be parsed
-                    continue
+        # Clear previous chat history
+        history.clear()
 
-        # Combine ticket info into one context string
-        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-
-        # Add system instructions
-        history.add_system_message(
-            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
-            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
-            "Do not include any HTML tags—just use Markdown or plain text formatting. "
-            "Every question I ask relates to the context provided. "
-        )
-
-        # Add user's question along with ticket context
-        history.add_user_message(
-            f"{payload.question}\n\nHere is the context of all existing tickets:\n{tickets_context}"
-        )
+        # Add the provided system and user messages to the chat history
+        history.add_system_message(payload.system_message)
+        history.add_user_message(payload.user_message)
 
         # Get AI response
         result = await chat_completion.get_chat_message_content(
