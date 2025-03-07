@@ -220,11 +220,11 @@ class AzureSearchClient:
     def fulltext_search(self, text_query: str, top_k: int = 5):
         """
         Perform a full-text search using keyword search only.
- 
+
         Parameters:
         - text_query: Keyword search query.
         - top_k: Number of top results to return.
- 
+
         Returns:
         - List of matching documents (with their fields) sorted by relevance.
         """
@@ -238,18 +238,18 @@ class AzureSearchClient:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise RuntimeError(f"Full-text search request failed: {response.text}") from e
- 
+
         results = response.json()
         return results.get("value", [])
- 
+
     def vector_search(self, embedding: list, top_k: int = 5):
         """
         Perform a vector-based search using similarity matching.
- 
+
         Parameters:
         - embedding: Vector embedding for similarity search.
         - top_k: Number of top results to return.
- 
+
         Returns:
         - List of matching documents (with their fields) sorted by similarity.
         """
@@ -269,6 +269,6 @@ class AzureSearchClient:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise RuntimeError(f"Vector search request failed: {response.text}") from e
- 
+
         results = response.json()
         return results.get("value", [])
