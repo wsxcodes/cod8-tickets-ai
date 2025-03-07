@@ -2,6 +2,7 @@ import logging
 from typing import Dict
 
 from fastapi import APIRouter
+
 from backend.decorators import log_endpoint
 
 logger = logging.getLogger(__name__)
