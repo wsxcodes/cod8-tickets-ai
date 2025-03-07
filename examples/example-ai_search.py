@@ -1,10 +1,10 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend import config
-from backend.interfaces.azure_ai_search import AzureSearchClient
+from backend import config  # NoQA
+from backend.interfaces.azure_ai_search import AzureSearchClient  # NoQA
 
 search_client = AzureSearchClient(
     service_url=config.AZURE_AI_SEARCH_SERVICE,
@@ -12,7 +12,6 @@ search_client = AzureSearchClient(
     api_key=config.AZURE_AI_SEARCH_API_KEY,
     vector_field="vector"
 )
-
 
 # Upload document with vector
 # embedding = [0.5] * 1536  # A dummy 1536-dimensional vector
