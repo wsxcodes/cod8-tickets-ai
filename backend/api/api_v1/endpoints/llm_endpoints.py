@@ -12,21 +12,24 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-class Question(BaseModel):
-    question: str
-
 
 kernel = sk.Kernel()
 history = ChatHistory()
 execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
+openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
 TICKETS_DIR = config.TICKETS_DIR
+
+class Question(BaseModel):
+    question: str
+
+class TextToVector(BaseModel):
+    text: str
 
 
 # Create the Azure Chat Completion service using the working example’s parameters
@@ -83,3 +86,23 @@ async def ask_endpoint(payload: Question):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/vectorize")
+async def vectorize_endpoint(payload: TextToVector):
+    """
+    Endpoint to vectorize input text using OpenAI embeddings.
+    """
+    if not payload.text.strip():
+        raise HTTPException(status_code=400, detail="Empty text provided")
+
+    try:
+        response = openai_client.embeddings.create(
+            input=payload.text,
+            model=config.OPENAI_EMBEDDING_MODEL
+        )
+        embedding_vector = response.data[0].embedding
+        return {"vector": embedding_vector}
+    except Exception as e:
+        logger.error(f"Error vectorizing text: {e}")
+        raise HTTPException(status_code=500, detail="Error processing vectorization")
