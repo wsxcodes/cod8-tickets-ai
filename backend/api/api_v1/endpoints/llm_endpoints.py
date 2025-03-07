@@ -3,6 +3,7 @@ import logging
 
 import semantic_kernel as sk
 from fastapi import APIRouter, HTTPException
+from openai import OpenAI
 from pydantic import BaseModel
 from semantic_kernel.connectors.ai.function_choice_behavior import \
     FunctionChoiceBehavior
@@ -12,7 +13,6 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
-from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -23,10 +23,10 @@ execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
-TICKETS_DIR = config.TICKETS_DIR
 
 class Question(BaseModel):
     question: str
+
 
 class TextToVector(BaseModel):
     text: str
@@ -40,6 +40,8 @@ chat_completion = AzureChatCompletion(
 )
 
 kernel.add_service(chat_completion)
+
+TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/ask")
