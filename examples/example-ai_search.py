@@ -1,9 +1,14 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from backend import config
 from backend.interfaces.azure_ai_search import AzureSearchClient
 
 search_client = AzureSearchClient(
     service_url=config.AZURE_AI_SEARCH_SERVICE,
-    index_name="test",
+    index_name="ticket_index",
     api_key=config.AZURE_AI_SEARCH_API_KEY,
     vector_field="vector"
 )
@@ -20,6 +25,6 @@ search_client = AzureSearchClient(
 
 # Hybrid search: keyword + vector
 query_embedding = [0.1] * 1536
-results = search_client.hybrid_search(text_query="title", embedding=query_embedding, top_k=10)
+results = search_client.hybrid_search(text_query="wireless network", embedding=query_embedding, top_k=10)
 for doc in results:
     print(doc["id"], doc.get("title"), doc.get("@search.score"))
