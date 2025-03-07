@@ -151,3 +151,6 @@ xxx.py
 
 # Env
 .env
+
+# Data
+tickets/*
