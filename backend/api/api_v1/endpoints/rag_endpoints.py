@@ -23,7 +23,8 @@ search_client = AzureSearchClient(
 def hybrid_search(
     text_query: Optional[str] = Query(None, description="Text query for hybrid search"),
     embedding: Optional[List[float]] = Query(None, description="Embedding vector for hybrid search"),
-    top_k: int = Query(10, description="Number of top results to return")
+    top_k: int = Query(10, description="Number of top results to return"),
+    include_vector: bool = Query(False, description="Whether to include vector in the response")
 ):
     """Perform hybrid search with optional text query and embedding."""
     results = search_client.hybrid_search(
@@ -31,4 +32,9 @@ def hybrid_search(
         embedding=embedding if embedding else None,
         top_k=top_k
     )
+
+    if not include_vector:
+        for result in results:
+            result.pop("vector", None)
+
     return results
