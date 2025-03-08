@@ -23,7 +23,7 @@ def hybrid_search(
     text_query: Optional[str] = Query(None, description="Text query for hybrid search"),
     embedding: Optional[List[float]] = Query(None, description="Embedding vector for hybrid search"),
     top_k: int = Query(10, description="Number of top results to return"),
-    include_vector: bool = Query(False, description="Whether to include vector in the response")
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
 ):
     """Perform hybrid search with optional text query and embedding."""
     results = search_client.hybrid_search(
@@ -42,7 +42,7 @@ def hybrid_search(
 def fulltext_search(
     text_query: str = Query(..., description="Text query for full-text search"),
     top_k: int = Query(10, description="Number of top results to return"),
-    include_vector: bool = Query(False, description="Whether to include vector in the response")
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
 ):
     """Perform full-text search with the given query."""
     results = search_client.fulltext_search(
@@ -61,7 +61,7 @@ def fulltext_search(
 def vector_search(
     embedding: List[float] = Query(..., description="Embedding vector for vector search"),
     top_k: int = Query(10, description="Number of top results to return"),
-    include_vector: bool = Query(False, description="Whether to include vector in the response")
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
 ):
     """Perform vector-based search with the given embedding."""
     results = search_client.vector_search(
@@ -87,8 +87,12 @@ def get_document(doc_id: str = Query(..., description="ID of the document to ret
 def list_documents(
     batch_size: int = Query(1000, description="Number of documents to retrieve per batch"),
     limit: int = Query(10, description="Total number of documents to retrieve"),
-    offset: int = Query(0, description="Number of documents to skip")
+    offset: int = Query(0, description="Number of documents to skip"),
+    include_vector: bool = Query(False, description="Whether to include vector in the response")
 ):
     """List documents in the index with optional limit and offset."""
     results = search_client.list_documents(batch_size=batch_size, limit=limit, offset=offset)
+    if not include_vector:
+        for result in results:
+            result.pop("vector", None)
     return results
