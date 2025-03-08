@@ -87,3 +87,52 @@ async def support_enquiry(payload: Question):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/load_tickets_to_memory")
+async def load_tickets():
+    try:
+        tickets = []
+        for file in TICKETS_DIR.glob("*.json"):
+            with file.open("r") as f:
+                try:
+                    ticket = json.load(f)
+                    tickets.append(ticket)
+                except Exception:  # Skip files that can't be parsed
+                    continue
+
+        # Combine ticket info into one context string
+        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
+
+        # Store ticket data in history
+        history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
+
+        return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/clear_memory")
+async def clear_memory():
+    try:
+        # Clear existing history
+        history.clear()
+        return {"message": "Memory cleared successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ask")
+async def setup_support_assistant():
+    try:
+        # Add system instructions
+        history.add_system_message(
+            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
+            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
+            "Do not include any HTML tags—just use Markdown or plain text formatting. "
+            "Every question I ask relates to the context provided."
+        )
+        return {"message": "Support assistant setup successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
