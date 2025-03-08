@@ -70,11 +70,6 @@ async def support_enquiry(payload: Question):
             "Every question I ask relates to the context provided. "
         )
 
-        # Add user's question along with ticket context
-        history.add_user_message(
-            f"{payload.question}\n\nHere is the context of all existing tickets:\n{tickets_context}"
-        )
-
         # Get AI response
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
