@@ -38,6 +38,7 @@ def hybrid_search(
 
     return results
 
+
 @router.get("/fulltext_search")
 def fulltext_search(
     text_query: str = Query(..., description="Text query for full-text search"),
