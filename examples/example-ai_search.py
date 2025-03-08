@@ -23,7 +23,13 @@ search_client = AzureSearchClient(
 # print(all_docs)
 
 # Hybrid search: keyword + vector
-query_embedding = [0.1] * 1536
-results = search_client.hybrid_search(text_query="wireless network", embedding=query_embedding, top_k=10)
+# query_embedding = [0.1] * 1536
+# results = search_client.hybrid_search(text_query="wireless network", embedding=query_embedding, top_k=10)
+# for doc in results:
+#     print(doc["id"], doc.get("title"), doc.get("@search.score"))
+
+
+text_query = "Do you have a different solution, or did someo"
+results = search_client.fulltext_search(text_query=text_query, top_k=10)
 for doc in results:
-    print(doc["id"], doc.get("title"), doc.get("@search.score"))
+    print(doc["id"], doc.get("ticket_id"), doc.get("title"), doc.get("@search.score"))
