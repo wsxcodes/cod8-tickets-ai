@@ -107,6 +107,7 @@ def process_ticket_csv(filename):
         "team": "first",
         "vector": "first"
     })
+    df_grouped.sort_values(by="ticket_id", ascending=False, inplace=True)
     # Recalculate sequential primary id for grouped records.
     df_grouped.insert(0, "id", [str(i) for i in range(1, len(df_grouped) + 1)])
     df_grouped = df_grouped[final_order]
