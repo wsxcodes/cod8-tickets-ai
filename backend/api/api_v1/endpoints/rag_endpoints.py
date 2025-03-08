@@ -88,4 +88,3 @@ async def support_enquiry(payload: Question):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
