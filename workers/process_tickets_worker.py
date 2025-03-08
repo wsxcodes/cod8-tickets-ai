@@ -73,6 +73,9 @@ def process_ticket_csv(filename):
     # Add a placeholder for the vector.
     df_subset["vector"] = None
 
+    # Rename the relevant columns to lowercase.
+    df_subset.rename(columns={"Company_Name": "company_name", "Date_Entered": "date_entered", "Type": "type", "Priority": "priority", "Source": "source", "Team": "team", "Discussion": "discussion"}, inplace=True)
+
     # Rename the "Summary" column to "title".
     df_subset.rename(columns={"Summary": "title"}, inplace=True)
 
@@ -82,13 +85,13 @@ def process_ticket_csv(filename):
         "ticket_id",
         "vector",
         "title",
-        "Company_Name",
-        "Date_Entered",
-        "Discussion",
-        "Type",
-        "Priority",
-        "Source",
-        "Team"
+        "company_name",
+        "date_entered",
+        "discussion",
+        "type",
+        "priority",
+        "source",
+        "team"
     ]
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
     return df_final
