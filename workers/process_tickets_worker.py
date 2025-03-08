@@ -154,5 +154,6 @@ if __name__ == "__main__":
         print(ticket)
         input("Hit enter to continue..")
 
-        ticket = vectorize_ticket(ticket)
-        upload_ticket(ticket)
+        # XXX TODO
+        # ticket = vectorize_ticket(ticket)
+        # upload_ticket(ticket)
