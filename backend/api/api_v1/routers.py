@@ -21,7 +21,7 @@ api_router.include_router(
 # LLM Endpoints
 api_router.include_router(
     llm_endpoints.router,
-    tags=["LLM"]
+    tags=["(OpenAI) LLM"]
 )
 
 # Search Endpoints
