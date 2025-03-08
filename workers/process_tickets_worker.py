@@ -73,12 +73,15 @@ def process_ticket_csv(filename):
     # Add a placeholder for the vector.
     df_subset["vector"] = None
 
+    # Rename the "Summary" column to "title".
+    df_subset.rename(columns={"Summary": "title"}, inplace=True)
+
     # Define final column order as per the updated schema.
     final_order = [
         "id",
         "ticket_id",
         "vector",
-        "Summary",
+        "title",
         "Status_Description",
         "Status",
         "Company_Name",
@@ -96,12 +99,12 @@ def process_ticket_csv(filename):
 
 def vectorize_ticket(ticket: pd.Series) -> pd.Series:
     """
-    Vectorizes the ticket's Summary field using OpenAI embeddings and stores the result in 'vector'.
+    Vectorizes the ticket's title field using OpenAI embeddings and stores the result in 'vector'.
     """
     logger.info(f"Vectorizing ticket {ticket['id']} (actual ticket id: {ticket.get('ticket_id', 'N/A')})")
-    text_to_embed = ticket.get("Summary", "")
+    text_to_embed = ticket.get("title", "")
     if not text_to_embed:
-        logger.info(f"No summary for ticket {ticket['id']}. Skipping vectorization.")
+        logger.info(f"No title for ticket {ticket['id']}. Skipping vectorization.")
         return ticket
 
     try:
