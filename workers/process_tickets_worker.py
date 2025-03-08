@@ -74,7 +74,18 @@ def process_ticket_csv(filename):
     df_subset["vector"] = None
 
     # Rename the relevant columns to lowercase.
-    df_subset.rename(columns={"Company_Name": "company_name", "Date_Entered": "date_entered", "Type": "type", "Priority": "priority", "Source": "source", "Team": "team", "Discussion": "discussion"}, inplace=True)
+    df_subset.rename(
+        columns={
+            "Company_Name": "company_name",
+            "Date_Entered": "date_entered",
+            "Type": "type",
+            "Priority": "priority",
+            "Source": "source",
+            "Team": "team",
+            "Discussion": "discussion"
+        },
+        inplace=True
+        )
 
     # Rename the "Summary" column to "title".
     df_subset.rename(columns={"Summary": "title"}, inplace=True)
@@ -94,7 +105,7 @@ def process_ticket_csv(filename):
         "team"
     ]
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
-    
+
     # Group rows by ticket_id to accumulate discussion from multiple records.
     df_grouped = df_final.groupby("ticket_id", as_index=False).agg({
         "title": "first",
