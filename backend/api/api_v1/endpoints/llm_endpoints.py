@@ -68,7 +68,7 @@ async def chat_completion_endpoint(payload: ChatCompletionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/reset_chat_history")
+@router.delete("/reset_chat_history")
 async def reset_chat_history():
     """
     Endpoint to reset the chat history.
