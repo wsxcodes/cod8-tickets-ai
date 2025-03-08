@@ -1,4 +1,3 @@
-import json
 import logging
 
 import semantic_kernel as sk
@@ -27,6 +26,7 @@ openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 class ChatCompletionRequest(BaseModel):
     system_message: str
     user_message: str
+
 
 class TextToVector(BaseModel):
     text: str
