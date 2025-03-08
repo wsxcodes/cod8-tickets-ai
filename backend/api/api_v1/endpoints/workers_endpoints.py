@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# XXX TODO add customer (create DB schema per customer etc etc..)
 @router.get("/process_historical_tickets")
 def generate_vector_knowledgebase(csv_filename: str = "data/Bank_Design_Equipment_FY2024.csv"):
     """
