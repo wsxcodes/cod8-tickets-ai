@@ -43,6 +43,8 @@ kernel.add_service(chat_completion)
 TICKETS_DIR = config.TICKETS_DIR
 
 
+#XXX TODO we need the kernel (history) to be session based
+
 @router.post("/support_enquiry")
 async def support_enquiry(payload: Question):
     try:
