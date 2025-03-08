@@ -17,7 +17,7 @@ from backend import config
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-#XXX TODO we need the kernel (history) to be session based
+# XXX TODO we need the kernel (history) to be session based
 
 kernel = sk.Kernel()
 history = ChatHistory()
