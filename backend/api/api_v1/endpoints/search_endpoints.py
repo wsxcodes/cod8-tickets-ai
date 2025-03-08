@@ -84,7 +84,11 @@ def get_document(doc_id: str = Query(..., description="ID of the document to ret
 
 
 @router.get("/list_documents")
-def list_documents(batch_size: int = Query(1000, description="Number of documents to retrieve per batch")):
-    """List all documents in the index."""
-    results = search_client.list_documents(batch_size=batch_size)
+def list_documents(
+    batch_size: int = Query(1000, description="Number of documents to retrieve per batch"),
+    limit: int = Query(10, description="Total number of documents to retrieve"),
+    offset: int = Query(0, description="Number of documents to skip")
+):
+    """List documents in the index with optional limit and offset."""
+    results = search_client.list_documents(batch_size=batch_size, limit=limit, offset=offset)
     return results
