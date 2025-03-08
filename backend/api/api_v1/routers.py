@@ -21,7 +21,7 @@ api_router.include_router(
 # Search Endpoints
 api_router.include_router(
     search_endpoints.router,
-    tags=["Search"]
+    tags=["Azure AI Search"]
 )
 
 # RAG Endpoints
