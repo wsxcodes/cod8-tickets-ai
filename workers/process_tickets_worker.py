@@ -87,6 +87,8 @@ def process_ticket_csv(filename):
         "Source",
         "Team"
     ]
+    print(final_order)
+    input("enter to continue")
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
     return df_final
 
@@ -133,7 +135,7 @@ def upload_ticket(ticket: pd.Series):
 
 
 if __name__ == "__main__":
-    filepath = "data/Bank Design & Equipment FY2024.csv"
+    filepath = "data/Bank_Design_Equipment_FY2024.csv"
     tickets_df = process_ticket_csv(filepath)
 
     # Debug: Log unique primary ids and actual ticket ids.
