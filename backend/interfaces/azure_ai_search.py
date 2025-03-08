@@ -224,7 +224,6 @@ class AzureSearchClient:
             return all_docs[:limit]
         return all_docs
 
-
     def fulltext_search(self, text_query: str, top_k: int = 5):
         """
         Perform a full-text search using keyword search only.
