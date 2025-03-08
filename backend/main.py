@@ -76,8 +76,7 @@ history = ChatHistory()
 execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
-
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def read_index(request: Request):
     # XXX TODO setup assistant
     return templates.TemplateResponse("index.html", {"request": request})
