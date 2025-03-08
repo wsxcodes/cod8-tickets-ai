@@ -155,6 +155,7 @@ if __name__ == "__main__":
         logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
 
         print(ticket)
+        logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
         input("Hit enter to continue..")
 
         # XXX TODO
