@@ -179,25 +179,32 @@ class AzureSearchClient:
             raise RuntimeError(f"Lookup failed: {response.text}") from e
         return response.json()
 
-    def list_documents(self, batch_size: int = 1000):
+    def list_documents(self, batch_size: int = 1000, limit: int = None, offset: int = 0):
         """
-        List all documents in the index.
+        List documents in the index with optional limit and offset.
 
         Parameters:
         - batch_size: Number of documents to retrieve per request (max 1000).
+        - limit: Total number of documents to retrieve (optional).
+        - offset: Number of documents to skip (default 0).
 
         Returns:
-        - List of all documents in the index.
+        - List of documents in the index.
         """
-        # Azure Search returns a maximum of 1000 results per query. Use '*' to match all docs.
         all_docs = []
-        skip = 0
+        skip = offset
         while True:
+            top = batch_size
+            if limit is not None:
+                remaining = limit - len(all_docs)
+                if remaining <= 0:
+                    break
+                top = min(batch_size, remaining)
             url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
             body = {
-                "search": "*",    # Wildcard search to get all docs.
-                "select": "*",    # Retrieve all fields (fields must be marked retrievable).
-                "top": batch_size,
+                "search": "*",
+                "select": "*",
+                "top": top,
                 "skip": skip
             }
             response = requests.post(url, headers=self.headers, json=body)
@@ -210,12 +217,13 @@ class AzureSearchClient:
             if not docs:
                 break
             all_docs.extend(docs)
-            # Check for continuation token or manual skip
-            if "@odata.nextLink" in results or len(docs) == batch_size:
-                skip += batch_size
-                continue
-            break
+            if len(docs) < top:
+                break
+            skip += top
+        if limit is not None:
+            return all_docs[:limit]
         return all_docs
+
 
     def fulltext_search(self, text_query: str, top_k: int = 5):
         """
