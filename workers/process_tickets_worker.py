@@ -94,7 +94,23 @@ def process_ticket_csv(filename):
         "team"
     ]
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
-    return df_final
+    
+    # Group rows by ticket_id to accumulate discussion from multiple records.
+    df_grouped = df_final.groupby("ticket_id", as_index=False).agg({
+        "title": "first",
+        "company_name": "first",
+        "date_entered": "first",
+        "discussion": lambda x: " ".join(x.dropna().astype(str)),
+        "type": "first",
+        "priority": "first",
+        "source": "first",
+        "team": "first",
+        "vector": "first"
+    })
+    # Recalculate sequential primary id for grouped records.
+    df_grouped.insert(0, "id", [str(i) for i in range(1, len(df_grouped) + 1)])
+    df_grouped = df_grouped[final_order]
+    return df_grouped
 
 
 def vectorize_ticket(ticket: pd.Series) -> pd.Series:
