@@ -41,7 +41,7 @@ async def list_tickets():
     return JSONResponse(content=tickets)
 
 
-@router.get("/api/tickets")
+@router.get("/tickets")
 async def api_list_tickets():
     tickets = []
     for file in TICKETS_DIR.glob("*.json"):
