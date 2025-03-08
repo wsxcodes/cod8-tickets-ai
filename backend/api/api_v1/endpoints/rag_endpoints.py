@@ -17,6 +17,8 @@ from backend import config
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+#XXX TODO we need the kernel (history) to be session based
+
 kernel = sk.Kernel()
 history = ChatHistory()
 execution_settings = AzureChatPromptExecutionSettings()
@@ -42,8 +44,6 @@ kernel.add_service(chat_completion)
 
 TICKETS_DIR = config.TICKETS_DIR
 
-
-#XXX TODO we need the kernel (history) to be session based
 
 @router.post("/support_enquiry")
 async def support_enquiry(payload: Question):

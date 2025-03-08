@@ -22,6 +22,8 @@ execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
+#XXX TODO we need the kernel (history) to be session based
+
 
 class ChatCompletionRequest(BaseModel):
     system_message: str

@@ -24,6 +24,9 @@ API_V1_STR = "/api/v1"
 # Initialize the kernel
 kernel = sk.Kernel()
 
+#XXX TODO we need the kernel (history) to be session based
+
+
 # Use environment variables from the working example
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
