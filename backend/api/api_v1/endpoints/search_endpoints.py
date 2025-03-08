@@ -77,9 +77,14 @@ def vector_search(
 
 
 @router.get("/get_document")
-def get_document(doc_id: str = Query(..., description="ID of the document to retrieve")):
+def get_document(
+    doc_id: str = Query(..., description="ID of the document to retrieve"),
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
+):
     """Retrieve a document by its ID."""
     result = search_client.get_document(doc_id)
+    if not include_vector:
+        result.pop("vector", None)
     return result
 
 
