@@ -43,6 +43,7 @@ def process_ticket_csv(filename):
         "Status",
         "Company_Name",
         "Date_Entered",
+        "Discussion",
         "Type",
         "ServiceLocation",
         "Priority",
@@ -50,6 +51,7 @@ def process_ticket_csv(filename):
         "Team"
     ]
     df = pd.read_csv(filename, dtype={"TicketNbr": str})
+    df.rename(columns={"Textbox112": "Discussion"}, inplace=True)
 
     missing_columns = set(required_columns) - set(df.columns)
     if missing_columns:
@@ -81,6 +83,7 @@ def process_ticket_csv(filename):
         "Status",
         "Company_Name",
         "Date_Entered",
+        "Discussion",
         "Type",
         "ServiceLocation",
         "Priority",
