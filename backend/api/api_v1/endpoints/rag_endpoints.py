@@ -109,7 +109,7 @@ async def clear_memory():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ask")
+@router.post("/setup_support_assistant")
 async def setup_support_assistant():
     try:
         # Add system instructions
