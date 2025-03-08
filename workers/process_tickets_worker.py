@@ -82,13 +82,10 @@ def process_ticket_csv(filename):
         "ticket_id",
         "vector",
         "title",
-        "Status_Description",
-        "Status",
         "Company_Name",
         "Date_Entered",
         "Discussion",
         "Type",
-        "ServiceLocation",
         "Priority",
         "Source",
         "Team"
