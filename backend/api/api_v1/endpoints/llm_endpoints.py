@@ -32,6 +32,15 @@ class TextToVector(BaseModel):
     text: str
 
 
+chat_completion = AzureChatCompletion(
+    deployment_name=config.DEPLOYMENT_NAME,
+    endpoint=config.OPENAI_ENDPOINT,
+    api_key=config.OPENAI_API_KEY,
+)
+
+kernel.add_service(chat_completion)
+
+
 @router.post("/chat_completion")
 async def chat_completion_endpoint(payload: ChatCompletionRequest):
     try:
