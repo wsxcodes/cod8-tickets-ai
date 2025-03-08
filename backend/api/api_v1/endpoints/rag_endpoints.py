@@ -61,17 +61,6 @@ async def support_enquiry(payload: Question):
                 except Exception:  # Skip files that can't be parsed
                     continue
 
-        # Combine ticket info into one context string
-        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-
-        # Add system instructions
-        history.add_system_message(
-            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
-            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
-            "Do not include any HTML tags—just use Markdown or plain text formatting. "
-            "Every question I ask relates to the context provided. "
-        )
-
         # Get AI response
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
