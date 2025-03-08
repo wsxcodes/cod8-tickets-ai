@@ -12,12 +12,6 @@ api_router.include_router(
     tags=["Generic"]
 )
 
-# System Endpoints
-api_router.include_router(
-    system_endpoints.router,
-    tags=["AI System"]
-)
-
 # LLM Endpoints
 api_router.include_router(
     llm_endpoints.router,
@@ -34,6 +28,12 @@ api_router.include_router(
 api_router.include_router(
     rag_endpoints.router,
     tags=["RAG"]
+)
+
+# System Endpoints
+api_router.include_router(
+    system_endpoints.router,
+    tags=["RAG Settings"]
 )
 
 # Tickets Endpoints
