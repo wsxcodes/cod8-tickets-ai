@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from backend.api.api_v1.endpoints import (generic_endpoints, llm_endpoints,
                                           rag_endpoints, search_endpoints,
-                                          tickets_endpoints, workers_endpoints)
+                                          tickets_endpoints, workers_endpoints, system_endpoints)
 
 api_router = APIRouter()
 
@@ -10,6 +10,12 @@ api_router = APIRouter()
 api_router.include_router(
     generic_endpoints.router,
     tags=["Generic"]
+)
+
+# System Endpoints
+api_router.include_router(
+    system_endpoints.router,
+    tags=["AI System"]
 )
 
 # LLM Endpoints
@@ -21,7 +27,7 @@ api_router.include_router(
 # Search Endpoints
 api_router.include_router(
     search_endpoints.router,
-    tags=["Azure AI Search"]
+    tags=["(Azure) AI Search"]
 )
 
 # RAG Endpoints
