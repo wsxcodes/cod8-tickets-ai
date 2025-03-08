@@ -32,7 +32,7 @@
       "vectorSearchProfile": "default"
     },
     {
-      "name": "Summary",
+      "name": "title",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -41,7 +41,7 @@
       "facetable": false
     },
     {
-      "name": "Status_Description",
+      "name": "company_name",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -50,7 +50,7 @@
       "facetable": false
     },
     {
-      "name": "Status",
+      "name": "date_entered",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -59,7 +59,7 @@
       "facetable": false
     },
     {
-      "name": "Company_Name",
+      "name": "type",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -68,7 +68,7 @@
       "facetable": false
     },
     {
-      "name": "Date_Entered",
+      "name": "priority",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -77,7 +77,7 @@
       "facetable": false
     },
     {
-      "name": "Type",
+      "name": "source",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -86,7 +86,7 @@
       "facetable": false
     },
     {
-      "name": "ServiceLocation",
+      "name": "team",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
@@ -95,25 +95,7 @@
       "facetable": false
     },
     {
-      "name": "Priority",
-      "type": "Edm.String",
-      "retrievable": true,
-      "searchable": true,
-      "filterable": true,
-      "sortable": true,
-      "facetable": false
-    },
-    {
-      "name": "Source",
-      "type": "Edm.String",
-      "retrievable": true,
-      "searchable": true,
-      "filterable": true,
-      "sortable": true,
-      "facetable": false
-    },
-    {
-      "name": "Team",
+      "name": "discussion",
       "type": "Edm.String",
       "retrievable": true,
       "searchable": true,
