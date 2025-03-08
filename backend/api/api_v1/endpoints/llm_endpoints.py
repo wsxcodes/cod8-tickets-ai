@@ -68,6 +68,18 @@ async def chat_completion_endpoint(payload: ChatCompletionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/reset_chat_history")
+async def reset_chat_history():
+    """
+    Endpoint to reset the chat history.
+    """
+    try:
+        history.clear()
+        return {"detail": "Chat history has been reset."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/vectorize")
 async def vectorize_endpoint(payload: TextToVector):
     """
