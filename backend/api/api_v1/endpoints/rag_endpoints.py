@@ -32,7 +32,6 @@ class TextToVector(BaseModel):
     text: str
 
 
-# Create the Azure Chat Completion service using the working example’s parameters
 chat_completion = AzureChatCompletion(
     deployment_name=config.DEPLOYMENT_NAME,
     endpoint=config.OPENAI_ENDPOINT,
