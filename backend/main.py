@@ -79,6 +79,7 @@ execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
+    # XXX TODO setup assistant
     return templates.TemplateResponse("index.html", {"request": request})
 
 
