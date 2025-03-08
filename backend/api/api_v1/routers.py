@@ -15,13 +15,13 @@ api_router.include_router(
 # LLM Endpoints
 api_router.include_router(
     llm_endpoints.router,
-    tags=["(OpenAI) LLM"]
+    tags=["LLM (OpenAI)"]
 )
 
 # Search Endpoints
 api_router.include_router(
     search_endpoints.router,
-    tags=["(Azure) AI Search"]
+    tags=["AI Search (Azure)"]
 )
 
 # RAG Endpoints
@@ -30,16 +30,16 @@ api_router.include_router(
     tags=["RAG"]
 )
 
-# System Endpoints
-api_router.include_router(
-    system_endpoints.router,
-    tags=["RAG Settings"]
-)
-
 # Tickets Endpoints
 api_router.include_router(
     tickets_endpoints.router,
     tags=["Tickets"]
+)
+
+# System Endpoints
+api_router.include_router(
+    system_endpoints.router,
+    tags=["Settings"]
 )
 
 # Workers Endpoints
