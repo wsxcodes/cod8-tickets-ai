@@ -87,8 +87,6 @@ def process_ticket_csv(filename):
         "Source",
         "Team"
     ]
-    print(final_order)
-    input("enter to continue")
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
     return df_final
 
@@ -149,5 +147,9 @@ if __name__ == "__main__":
 
     for idx, ticket in tickets_df.iterrows():
         logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
+
+        print(ticket)
+        input("Hit enter to continue..")
+
         ticket = vectorize_ticket(ticket)
         upload_ticket(ticket)
