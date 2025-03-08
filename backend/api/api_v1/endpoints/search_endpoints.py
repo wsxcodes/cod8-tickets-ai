@@ -38,7 +38,6 @@ def hybrid_search(
 
     return results
 
-
 @router.get("/fulltext_search")
 def fulltext_search(
     text_query: str = Query(..., description="Text query for full-text search"),
@@ -74,4 +73,18 @@ def vector_search(
         for result in results:
             result.pop("vector", None)
 
+    return results
+
+
+@router.get("/get_document")
+def get_document(doc_id: str = Query(..., description="ID of the document to retrieve")):
+    """Retrieve a document by its ID."""
+    result = search_client.get_document(doc_id)
+    return result
+
+
+@router.get("/list_documents")
+def list_documents(batch_size: int = Query(1000, description="Number of documents to retrieve per batch")):
+    """List all documents in the index."""
+    results = search_client.list_documents(batch_size=batch_size)
     return results
