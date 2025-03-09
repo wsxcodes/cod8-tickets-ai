@@ -49,8 +49,10 @@ async def list_tickets():
     return JSONResponse(content=tickets)
 
 
-@router.delete("/tickets/{ticket_name}")
+@router.delete("/tickets/{ticket_name:path}")
 async def delete_ticket(ticket_name: str):
+    if ticket_name.startswith("ticket_files/"):
+        ticket_name = ticket_name[len("ticket_files/"):]
     file_path = TICKETS_DIR / ticket_name
     if not file_path.exists():
         return {"message": "Ticket not found"}
