@@ -184,8 +184,8 @@ if __name__ == "__main__":
 
         print(ticket)
         logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
-        input("Hit enter to continue..")
+        # input("Hit enter to continue..")
 
         # XXX TODO
-        # ticket = vectorize_ticket(ticket)
-        # upload_ticket(ticket)
+        ticket = vectorize_ticket(ticket)
+        upload_ticket(ticket)
