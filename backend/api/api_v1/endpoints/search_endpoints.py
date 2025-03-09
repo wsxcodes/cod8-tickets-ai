@@ -102,8 +102,10 @@ async def list_documents(
 ):
     """List documents in the index with optional limit and offset."""
     results = await search_client.list_documents(batch_size=batch_size, limit=limit, offset=offset)
+
     if not include_vector and "value" in results:
         for result in results["value"]:
             if isinstance(result, dict):
                 result.pop("vector", None)
+
     return results
