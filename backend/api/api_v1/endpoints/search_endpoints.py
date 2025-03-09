@@ -51,9 +51,10 @@ async def fulltext_search(
         top_k=top_k
     )
 
-    if not include_vector:
-        for result in results:
-            result.pop("vector", None)
+    if not include_vector and "value" in results:
+        for result in results["value"]:
+            if isinstance(result, dict):
+                result.pop("vector", None)
 
     return results
 
@@ -70,9 +71,10 @@ async def vector_search(
         top_k=top_k
     )
 
-    if not include_vector:
-        for result in results:
-            result.pop("vector", None)
+    if not include_vector and "value" in results:
+        for result in results["value"]:
+            if isinstance(result, dict):
+                result.pop("vector", None)
 
     return results
 
@@ -84,8 +86,7 @@ async def get_document(
 ):
     """Retrieve a document by its ID."""
     result = await search_client.get_document(doc_id)
-    if not include_vector:
-        result.pop("vector", None)
+
     return result
 
 
@@ -98,7 +99,8 @@ async def list_documents(
 ):
     """List documents in the index with optional limit and offset."""
     results = await search_client.list_documents(batch_size=batch_size, limit=limit, offset=offset)
-    if not include_vector:
-        for result in results:
-            result.pop("vector", None)
+    if not include_vector and "value" in results:
+        for result in results["value"]:
+            if isinstance(result, dict):
+                result.pop("vector", None)
     return results
