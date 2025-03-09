@@ -275,6 +275,7 @@
     <div class="modal-content">
       <span id="close-modal" class="close-button">&times;</span>
       <pre id="ticket-json"></pre>
+      <button id="delete-ticket-btn">Delete Ticket</button>
     </div>
   </div>
   <script>
@@ -309,7 +310,8 @@
         document.querySelectorAll('.ticket-link').forEach(link => {
           link.addEventListener('click', async (e) => {
             e.preventDefault();
-            const ticketPath = link.getAttribute('data-path');
+          const ticketPath = link.getAttribute('data-path');
+          document.getElementById('ticket-modal').dataset.ticketPath = ticketPath;
             try {
               const res = await fetch(`/${ticketPath}`);
               const ticketData = await res.json();
@@ -385,6 +387,21 @@
         const modal = document.getElementById('ticket-modal');
         if (e.target === modal) {
           modal.style.display = 'none';
+        }
+      });
+      document.getElementById('delete-ticket-btn').addEventListener('click', async () => {
+        const modal = document.getElementById('ticket-modal');
+        const ticketPath = modal.dataset.ticketPath;
+        try {
+          const response = await fetch(`/api/v1/tickets/${ticketPath}`, { method: 'DELETE' });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.message || 'Failed to delete ticket');
+          alert('Ticket deleted');
+          modal.style.display = 'none';
+          fetchTickets();
+        } catch (err) {
+          console.error('Error deleting ticket:', err);
+          alert('Error deleting ticket: ' + err.message);
         }
       });
       // --- Chat functionality ---
