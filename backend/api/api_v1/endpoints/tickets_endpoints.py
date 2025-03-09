@@ -22,7 +22,15 @@ async def create_ticket(ticket: dict):
     file_path = TICKETS_DIR / file_name
     with file_path.open("w") as f:
         json.dump(ticket, f)
-    return {"message": "Ticket saved", "file": str(file_path)}
+
+    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+    refresh_response = await load_tickets()
+
+    return {
+        "message": "Ticket saved and memory refreshed",
+        "file": str(file_path),
+        "ticket_count": refresh_response.get("ticket_count")
+    }
 
 
 @router.get("/tickets")
@@ -41,6 +49,23 @@ async def list_tickets():
     return JSONResponse(content=tickets)
 
 
+@router.delete("/tickets/{ticket_name}")
+async def delete_ticket(ticket_name: str):
+    file_path = TICKETS_DIR / ticket_name
+    if not file_path.exists():
+        return {"message": "Ticket not found"}
+    
+    file_path.unlink()
+    
+    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+    refresh_response = await load_tickets()
+    
+    return {
+        "message": "Ticket deleted and memory refreshed",
+        "ticket_count": refresh_response.get("ticket_count")
+    }
+
+
 @router.get("/tickets")
 async def api_list_tickets():
     tickets = []
@@ -48,6 +73,3 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
-
-# XXX TODO delete ticket & update history
-
