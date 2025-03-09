@@ -1,5 +1,7 @@
-import httpx
 from urllib.parse import quote
+
+import httpx
+
 
 class AzureSearchClient:
     """
@@ -108,4 +110,3 @@ class AzureSearchClient:
                 break
             skip += top
         return all_docs[:limit] if limit else all_docs
-    
