@@ -13,6 +13,7 @@ router = APIRouter()
 
 TICKETS_DIR = config.TICKETS_DIR
 
+
 @router.post("/tickets")
 async def create_ticket(ticket: dict):
     file_name = ticket.get("filename")
@@ -55,12 +56,12 @@ async def delete_ticket(ticket_name: str):
     file_path = TICKETS_DIR / ticket_name
     if not file_path.exists():
         return {"message": "Ticket not found"}
-    
+
     file_path.unlink()
-    
+
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
     refresh_response = await load_tickets()
-    
+
     return {
         "message": "Ticket deleted and memory refreshed",
         "ticket_count": refresh_response.get("ticket_count")
