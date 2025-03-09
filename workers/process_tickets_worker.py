@@ -182,10 +182,11 @@ if __name__ == "__main__":
     for idx, ticket in tickets_df.iterrows():
         logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
 
-        print(ticket)
+        logger.info(ticket)
         logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
-        # input("Hit enter to continue..")
 
-        # XXX TODO
+        logger.info(f"Starting vectorization for ticket {ticket['id']}")
         ticket = vectorize_ticket(ticket)
+
+        logger.info(f"Starting upload for ticket {ticket['id']}")
         upload_ticket(ticket)
