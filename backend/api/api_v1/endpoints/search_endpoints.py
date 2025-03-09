@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Query
 import logging
 from typing import List, Optional
+
+from fastapi import APIRouter, Query
 
 from backend import config
 from backend.interfaces.azure_ai_search import AzureSearchClient
