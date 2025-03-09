@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/health")
 @log_endpoint
-def health_check() -> Dict[str, str]:
+async def health_check() -> Dict[str, str]:
     """Health check endpoint."""
     return {
         "status": "OK",
