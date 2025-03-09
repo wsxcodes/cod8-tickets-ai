@@ -13,7 +13,7 @@ router = APIRouter()
 
 TICKETS_DIR = config.TICKETS_DIR
 
-@router.post("/tickets/")
+@router.post("/tickets")
 async def create_ticket(ticket: dict):
     file_name = ticket.get("filename")
     if not file_name:
