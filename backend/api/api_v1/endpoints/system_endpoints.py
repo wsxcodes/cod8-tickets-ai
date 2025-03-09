@@ -1,10 +1,6 @@
 import logging
-from collections import defaultdict
-from typing import Dict
 
-from fastapi import APIRouter, Depends, Query
-
-from backend.decorators import log_endpoint
+from fastapi import APIRouter
 
 # Dictionary to store chat histories per session
 # session_histories = defaultdict(ChatHistory)
@@ -12,9 +8,6 @@ from backend.decorators import log_endpoint
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-import uuid
 
 
 @router.get("/create_it_support_session")
