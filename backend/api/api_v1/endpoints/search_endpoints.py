@@ -87,6 +87,9 @@ async def get_document(
     """Retrieve a document by its ID."""
     result = await search_client.get_document(doc_id)
 
+    if not include_vector and isinstance(result, dict):
+        result.pop("vector", None)
+
     return result
 
 
