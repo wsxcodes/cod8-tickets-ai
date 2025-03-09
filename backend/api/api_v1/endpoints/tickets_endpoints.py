@@ -13,7 +13,7 @@ router = APIRouter()
 
 TICKETS_DIR = config.TICKETS_DIR
 
-
+# XXX TODO update history here
 @router.post("/tickets/")
 async def create_ticket(ticket: dict):
     file_name = ticket.get("filename")
@@ -48,3 +48,6 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
+
+# XXX TODO delete ticket & update history
+
