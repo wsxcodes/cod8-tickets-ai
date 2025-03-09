@@ -1,7 +1,6 @@
 import logging
 
 from fastapi import APIRouter
-from workers.process_tickets_worker import 
 
 logger = logging.getLogger(__name__)
 
