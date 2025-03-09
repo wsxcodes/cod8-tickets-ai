@@ -98,7 +98,7 @@ async def list_documents(
     batch_size: int = Query(1000, description="Number of documents to retrieve per batch"),
     limit: int = Query(10, description="Total number of documents to retrieve"),
     offset: int = Query(0, description="Number of documents to skip"),
-    include_vector: bool = Query(False, description="Whether to include vector in the response")
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
 ):
     """List documents in the index with optional limit and offset."""
     results = await search_client.list_documents(batch_size=batch_size, limit=limit, offset=offset)
