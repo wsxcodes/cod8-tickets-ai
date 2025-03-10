@@ -70,3 +70,12 @@ async def list_session_ids(request: Request):
     session_ids = list(session_histories.keys())
     logger.info("Listing all active session IDs: %s", session_ids)
     return {"session_ids": session_ids}
+
+@router.delete("/clear_all_session_ids", response_model=Dict[str, str])
+@log_endpoint
+async def clear_all_session_ids(request: Request):
+    """Clear all session IDs."""
+    session_histories.clear()
+    request.session["session_id"] = ""  # Also clear the session id in the current session
+    logger.info("Cleared all session ids")
+    return {"message": "All session ids cleared."}
