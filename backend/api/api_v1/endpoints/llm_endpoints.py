@@ -13,12 +13,12 @@ router = APIRouter()
 
 
 @router.post("/chat_completion")
-async def chat_completion_endpoint(payload: ChatCompletionRequest):
+async def chat_completion_endpoint(payload: ChatCompletionRequest, session_id: str):
     try:
         if not payload.user_message.strip():
             raise HTTPException(status_code=400, detail="User message must be provided")
 
-        history = get_history(payload.session_id)
+        history = get_history(session_id)
         if history is None:
             raise HTTPException(status_code=404, detail="Session history not found")
 
