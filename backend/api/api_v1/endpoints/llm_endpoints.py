@@ -2,34 +2,15 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
 from backend import config
 from backend.dependencies import (execution_settings, get_history, kernel,
-                                  openai_client, session_histories)
+                                  openai_client, session_histories, chat_completion)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-class ChatCompletionRequest(BaseModel):
-    session_id: str
-    system_message: Optional[str] = None
-    user_message: str
-
-
-class TextToVector(BaseModel):
-    text: str
-
-
-chat_completion = AzureChatCompletion(
-    deployment_name=config.DEPLOYMENT_NAME,
-    endpoint=config.OPENAI_ENDPOINT,
-    api_key=config.OPENAI_API_KEY,
-)
-
-kernel.add_service(chat_completion)
 
 
 @router.post("/chat_completion")
