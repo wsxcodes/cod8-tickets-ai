@@ -50,7 +50,6 @@ app.add_middleware(
 # Include routers
 app.include_router(api_router, prefix=API_V1_STR)
 
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
 
@@ -61,23 +60,29 @@ templates = Jinja2Templates(directory="templates")
 @log_endpoint
 async def read_index(request: Request):
     logger = logging.getLogger(__name__)
-    logger.info("Handling request for index page")
+    logger.info("Received request for index page from %s", request.client.host)
 
     session_id = request.session.get("session_id")
-    logger.info("Client session_id = %s", session_id)
+    if session_id:
+        logger.info("Existing session_id found: %s", session_id)
+    else:
+        logger.info("No session_id found, generating a new one.")
 
     # If no session ID exists, generate a new one
     if not session_id:
         import uuid
         session_id = str(uuid.uuid4())
         request.session["session_id"] = session_id
-        logger.info(f"Generated new session_id: {session_id}")
+        logger.info("Generated new session_id: %s", session_id)
 
-        from backend.api.api_v1.endpoints.rag_endpoints import \
-            setup_support_assistant
-        await setup_support_assistant(session_id)
+        from backend.api.api_v1.endpoints.rag_endpoints import setup_support_assistant
+        try:
+            await setup_support_assistant(session_id)
+            logger.info("Successfully set up support assistant for session_id: %s", session_id)
+        except Exception as e:
+            logger.error("Failed to set up support assistant: %s", str(e), exc_info=True)
 
-    logger.info(f"Returning index page with session_id: {session_id}")
+    logger.info("Rendering index page with session_id: %s", session_id)
     return templates.TemplateResponse("index.html", {"request": request, "session_id": session_id})
 
 
