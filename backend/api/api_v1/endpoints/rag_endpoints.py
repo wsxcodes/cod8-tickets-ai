@@ -3,11 +3,11 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.contents.chat_history import ChatHistory
+from backend.schemas.llm_schemas import TextToVector
 
 from backend import config
-from backend.dependencies import execution_settings, kernel
+from backend.dependencies import execution_settings, kernel, chat_completion
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -18,16 +18,6 @@ history = ChatHistory()
 class Question(BaseModel):
     question: str
 
-
-class TextToVector(BaseModel):
-    text: str
-
-
-chat_completion = AzureChatCompletion(
-    deployment_name=config.DEPLOYMENT_NAME,
-    endpoint=config.OPENAI_ENDPOINT,
-    api_key=config.OPENAI_API_KEY,
-)
 
 TICKETS_DIR = config.TICKETS_DIR
 
