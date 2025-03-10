@@ -64,6 +64,8 @@ async def read_index(request: Request):
         session_id = str(uuid.uuid4())
         request.session["session_id"] = session_id
 
+        # XXX TODO setup assistant here
+
     return templates.TemplateResponse("index.html", {"request": request, "session_id": session_id})
 
 
