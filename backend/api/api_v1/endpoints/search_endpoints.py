@@ -2,6 +2,7 @@ import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Query
+from backend.decorators import log_endpoint
 
 from backend import config
 from backend.interfaces.azure_ai_search import AzureSearchClient
