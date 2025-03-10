@@ -1,20 +1,13 @@
 import logging
 from typing import Optional
 
-import semantic_kernel as sk
 from fastapi import APIRouter, HTTPException
-from openai import OpenAI
 from pydantic import BaseModel
-from semantic_kernel.connectors.ai.function_choice_behavior import \
-    FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
-    AzureChatPromptExecutionSettings
-from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
-
-from backend.dependencies import kernel, get_history, execution_settings, session_histories, openai_client
+from backend.dependencies import (execution_settings, get_history, kernel,
+                                  openai_client, session_histories)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -72,7 +65,7 @@ async def chat_completion_endpoint(payload: ChatCompletionRequest):
     except Exception as e:
         logger.error(f"Chat completion error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e) or "Internal server error")
-    
+
 
 @router.delete("/reset_chat_history")
 async def reset_chat_history(session_id: str):
