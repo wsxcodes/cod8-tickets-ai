@@ -1,20 +1,13 @@
 import json
 import logging
 
-import semantic_kernel as sk
 from fastapi import APIRouter, HTTPException
-from openai import OpenAI
 from pydantic import BaseModel
-from semantic_kernel.connectors.ai.function_choice_behavior import \
-    FunctionChoiceBehavior
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
-    AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
-from backend.dependencies import (execution_settings, get_history, kernel,
-                                  openai_client, session_histories)
+from backend.dependencies import execution_settings, kernel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
