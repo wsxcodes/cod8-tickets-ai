@@ -18,11 +18,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from backend import config
 from backend.api.api_v1.routers import api_router
+from backend.dependencies import execution_settings, chat_completion
 
 API_V1_STR = "/api/v1"
-
-# Initialize the kernel
-kernel = sk.Kernel()
 
 # XXX TODO we need the kernel (history) to be session based
 
@@ -31,15 +29,6 @@ kernel = sk.Kernel()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
 DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
-
-# Create the Azure Chat Completion service using the working example’s parameters
-chat_completion = AzureChatCompletion(
-    deployment_name=DEPLOYMENT_NAME,
-    endpoint=OPENAI_ENDPOINT,
-    api_key=OPENAI_API_KEY,
-)
-
-kernel.add_service(chat_completion)
 
 # Set up logging for the kernel
 setup_logging()
