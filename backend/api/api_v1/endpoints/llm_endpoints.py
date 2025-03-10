@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import semantic_kernel as sk
 from fastapi import APIRouter, HTTPException
@@ -13,20 +14,15 @@ from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
 
+from backend.dependencies import kernel, get_history, execution_settings
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-kernel = sk.Kernel()
-history = ChatHistory()
-execution_settings = AzureChatPromptExecutionSettings()
-execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
-openai_client = OpenAI(api_key=config.CHATGPT_KEY)
-
-# XXX TODO we need the kernel (history) to be session based
-
 
 class ChatCompletionRequest(BaseModel):
-    system_message: str
+    session_id: str
+    system_message: Optional[str] = None
     user_message: str
 
 
@@ -46,37 +42,46 @@ kernel.add_service(chat_completion)
 @router.post("/chat_completion")
 async def chat_completion_endpoint(payload: ChatCompletionRequest):
     try:
-        if not payload.system_message.strip() or not payload.user_message.strip():
-            raise HTTPException(status_code=400, detail="Both system and user messages must be provided")
+        if not payload.user_message.strip():
+            raise HTTPException(status_code=400, detail="User message must be provided")
 
-        # Clear previous chat history
-        history.clear()
+        history = get_history(payload.session_id)
+        if history is None:
+            raise HTTPException(status_code=404, detail="Session history not found")
 
-        # Add the provided system and user messages to the chat history
-        history.add_system_message(payload.system_message)
+        if not history.messages and payload.system_message:
+            history.add_system_message(payload.system_message)
+
         history.add_user_message(payload.user_message)
 
-        # Get AI response
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
             settings=execution_settings,
             kernel=kernel,
         )
 
+        if not result:
+            raise HTTPException(status_code=500, detail="Empty response from AI model")
+
         history.add_message(result)
         return {"answer": str(result)}
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException as http_exc:
+        raise http_exc  # Keep HTTPExceptions as they are
 
+    except Exception as e:
+        logger.error(f"Chat completion error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e) or "Internal server error")
+    
 
 @router.delete("/reset_chat_history")
-async def reset_chat_history():
+async def reset_chat_history(session_id: str):
     """
-    Endpoint to reset the chat history.
+    Endpoint to reset the chat history for a given session.
     """
     try:
-        history.clear()
+        if session_id in session_histories:
+            session_histories[session_id].clear()
         return {"detail": "Chat history has been reset."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
