@@ -22,6 +22,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/support_enquiry")
+@log_endpoint
 async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_existing_history)):
     try:
         if not payload.question.strip():
@@ -57,6 +58,7 @@ async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_
 
 
 @router.post("/load_tickets_to_memory")
+@log_endpoint
 async def load_tickets(history: ChatHistory = Depends(get_existing_history)):
     try:
         tickets = []
@@ -81,6 +83,7 @@ async def load_tickets(history: ChatHistory = Depends(get_existing_history)):
 
 
 @router.delete("/clear_memory")
+@log_endpoint
 async def clear_memory(session_id: str):
     history = get_history(session_id)
     if history is None:
@@ -95,6 +98,7 @@ async def clear_memory(session_id: str):
 
 
 @router.post("/setup_support_assistant")
+@log_endpoint
 async def setup_support_assistant(session_id: str):
     logger.info("Received setup_support_assistant request for session_id: %s", session_id)
     history = get_history(session_id)
