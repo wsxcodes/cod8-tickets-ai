@@ -1,5 +1,4 @@
 import logging
-import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,13 +10,17 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from backend import config
 from backend.api.api_v1.routers import api_router
+from backend.decorators import log_endpoint
 
 API_V1_STR = "/api/v1"
 
-# Use environment variables from the working example
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
-DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
+# Set up logging for the kernel
+setup_logging()
+
+# Ensure logging is properly configured
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # Set up logging for the kernel
 setup_logging()
@@ -55,6 +58,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@log_endpoint
 async def read_index(request: Request):
     logger = logging.getLogger(__name__)
     logger.info("Handling request for index page")
