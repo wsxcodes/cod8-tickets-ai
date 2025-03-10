@@ -56,8 +56,15 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def read_index(request: Request):
-    # XXX TODO setup assistant
-    return templates.TemplateResponse("index.html", {"request": request})
+    session_id = request.session.get("session_id")
+
+    # If no session ID exists, generate a new one
+    if not session_id:
+        import uuid
+        session_id = str(uuid.uuid4())
+        request.session["session_id"] = session_id
+
+    return templates.TemplateResponse("index.html", {"request": request, "session_id": session_id})
 
 
 if __name__ == "__main__":
