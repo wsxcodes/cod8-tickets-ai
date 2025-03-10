@@ -1,9 +1,10 @@
 import json
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-
+from semantic_kernel.contents.chat_history import ChatHistory
+from backend.helpers.chat_helpers import get_existing_history
 from backend import config
 from backend.dependencies import (chat_completion, execution_settings,
                                   get_history, kernel)
@@ -20,7 +21,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/support_enquiry")
-async def support_enquiry(payload: Question, session_id: str):
+async def support_enquiry(payload: Question, session_id: str, history: ChatHistory = Depends(get_existing_history)):
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
@@ -34,10 +35,6 @@ async def support_enquiry(payload: Question, session_id: str):
                     tickets.append(ticket)
                 except Exception:  # Skip files that can't be parsed
                     continue
-
-        history = get_history(session_id)
-        if history is None:
-            raise HTTPException(status_code=404, detail="Session history not found")
 
         # Get AI response
         result = await chat_completion.get_chat_message_content(
