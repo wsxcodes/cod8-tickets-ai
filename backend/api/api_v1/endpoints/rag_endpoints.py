@@ -1,13 +1,14 @@
 import json
 import logging
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from semantic_kernel.contents.chat_history import ChatHistory
-from backend.helpers.chat_helpers import get_existing_history
+
 from backend import config
 from backend.dependencies import (chat_completion, execution_settings,
                                   get_history, kernel)
+from backend.helpers.chat_helpers import get_existing_history
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
