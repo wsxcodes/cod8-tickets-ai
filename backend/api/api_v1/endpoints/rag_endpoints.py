@@ -13,17 +13,13 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
+from backend.dependencies import (execution_settings, get_history, kernel,
+                                  openai_client, session_histories)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# XXX TODO we need the kernel (history) to be session based
-
-kernel = sk.Kernel()
 history = ChatHistory()
-execution_settings = AzureChatPromptExecutionSettings()
-execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
-openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
 
 class Question(BaseModel):
@@ -39,8 +35,6 @@ chat_completion = AzureChatCompletion(
     endpoint=config.OPENAI_ENDPOINT,
     api_key=config.OPENAI_API_KEY,
 )
-
-kernel.add_service(chat_completion)
 
 TICKETS_DIR = config.TICKETS_DIR
 
