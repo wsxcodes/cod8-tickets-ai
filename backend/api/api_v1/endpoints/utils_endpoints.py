@@ -24,3 +24,12 @@ async def refresh_session_id(request: Request):
     request.session["session_id"] = session_id  # Store in session
     logger.info(f"Generated and stored new session_id: {session_id}")
     return {"session_id": session_id}
+
+
+@router.get("/clear_session_id", response_model=Dict[str, str])
+@log_endpoint
+async def clear_session_id(request: Request):
+    """Clear the session ID."""
+    request.session["session_id"] = ""  # Set session ID to blank
+    logger.info("Cleared session ID")
+    return {"message": "Session ID cleared"}
