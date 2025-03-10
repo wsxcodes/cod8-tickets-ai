@@ -279,153 +279,204 @@
     </div>
   </div>
   <script>
-    let sessionId = "{{ session_id }}"; // This is set in the backend
-    if (!sessionId) {
-        sessionId = localStorage.getItem("session_id");
-        if (!sessionId) {
-            sessionId = crypto.randomUUID();
-            localStorage.setItem("session_id", sessionId);
-        }
-    }
-
-    console.log("Session ID:", sessionId);
-
+    // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
-        try {
-            const response = await fetch(`/api/v1/tickets?session_id=${sessionId}`);
-            const tickets = await response.json();
-            const ticketList = document.getElementById('ticket-list');
-            ticketList.innerHTML = '';
-            tickets.forEach(ticket => {
-                const priority = ticket.priority.toLowerCase();
-                const color = priority === 'high' ? '#dc3545'
-                            : (priority === 'medium' ? '#ffc107' : '#28a745');
-                const li = document.createElement('li');
-                li.innerHTML = `
-                  <a href="#" class="ticket-link" data-path="${ticket.path}">
-                    <div class="ticket-icon" style="background-color: ${color};"></div>
-                    <div class="ticket-details">
-                      <div class="ticket-id-requester">
-                        ${ticket.ticketID} - ${ticket.requester}
-                      </div>
-                      <div class="ticket-title">
-                        ${ticket.title}
-                      </div>
-                    </div>
-                  </a>
-                `;
-                ticketList.appendChild(li);
-            });
-        } catch (error) {
-            console.error('Error fetching tickets:', error);
-        }
+      try {
+        const response = await fetch('/api/v1/tickets');
+        const tickets = await response.json();
+        const ticketList = document.getElementById('ticket-list');
+        ticketList.innerHTML = '';
+        tickets.forEach(ticket => {
+          const priority = ticket.priority.toLowerCase();
+          const color = priority === 'high' ? '#dc3545'
+                      : (priority === 'medium' ? '#ffc107' : '#28a745');
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <a href="#" class="ticket-link" data-path="${ticket.path}">
+              <div class="ticket-icon" style="background-color: ${color};"></div>
+              <div class="ticket-details">
+                <div class="ticket-id-requester">
+                  ${ticket.ticketID} - ${ticket.requester}
+                </div>
+                <div class="ticket-title">
+                  ${ticket.title}
+                </div>
+              </div>
+            </a>
+          `;
+          ticketList.appendChild(li);
+        });
+        // Attach click event listeners to ticket links
+        document.querySelectorAll('.ticket-link').forEach(link => {
+          link.addEventListener('click', async (e) => {
+            e.preventDefault();
+          const ticketPath = link.getAttribute('data-path');
+          document.getElementById('ticket-modal').dataset.ticketPath = ticketPath;
+            try {
+              const res = await fetch(`/${ticketPath}`);
+              const ticketData = await res.json();
+              const prettyJSON = JSON.stringify(ticketData, null, 2);
+              document.getElementById('ticket-json').textContent = prettyJSON;
+              document.getElementById('ticket-modal').style.display = 'block';
+            } catch (err) {
+              console.error('Error fetching ticket details:', err);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+      }
     }
-
+    // Function to upload a file and post it as a ticket.
     async function uploadFile(file) {
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
-            const response = await fetch(`/api/v1/tickets?session_id=${sessionId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            if (!response.ok) throw new Error('Failed to upload ticket');
-            console.log(`Uploaded ${file.name}`);
-        } catch (error) {
-            console.error(`Error uploading ticket ${file.name}:`, error);
-            alert(`Error uploading ${file.name}: ${error.message}`);
-        }
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const response = await fetch('/api/v1/tickets/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to upload ticket');
+        console.log(`Uploaded ${file.name}`);
+      } catch (error) {
+        console.error(`Error uploading ticket ${file.name}:`, error);
+        alert(`Error uploading ${file.name}: ${error.message}`);
+      }
     }
-
-    async function sendChatMessage() {
-        const chatInput = document.querySelector('.chat-input input');
-        const chatWindow = document.getElementById('chat-window');
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load tickets on page load
+      fetchTickets();
+      const uploadArea = document.getElementById('upload-area');
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.json';
+      fileInput.multiple = true;
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+      // Click handler for file uploads
+      uploadArea.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        await Promise.all(files.map(file => uploadFile(file)));
+        fetchTickets();
+      });
+      // Drag-and-drop handlers
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#fff';
+      });
+      uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#4a4a4a';
+      });
+      uploadArea.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#4a4a4a';
+        const files = Array.from(e.dataTransfer.files);
+        await Promise.all(files.map(file => uploadFile(file)));
+        fetchTickets();
+      });
+      // Modal close handlers
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('ticket-modal').style.display = 'none';
+      });
+      window.addEventListener('click', (e) => {
+        const modal = document.getElementById('ticket-modal');
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+      document.getElementById('delete-ticket-btn').addEventListener('click', async () => {
+        const modal = document.getElementById('ticket-modal');
+        const ticketPath = modal.dataset.ticketPath;
+        try {
+          const response = await fetch(`/api/v1/tickets/${ticketPath}`, { method: 'DELETE' });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.message || 'Failed to delete ticket');
+          alert('Ticket deleted');
+          modal.style.display = 'none';
+          fetchTickets();
+        } catch (err) {
+          console.error('Error deleting ticket:', err);
+          alert('Error deleting ticket: ' + err.message);
+        }
+      });
+      // --- Chat functionality ---
+      const chatInput = document.querySelector('.chat-input input');
+      const sendButton = document.querySelector('.chat-input button');
+      const chatWindow = document.getElementById('chat-window');
+      async function sendChatMessage() {
         const question = chatInput.value.trim();
         if (!question) return;
-
+        // Append user's message
         const userMessage = document.createElement('p');
         userMessage.classList.add('user-message');
         userMessage.textContent = question;
         chatWindow.appendChild(userMessage);
+        // Scroll to bottom after appending user's message
         chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-
+        // Create a "Thinking..." placeholder
         const thinkingMessage = document.createElement('p');
         thinkingMessage.classList.add('ai-message');
-        thinkingMessage.textContent = 'Thinking...';
+        thinkingMessage.textContent = 'Thinking';
         chatWindow.appendChild(thinkingMessage);
-
+        // Force scroll to bottom so "Thinking..." is visible.
+        setTimeout(() => {
+          chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+        }, 50);
+        // Animate the dots
+        let dots = 0;
+        const dotInterval = setInterval(() => {
+          dots = (dots + 1) % 4;
+          thinkingMessage.textContent = 'Thinking' + '.'.repeat(dots);
+        }, 500);
         chatInput.value = '';
-
         try {
-            const response = await fetch(`/api/v1/support_enquiry?session_id=${sessionId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question })
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const data = await response.json();
-            chatWindow.removeChild(thinkingMessage);
-            const aiMessage = document.createElement('p');
-            aiMessage.classList.add('ai-message');
-            aiMessage.innerHTML = marked.parse(data.answer);
-            chatWindow.appendChild(aiMessage);
+          const response = await fetch('/api/v1/support_enquiry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question })
+          });
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          // Clear the "Thinking..." interval and remove it
+          clearInterval(dotInterval);
+          chatWindow.removeChild(thinkingMessage);
+          // AI message
+          const aiMessage = document.createElement('p');
+          aiMessage.classList.add('ai-message');
+          aiMessage.innerHTML = marked.parse(data.answer);
+          chatWindow.appendChild(aiMessage);
+          // Scroll to bottom after AI response using setTimeout
+          setTimeout(() => {
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-
+          }, 50);
         } catch (error) {
-            console.error('Error:', error);
-            chatWindow.removeChild(thinkingMessage);
-            const errorMessage = document.createElement('p');
-            errorMessage.classList.add('ai-message');
-            errorMessage.textContent = 'Error processing your request.';
-            chatWindow.appendChild(errorMessage);
+          console.error('Error:', error);
+          clearInterval(dotInterval);
+          chatWindow.removeChild(thinkingMessage);
+          const errorMessage = document.createElement('p');
+          errorMessage.classList.add('ai-message');
+          errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
+          chatWindow.appendChild(errorMessage);
+          setTimeout(() => {
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+          }, 50);
         }
-    }
-
-    async function resetChatHistory() {
-        try {
-            await fetch(`/api/v1/reset_chat_history?session_id=${sessionId}`, { method: 'DELETE' });
-            console.log('Chat history reset');
-        } catch (error) {
-            console.error('Error resetting chat history:', error);
+      }
+      // Submit on Enter key
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          sendChatMessage();
         }
-    }
-
-    async function loadTicketsToMemory() {
-        try {
-            await fetch(`/api/v1/load_tickets_to_memory?session_id=${sessionId}`, { method: 'POST' });
-            console.log('Tickets loaded into memory');
-        } catch (error) {
-            console.error('Error loading tickets:', error);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchTickets();
-
-        const uploadArea = document.getElementById('upload-area');
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.json';
-        fileInput.multiple = true;
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-
-        uploadArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files);
-            await Promise.all(files.map(file => uploadFile(file)));
-            fetchTickets();
-        });
-
-        document.querySelector('.chat-input button').addEventListener('click', sendChatMessage);
-        document.querySelector('.chat-input input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendChatMessage();
-        });
+      });
+      // Submit on Send button click
+      sendButton.addEventListener('click', sendChatMessage);
     });
   </script>
 </body>
