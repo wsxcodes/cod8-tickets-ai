@@ -7,6 +7,7 @@ from semantic_kernel.connectors.ai.function_choice_behavior import \
 from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
     AzureChatPromptExecutionSettings
 from semantic_kernel.contents.chat_history import ChatHistory
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 
 from backend import config
 
@@ -19,6 +20,11 @@ execution_settings = AzureChatPromptExecutionSettings()
 execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 openai_client = OpenAI(api_key=config.CHATGPT_KEY)
 
+chat_completion = AzureChatCompletion(
+    deployment_name=config.DEPLOYMENT_NAME,
+    endpoint=config.OPENAI_ENDPOINT,
+    api_key=config.OPENAI_API_KEY,
+)
 
 def get_history(session_id: str) -> ChatHistory:
     if session_id not in session_histories:
