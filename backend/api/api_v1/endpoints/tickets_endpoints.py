@@ -17,6 +17,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/tickets")
+@log_endpoint
 async def create_ticket(ticket: dict, history: ChatHistory = Depends(get_existing_history)):
     file_name = ticket.get("filename")
     if not file_name:
@@ -36,6 +37,7 @@ async def create_ticket(ticket: dict, history: ChatHistory = Depends(get_existin
 
 
 @router.get("/tickets")
+@log_endpoint
 async def list_tickets():
     tickets = []
     files = sorted(
@@ -52,6 +54,7 @@ async def list_tickets():
 
 
 @router.delete("/tickets/{ticket_name:path}")
+@log_endpoint
 async def delete_ticket(ticket_name: str):
     if ticket_name.startswith("ticket_files/"):
         ticket_name = ticket_name[len("ticket_files/"):]
@@ -71,6 +74,7 @@ async def delete_ticket(ticket_name: str):
 
 
 @router.get("/tickets")
+@log_endpoint
 async def api_list_tickets():
     tickets = []
     for file in TICKETS_DIR.glob("*.json"):
