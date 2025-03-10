@@ -14,7 +14,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
 
-from backend.dependencies import kernel, get_history, execution_settings
+from backend.dependencies import kernel, get_history, execution_settings, session_histories, openai_client
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
