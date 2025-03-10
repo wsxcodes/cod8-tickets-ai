@@ -19,6 +19,7 @@ search_client = AzureSearchClient(
 
 
 @router.get("/hybrid_search")
+@log_endpoint
 async def hybrid_search(
     text_query: Optional[str] = Query(None, description="Text query for hybrid search"),
     embedding: Optional[List[float]] = Query(None, description="Embedding vector for hybrid search"),
@@ -40,6 +41,7 @@ async def hybrid_search(
 
 
 @router.get("/fulltext_search")
+@log_endpoint
 async def fulltext_search(
     text_query: str = Query(..., description="Text query for full-text search"),
     top_k: int = Query(10, description="Number of top results to return"),
@@ -60,6 +62,7 @@ async def fulltext_search(
 
 
 @router.get("/vector_search")
+@log_endpoint
 async def vector_search(
     embedding: List[float] = Query(..., description="Embedding vector for vector search"),
     top_k: int = Query(10, description="Number of top results to return"),
@@ -80,6 +83,7 @@ async def vector_search(
 
 
 @router.get("/get_document")
+@log_endpoint
 async def get_document(
     doc_id: str = Query(..., description="ID of the document to retrieve"),
     include_vector: bool = Query(True, description="Whether to include vector in the response")
@@ -94,6 +98,7 @@ async def get_document(
 
 
 @router.get("/list_documents")
+@log_endpoint
 async def list_documents(
     batch_size: int = Query(1000, description="Number of documents to retrieve per batch"),
     limit: int = Query(10, description="Total number of documents to retrieve"),
