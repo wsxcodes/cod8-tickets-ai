@@ -96,8 +96,10 @@ async def clear_memory(session_id: str):
 
 @router.post("/setup_support_assistant")
 async def setup_support_assistant(session_id: str):
+    logger.info("Received setup_support_assistant request for session_id: %s", session_id)
     history = get_history(session_id)
     if history is None:
+        logger.info("Session history not found for session_id: %s", session_id)
         raise HTTPException(status_code=404, detail="Session history not found")
     try:
         # Add system instructions
@@ -107,6 +109,8 @@ async def setup_support_assistant(session_id: str):
             "Do not include any HTML tags—just use Markdown or plain text formatting. "
             "Every question I ask relates to the context provided."
         )
+        logger.info("System message added for session_id: %s", session_id)
         return {"message": "Support assistant setup successfully"}
     except Exception as e:
+        logger.info("Error setting up support assistant for session_id: %s - %s", session_id, str(e))
         raise HTTPException(status_code=500, detail=str(e))

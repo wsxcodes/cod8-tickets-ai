@@ -56,16 +56,23 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def read_index(request: Request):
+    logger = logging.getLogger(__name__)
+    logger.info("Handling request for index page")
+
     session_id = request.session.get("session_id")
+    logger.info("Client session_id =", session_id)
 
     # If no session ID exists, generate a new one
     if not session_id:
         import uuid
         session_id = str(uuid.uuid4())
         request.session["session_id"] = session_id
+        logger.info(f"Generated new session_id: {session_id}")
 
-        # XXX TODO setup assistant here
+        from backend.api.api_v1.endpoints.rag_endpoints import setup_support_assistant
+        await setup_support_assistant(session_id)
 
+    logger.info(f"Returning index page with session_id: {session_id}")
     return templates.TemplateResponse("index.html", {"request": request, "session_id": session_id})
 
 
