@@ -64,7 +64,7 @@ async def read_index(request: Request):
     logger.info("Handling request for index page")
 
     session_id = request.session.get("session_id")
-    logger.info("Client session_id =", session_id)
+    logger.info("Client session_id = %s", session_id)
 
     # If no session ID exists, generate a new one
     if not session_id:
