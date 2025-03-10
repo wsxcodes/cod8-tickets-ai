@@ -18,7 +18,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from backend import config
 from backend.api.api_v1.routers import api_router
-from backend.dependencies import execution_settings, chat_completion
+from backend.dependencies import chat_completion, execution_settings
 
 API_V1_STR = "/api/v1"
 

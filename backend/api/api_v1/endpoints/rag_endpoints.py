@@ -4,10 +4,10 @@ import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from semantic_kernel.contents.chat_history import ChatHistory
-from backend.schemas.llm_schemas import TextToVector
 
 from backend import config
-from backend.dependencies import execution_settings, kernel, chat_completion
+from backend.dependencies import chat_completion, execution_settings, kernel
+from backend.schemas.llm_schemas import TextToVector
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

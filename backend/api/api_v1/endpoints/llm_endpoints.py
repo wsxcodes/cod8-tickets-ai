@@ -3,11 +3,12 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
 from backend import config
-from backend.dependencies import (execution_settings, get_history, kernel,
-                                  openai_client, session_histories, chat_completion)
+from backend.dependencies import (chat_completion, execution_settings,
+                                  get_history, kernel, openai_client,
+                                  session_histories)
+from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
