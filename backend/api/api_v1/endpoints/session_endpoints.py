@@ -53,6 +53,7 @@ async def clear_session_id(request: Request):
     logger.info("Cleared session ID")
     return {"message": "Session ID cleared"}
 
+
 @router.get("/count_session_ids", response_model=Dict[str, int])
 @log_endpoint
 async def count_session_ids(request: Request):
@@ -60,6 +61,7 @@ async def count_session_ids(request: Request):
     count = len(session_histories)
     logger.info("Active session ID count: %d", count)
     return {"count": count}
+
 
 @router.get("/list_session_ids", response_model=Dict[str, list])
 @log_endpoint
