@@ -22,7 +22,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/support_enquiry")
-async def support_enquiry(payload: Question, session_id: str, history: ChatHistory = Depends(get_existing_history)):
+async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_existing_history)):
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
@@ -37,6 +37,9 @@ async def support_enquiry(payload: Question, session_id: str, history: ChatHisto
                 except Exception:  # Skip files that can't be parsed
                     continue
 
+        # Add user question to history
+        history.add_user_message(payload.question)
+
         # Get AI response
         result = await chat_completion.get_chat_message_content(
             chat_history=history,
@@ -44,7 +47,9 @@ async def support_enquiry(payload: Question, session_id: str, history: ChatHisto
             kernel=kernel,
         )
 
+        # Add AI response to history
         history.add_message(result)
+
         return {"answer": str(result)}
 
     except Exception as e:
@@ -52,7 +57,7 @@ async def support_enquiry(payload: Question, session_id: str, history: ChatHisto
 
 
 @router.post("/load_tickets_to_memory")
-async def load_tickets(session_id: str):
+async def load_tickets(history: ChatHistory = Depends(get_existing_history)):
     try:
         tickets = []
         for file in TICKETS_DIR.glob("*.json"):
@@ -65,10 +70,6 @@ async def load_tickets(session_id: str):
 
         # Combine ticket info into one context string
         tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-
-        history = get_history(session_id)
-        if history is None:
-            raise HTTPException(status_code=404, detail="Session history not found")
 
         # Store ticket data in history
         history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")

@@ -2,10 +2,12 @@ import json
 import logging
 import time
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
+from backend.helpers.chat_helpers import get_existing_history
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +17,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/tickets")
-async def create_ticket(ticket: dict):
+async def create_ticket(ticket: dict, history: ChatHistory = Depends(get_existing_history)):
     file_name = ticket.get("filename")
     if not file_name:
         file_name = f"ticket_{time.time_ns()}.json"
