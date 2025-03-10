@@ -1,13 +1,12 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
-from semantic_kernel.contents.chat_history import ChatHistory
+from backend.dependencies import (chat_completion, execution_settings, kernel,
+                                  openai_client, session_histories)
 from backend.helpers.chat_helpers import get_existing_history
-from backend.dependencies import (chat_completion, execution_settings,
-                                  get_history, kernel, openai_client,
-                                  session_histories)
 from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
 logger = logging.getLogger(__name__)
@@ -16,7 +15,7 @@ router = APIRouter()
 
 @router.post("/chat_completion")
 async def chat_completion_endpoint(
-    payload: ChatCompletionRequest, 
+    payload: ChatCompletionRequest,
     history: ChatHistory = Depends(get_existing_history)
 ):
     if not payload.user_message.strip():
