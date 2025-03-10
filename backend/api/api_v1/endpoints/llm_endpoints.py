@@ -9,6 +9,8 @@ from backend.dependencies import (chat_completion, execution_settings, kernel,
 from backend.helpers.chat_helpers import get_existing_history
 from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
+from backend.decorators import log_endpoint
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
