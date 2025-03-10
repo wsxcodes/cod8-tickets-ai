@@ -26,6 +26,7 @@ chat_completion = AzureChatCompletion(
     api_key=config.OPENAI_API_KEY,
 )
 
+
 def get_history(session_id: str) -> ChatHistory:
     if session_id not in session_histories:
         session_histories[session_id] = ChatHistory()

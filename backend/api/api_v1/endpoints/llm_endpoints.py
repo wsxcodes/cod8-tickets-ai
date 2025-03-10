@@ -1,8 +1,6 @@
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 
 from backend import config
 from backend.dependencies import (chat_completion, execution_settings,
