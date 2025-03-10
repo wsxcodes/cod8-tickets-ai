@@ -3,15 +3,13 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
-from backend.dependencies import chat_completion, execution_settings, kernel
+from backend.dependencies import (chat_completion, execution_settings,
+                                  get_history, kernel)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-history = ChatHistory()
 
 
 class Question(BaseModel):
@@ -22,7 +20,7 @@ TICKETS_DIR = config.TICKETS_DIR
 
 
 @router.post("/support_enquiry")
-async def support_enquiry(payload: Question):
+async def support_enquiry(payload: Question, session_id: str):
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
@@ -36,6 +34,10 @@ async def support_enquiry(payload: Question):
                     tickets.append(ticket)
                 except Exception:  # Skip files that can't be parsed
                     continue
+
+        history = get_history(session_id)
+        if history is None:
+            raise HTTPException(status_code=404, detail="Session history not found")
 
         # Get AI response
         result = await chat_completion.get_chat_message_content(
@@ -52,7 +54,7 @@ async def support_enquiry(payload: Question):
 
 
 @router.post("/load_tickets_to_memory")
-async def load_tickets():
+async def load_tickets(session_id: str):
     try:
         tickets = []
         for file in TICKETS_DIR.glob("*.json"):
@@ -66,6 +68,10 @@ async def load_tickets():
         # Combine ticket info into one context string
         tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
 
+        history = get_history(session_id)
+        if history is None:
+            raise HTTPException(status_code=404, detail="Session history not found")
+
         # Store ticket data in history
         history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
 
@@ -76,7 +82,11 @@ async def load_tickets():
 
 
 @router.delete("/clear_memory")
-async def clear_memory():
+async def clear_memory(session_id: str):
+    history = get_history(session_id)
+    if history is None:
+        raise HTTPException(status_code=404, detail="Session history not found")
+
     try:
         # Clear existing history
         history.clear()
@@ -86,7 +96,10 @@ async def clear_memory():
 
 
 @router.post("/setup_support_assistant")
-async def setup_support_assistant():
+async def setup_support_assistant(session_id: str):
+    history = get_history(session_id)
+    if history is None:
+        raise HTTPException(status_code=404, detail="Session history not found")
     try:
         # Add system instructions
         history.add_system_message(
