@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Ensure logging is properly configured
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 @router.get("/refresh_session_id", response_model=Dict[str, str])
 @log_endpoint
