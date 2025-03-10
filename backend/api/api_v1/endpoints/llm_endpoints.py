@@ -14,6 +14,7 @@ router = APIRouter()
 
 
 @router.post("/chat_completion")
+@log_endpoint
 async def chat_completion_endpoint(
     payload: ChatCompletionRequest,
     history: ChatHistory = Depends(get_existing_history)
@@ -40,6 +41,7 @@ async def chat_completion_endpoint(
 
 
 @router.delete("/reset_chat_history")
+@log_endpoint
 async def reset_chat_history(session_id: str):
     """
     Endpoint to reset the chat history for a given session.
@@ -53,6 +55,7 @@ async def reset_chat_history(session_id: str):
 
 
 @router.post("/vectorize")
+@log_endpoint
 async def vectorize_endpoint(payload: TextToVector):
     """
     Endpoint to vectorize input text using OpenAI embeddings.
