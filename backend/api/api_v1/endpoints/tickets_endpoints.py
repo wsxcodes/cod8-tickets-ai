@@ -5,6 +5,7 @@ import time
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from semantic_kernel.contents.chat_history import ChatHistory
+from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
 from backend.decorators import log_endpoint
@@ -15,6 +16,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 TICKETS_DIR = config.TICKETS_DIR
+
+# Set up logging for the kernel
+setup_logging()
+
+# Ensure logging is properly configured
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 @router.post("/tickets")
