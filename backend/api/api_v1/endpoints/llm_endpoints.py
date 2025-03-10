@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from semantic_kernel.contents.chat_history import ChatHistory
+from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
 from backend.decorators import log_endpoint
@@ -12,6 +13,14 @@ from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Set up logging for the kernel
+setup_logging()
+
+# Ensure logging is properly configured
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 @router.post("/chat_completion")
