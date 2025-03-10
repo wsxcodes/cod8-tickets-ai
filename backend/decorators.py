@@ -2,8 +2,6 @@ import logging
 import time
 from functools import wraps
 
-from tenacity import retry, stop_after_attempt, wait_fixed
-
 logger = logging.getLogger(__name__)
 
 

@@ -4,9 +4,9 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from semantic_kernel.contents.chat_history import ChatHistory
-from backend.decorators import log_endpoint
 
 from backend import config
+from backend.decorators import log_endpoint
 from backend.dependencies import (chat_completion, execution_settings,
                                   get_history, kernel)
 from backend.helpers.chat_helpers import get_existing_history

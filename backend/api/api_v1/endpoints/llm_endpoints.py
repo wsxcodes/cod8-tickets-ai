@@ -4,12 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend import config
+from backend.decorators import log_endpoint
 from backend.dependencies import (chat_completion, execution_settings, kernel,
                                   openai_client, session_histories)
 from backend.helpers.chat_helpers import get_existing_history
 from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
-
-from backend.decorators import log_endpoint
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

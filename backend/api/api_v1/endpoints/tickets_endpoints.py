@@ -5,9 +5,9 @@ import time
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from semantic_kernel.contents.chat_history import ChatHistory
-from backend.decorators import log_endpoint
 
 from backend import config
+from backend.decorators import log_endpoint
 from backend.helpers.chat_helpers import get_existing_history
 
 logger = logging.getLogger(__name__)

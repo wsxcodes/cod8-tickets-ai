@@ -1,9 +1,8 @@
-import uuid
 import logging
+import uuid
 from typing import Dict
 
 from fastapi import APIRouter, Request
-from backend.decorators import log_endpoint
 
 from backend.decorators import log_endpoint
 

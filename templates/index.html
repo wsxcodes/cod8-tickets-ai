@@ -287,9 +287,9 @@
             localStorage.setItem("session_id", sessionId);
         }
     }
-  
+
     console.log("Session ID:", sessionId);
-  
+
     async function fetchTickets() {
         try {
             const response = await fetch(`/api/v1/tickets?session_id=${sessionId}`);
@@ -320,7 +320,7 @@
             console.error('Error fetching tickets:', error);
         }
     }
-  
+
     async function uploadFile(file) {
         try {
             const text = await file.text();
@@ -339,35 +339,35 @@
             alert(`Error uploading ${file.name}: ${error.message}`);
         }
     }
-  
+
     async function sendChatMessage() {
         const chatInput = document.querySelector('.chat-input input');
         const chatWindow = document.getElementById('chat-window');
         const question = chatInput.value.trim();
         if (!question) return;
-  
+
         const userMessage = document.createElement('p');
         userMessage.classList.add('user-message');
         userMessage.textContent = question;
         chatWindow.appendChild(userMessage);
         chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-  
+
         const thinkingMessage = document.createElement('p');
         thinkingMessage.classList.add('ai-message');
         thinkingMessage.textContent = 'Thinking...';
         chatWindow.appendChild(thinkingMessage);
-  
+
         chatInput.value = '';
-  
+
         try {
             const response = await fetch(`/api/v1/support_enquiry?session_id=${sessionId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question })
             });
-  
+
             if (!response.ok) throw new Error('Network response was not ok');
-  
+
             const data = await response.json();
             chatWindow.removeChild(thinkingMessage);
             const aiMessage = document.createElement('p');
@@ -375,7 +375,7 @@
             aiMessage.innerHTML = marked.parse(data.answer);
             chatWindow.appendChild(aiMessage);
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-  
+
         } catch (error) {
             console.error('Error:', error);
             chatWindow.removeChild(thinkingMessage);
@@ -385,7 +385,7 @@
             chatWindow.appendChild(errorMessage);
         }
     }
-  
+
     async function resetChatHistory() {
         try {
             await fetch(`/api/v1/reset_chat_history?session_id=${sessionId}`, { method: 'DELETE' });
@@ -394,7 +394,7 @@
             console.error('Error resetting chat history:', error);
         }
     }
-  
+
     async function loadTicketsToMemory() {
         try {
             await fetch(`/api/v1/load_tickets_to_memory?session_id=${sessionId}`, { method: 'POST' });
@@ -403,10 +403,10 @@
             console.error('Error loading tickets:', error);
         }
     }
-  
+
     document.addEventListener('DOMContentLoaded', () => {
         fetchTickets();
-  
+
         const uploadArea = document.getElementById('upload-area');
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -414,14 +414,14 @@
         fileInput.multiple = true;
         fileInput.style.display = 'none';
         document.body.appendChild(fileInput);
-  
+
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             await Promise.all(files.map(file => uploadFile(file)));
             fetchTickets();
         });
-  
+
         document.querySelector('.chat-input button').addEventListener('click', sendChatMessage);
         document.querySelector('.chat-input input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') sendChatMessage();

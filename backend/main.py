@@ -69,7 +69,8 @@ async def read_index(request: Request):
         request.session["session_id"] = session_id
         logger.info(f"Generated new session_id: {session_id}")
 
-        from backend.api.api_v1.endpoints.rag_endpoints import setup_support_assistant
+        from backend.api.api_v1.endpoints.rag_endpoints import \
+            setup_support_assistant
         await setup_support_assistant(session_id)
 
     logger.info(f"Returning index page with session_id: {session_id}")
