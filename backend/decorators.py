@@ -9,33 +9,15 @@ logger = logging.getLogger(__name__)
 
 def log_endpoint(f):
     @wraps(f)
-    def wrapper(*args, **kw):
+    async def wrapper(*args, **kw):
         start_time = time.time()
         logger.info(f"Endpoint [{f.__name__}] - Start")
 
-        result = f(*args, **kw)
+        result = await f(*args, **kw)  # Ensure the async function is awaited
 
         elapsed_time = time.time() - start_time
-        logger.info(f"Endpoint [{f.__name__}] - End - Elapsed Time: {elapsed_time:.2f}s")  # NoQA
+        logger.info(f"Endpoint [{f.__name__}] - End - Elapsed Time: {elapsed_time:.2f}s")
 
         return result
+
     return wrapper
-
-
-def retry_on_error(error_cls, attempts=5, wait_interval=2):
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            @retry(
-                stop=stop_after_attempt(attempts),
-                wait=wait_fixed(wait_interval),
-                retry_error_cls=error_cls
-            )
-            async def retried_func():
-                return await func(*args, **kwargs)
-
-            return await retried_func()
-
-        return wrapper
-
-    return decorator
