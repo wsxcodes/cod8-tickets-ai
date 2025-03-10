@@ -18,7 +18,6 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from backend import config
 from backend.api.api_v1.routers import api_router
-from backend.dependencies import chat_completion, execution_settings
 
 API_V1_STR = "/api/v1"
 
@@ -63,10 +62,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
 
 templates = Jinja2Templates(directory="templates")
-
-history = ChatHistory()
-execution_settings = AzureChatPromptExecutionSettings()
-execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
