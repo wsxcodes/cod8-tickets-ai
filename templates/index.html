@@ -437,10 +437,6 @@
         chatInput.value = '';
         try {
           let sessionId = localStorage.getItem("session_id");
-          if (!sessionId) {
-              sessionId = crypto.randomUUID();
-              localStorage.setItem("session_id", sessionId);
-          }
           const response = await fetch(`/api/v1/support_enquiry?session_id=${sessionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
