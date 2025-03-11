@@ -1,8 +1,9 @@
 import json
 import logging
 import time
-
-from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from typing import Dict
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
@@ -24,6 +25,9 @@ setup_logging()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+class SessionID(BaseModel):
+    session_id: str
 
 
 @router.post("/tickets")
@@ -63,25 +67,21 @@ async def list_tickets():
     return JSONResponse(content=tickets)
 
 
-@router.delete("/tickets/{ticket_name:path}")
+@router.delete("/delete_session_id", response_model=Dict[str, str])
 @log_endpoint
-async def delete_ticket(ticket_name: str):
-    if ticket_name.startswith("ticket_files/"):
-        ticket_name = ticket_name[len("ticket_files/"):]
-    file_path = TICKETS_DIR / ticket_name
-    if not file_path.exists():
-        return {"message": "Ticket not found"}
-
-    file_path.unlink()
-
-    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+async def delete_session_id(request: Request, payload: SessionID):
     # XXX BUG
-    refresh_response = await load_tickets()
-
-    return {
-        "message": "Ticket deleted and memory refreshed",
-        "ticket_count": refresh_response.get("ticket_count")
-    }
+    """Delete a specific session id provided in the request body."""
+    session_id_to_delete = payload.session_id
+    if session_id_to_delete in session_histories:
+        del session_histories[session_id_to_delete]
+        if request.session.get("session_id", "") == session_id_to_delete:
+            request.session["session_id"] = ""
+        logger.info("Deleted session id: %s", session_id_to_delete)
+        return {"message": f"Session id {session_id_to_delete} deleted."}
+    else:
+        logger.info("Session id %s not found", session_id_to_delete)
+        return {"message": f"Session id {session_id_to_delete} not found."}
 
 
 @router.get("/tickets")

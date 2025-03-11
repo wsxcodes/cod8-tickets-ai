@@ -71,6 +71,10 @@ async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_
 @log_endpoint
 async def load_tickets(session_id: str, history: ChatHistory = Depends(get_existing_history)):
     # XXX BUG
+    history = get_history(session_id)
+    if history is None:
+        raise HTTPException(status_code=404, detail="Session history not found")
+
     try:
         tickets = []
         for file in TICKETS_DIR.glob("*.json"):
