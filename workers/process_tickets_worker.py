@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import asyncio
 
 import pandas as pd
 from openai import OpenAI
@@ -148,7 +149,7 @@ def vectorize_ticket(ticket: pd.Series) -> pd.Series:
     return ticket
 
 
-def upload_ticket(ticket: pd.Series):
+async def upload_ticket(ticket: pd.Series):
     """
     Uploads the ticket document to Azure Search.
     """
@@ -156,12 +157,15 @@ def upload_ticket(ticket: pd.Series):
         doc_id = str(ticket["id"])
         # Prepare metadata excluding the vector field.
         metadata = ticket.drop("vector").to_dict() if "vector" in ticket else ticket.to_dict()
-        azure_client.upload_document(
+        upload_success = await azure_client.upload_document(
             doc_id=doc_id,
             embedding=ticket["vector"],
             metadata=metadata
         )
-        logger.info(f"Uploaded ticket {doc_id}")
+        if upload_success:
+            logger.info(f"Uploaded ticket {doc_id} successfully")
+        else:
+            logger.error(f"Upload failed for ticket {doc_id}: Upload result was not successful")
     except Exception as e:
         logger.info(f"Error uploading ticket {ticket.get('id', 'unknown')}: {e}")
 
@@ -179,14 +183,14 @@ if __name__ == "__main__":
     logger.info("Processed ticket data:")
     logger.info(tickets_df.head())
 
-    for idx, ticket in tickets_df.iterrows():
-        logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
+    async def main():
+        for idx, ticket in tickets_df.iterrows():
+            logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
+            logger.info(ticket)
+            logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
+            logger.info(f"Starting vectorization for ticket {ticket['id']}")
+            ticket = vectorize_ticket(ticket)
+            logger.info(f"Starting upload for ticket {ticket['id']}")
+            await upload_ticket(ticket)
 
-        logger.info(ticket)
-        logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
-
-        logger.info(f"Starting vectorization for ticket {ticket['id']}")
-        ticket = vectorize_ticket(ticket)
-
-        logger.info(f"Starting upload for ticket {ticket['id']}")
-        upload_ticket(ticket)
+    asyncio.run(main())
