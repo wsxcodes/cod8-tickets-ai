@@ -63,6 +63,35 @@ async def generic_support_enquiry(session_id: str, payload: Question, history: C
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/custom_query")
+@log_endpoint
+async def custom_query(session_id: str, payload: Question, system_message: str, history: ChatHistory = Depends(get_existing_history)):
+    """
+    Allows querying the AI with a custom system message without persisting it in history.
+    """
+    history = get_history(session_id)
+
+    try:
+        if not payload.question.strip():
+            raise HTTPException(status_code=400, detail="Empty query was provided")
+
+        # Temporary system message, not added to history
+        temp_history = history.copy()
+        temp_history.add_system_message(system_message)
+
+        # Get AI response
+        result = await chat_completion.get_chat_message_content(
+            chat_history=temp_history,
+            settings=execution_settings,
+            kernel=kernel,
+        )
+
+        return {"answer": str(result)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 @router.post("/load_tickets_to_memory")
 @log_endpoint
 async def load_tickets(session_id: str, history: ChatHistory = Depends(get_existing_history)):
