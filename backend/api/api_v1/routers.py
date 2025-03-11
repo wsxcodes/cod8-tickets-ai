@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from backend.api.api_v1.endpoints import (generic_endpoints, llm_endpoints,
                                           rag_endpoints, search_endpoints,
                                           session_endpoints, tickets_endpoints,
-                                          workers_endpoints)
+                                          workers_endpoints, utils_endpoints)
 
 api_router = APIRouter()
 
@@ -41,6 +41,12 @@ api_router.include_router(
 api_router.include_router(
     session_endpoints.router,
     tags=["Session"]
+)
+
+# Utils Endpoints
+api_router.include_router(
+    utils_endpoints.router,
+    tags=["Utils"]
 )
 
 # Workers Endpoints
