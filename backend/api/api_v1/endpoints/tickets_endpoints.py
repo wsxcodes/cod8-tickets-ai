@@ -75,6 +75,7 @@ async def delete_ticket(ticket_name: str):
     file_path.unlink()
 
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+    # XXX BUG
     refresh_response = await load_tickets()
 
     return {

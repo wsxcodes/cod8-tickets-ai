@@ -69,7 +69,8 @@ async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_
 
 @router.post("/load_tickets_to_memory")
 @log_endpoint
-async def load_tickets(history: ChatHistory = Depends(get_existing_history)):
+async def load_tickets(session_id: str, history: ChatHistory = Depends(get_existing_history)):
+    # XXX BUG
     try:
         tickets = []
         for file in TICKETS_DIR.glob("*.json"):
