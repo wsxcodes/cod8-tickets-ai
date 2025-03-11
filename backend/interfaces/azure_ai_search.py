@@ -72,6 +72,49 @@ class AzureSearchClient:
         }
         return await self._post(url, body)
 
+    def upload_document(self, doc_id: str, embedding: list, metadata: dict):
+            """
+            Upload a single document (or update if ID exists) with vector and metadata.
+
+            Parameters:
+            - doc_id: Unique identifier for the document (matches index key field).
+            - embedding: List of floats (vector) from the embedding model (length 1536 for ada-002).
+            - metadata: Dictionary of other fields/values to store with the document.
+
+            Returns:
+            - True if upload succeeded, raises exception on failure.
+            """
+            # Construct the document payload according to Azure schema.
+            document = {
+                "@search.action": "upload",  # upsert behavior
+                self.key_field: doc_id,
+                self.vector_field: embedding
+            }
+            # Merge metadata into the document payload, ensuring no key conflicts.
+            for k, v in metadata.items():
+                if k in document and k not in {self.key_field, self.vector_field}:
+                    raise ValueError(f"Metadata key '{k}' conflicts with reserved field names.")
+                document[k] = v
+
+            payload = {"value": [document]}
+            url = f"{self.base_url}/indexes/{self.index_name}/docs/index?api-version={self.api_version}"
+            response = requests.post(url, headers=self.headers, json=payload)
+            try:
+                response.raise_for_status()  # Raise HTTP errors (4xx, 5xx).
+            except requests.exceptions.HTTPError as e:
+                # Azure Search returns JSON with error details on failure
+                error_info = response.text
+                raise RuntimeError(f"Upload failed: {error_info}") from e
+
+            # Azure responds with status per document in 'value' array.
+            result = response.json()
+            if ("value" in result and len(result["value"]) > 0
+                    and result["value"][0].get("status") is True):  # NoQA
+                return True
+            else:
+                err = result["value"][0] if "value" in result and result["value"] else result
+                raise RuntimeError(f"Upload error: {err}")
+
     async def get_document(self, doc_id: str):
         """Retrieve a document by its ID."""
         key_param = quote(doc_id, safe='')
