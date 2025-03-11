@@ -399,7 +399,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ ticket_id: "{{ticket_id}}" })
+          body: JSON.stringify({ session_id: "{{session_id}}" })
         });
           const data = await response.json();
           if (!response.ok) throw new Error(data.message || 'Failed to delete ticket');
