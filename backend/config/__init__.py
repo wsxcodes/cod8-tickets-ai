@@ -29,5 +29,5 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "MISSING-OPENAI_EMB
 
 CHATGPT_KEY = os.getenv("CHATGPT_KEY", "MISSING-CHATGPT_KEY")
 
-TICKETS_DIR = Path("tickets")
+TICKETS_DIR = Path("data/tickets")
 TICKETS_DIR.mkdir(exist_ok=True)

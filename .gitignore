@@ -153,4 +153,5 @@ xxx.py
 .env
 
 # Data
+data/tickets/*
 tickets/*
