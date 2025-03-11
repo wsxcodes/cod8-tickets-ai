@@ -92,6 +92,6 @@ async def api_list_tickets():
 
 @router.post("/is_new_ticket")
 @log_endpoint
-async def is_new_ticket(session_id: str, payload: Question):
+async def is_new_ticket(session_id: str, payload: Question) -> str:
     # XXX TODO
     ...
