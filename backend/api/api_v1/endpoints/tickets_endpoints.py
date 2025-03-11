@@ -78,6 +78,7 @@ async def delete_ticket(ticket_name: str, request: Request):
     session_id = request_data.get("session_id")
 
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+    # XXX BUG
     refresh_response = await load_tickets(session_id=session_id)
 
     return {
