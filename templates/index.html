@@ -436,8 +436,7 @@
         }, 500);
         chatInput.value = '';
         try {
-          let sessionId = localStorage.getItem("session_id");
-          const response = await fetch(`/api/v1/support_enquiry?session_id=${sessionId}`, {
+          const response = await fetch(`/api/v1/support_enquiry?session_id={{session_id}}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question })
