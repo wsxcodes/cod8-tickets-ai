@@ -33,7 +33,11 @@ TICKETS_DIR = config.TICKETS_DIR
 
 @router.post("/support_enquiry")
 @log_endpoint
-async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_existing_history)):
+async def support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
+    history = get_history(session_id)
+    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+    refresh_response = await load_tickets(session_id=session_id)
+
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
