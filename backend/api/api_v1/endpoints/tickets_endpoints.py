@@ -27,7 +27,6 @@ logger.setLevel(logging.INFO)
 @log_endpoint
 async def create_ticket(request: Request):
     data = await request.json()
-    session_id = data.get("session_id")
 
     ticket_id = data.get("ticket_id")
     if not ticket_id:
@@ -71,7 +70,6 @@ async def delete_ticket(ticket_name: str, request: Request):
     file_path.unlink()
 
     request_data = await request.json()
-    session_id = request_data.get("session_id")
 
     return {
         "message": "Ticket deleted and memory refreshed"
