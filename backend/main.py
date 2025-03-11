@@ -76,8 +76,8 @@ async def read_index(request: Request):
         request.session["session_id"] = session_id
         logger.info("** Generated new session_id: %s", session_id)
 
-        from backend.api.api_v1.endpoints.rag_endpoints import \
-            setup_support_assistant, load_tickets
+        from backend.api.api_v1.endpoints.rag_endpoints import (
+            load_tickets, setup_support_assistant)
         try:
             await setup_support_assistant(session_id)
             logger.info("** Successfully set up support assistant for session_id: %s", session_id)
