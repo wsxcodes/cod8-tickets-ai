@@ -31,9 +31,9 @@ class Question(BaseModel):
 TICKETS_DIR = config.TICKETS_DIR
 
 
-@router.post("/support_enquiry")
+@router.post("/generic_support_enquiry")
 @log_endpoint
-async def support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
+async def generic_support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
 
     try:
