@@ -106,7 +106,7 @@ class AzureSearchClient:
             # Azure responds with status per document in 'value' array.
             result = response.json()
             if ("value" in result and len(result["value"]) > 0
-                    and result["value"][0].get("status") is True):
+                    and result["value"][0].get("status") is True):  # NoQA
                 return True
             else:
                 err = result["value"][0] if "value" in result and result["value"] else result
