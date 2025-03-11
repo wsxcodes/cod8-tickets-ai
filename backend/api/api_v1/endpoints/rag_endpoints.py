@@ -90,7 +90,7 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 @router.post("/load_tickets_to_memory")
 @log_endpoint
