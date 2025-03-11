@@ -16,7 +16,7 @@ api_router.include_router(
 # LLM Endpoints
 api_router.include_router(
     llm_endpoints.router,
-    tags=["Semantic Kernel"]
+    tags=["LLM"]
 )
 
 # Search Endpoints
@@ -28,7 +28,7 @@ api_router.include_router(
 # RAG Endpoints
 api_router.include_router(
     rag_endpoints.router,
-    tags=["RAG"]
+    tags=["Semantic Kernel RAG"]
 )
 
 # Tickets Endpoints
