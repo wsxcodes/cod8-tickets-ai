@@ -333,6 +333,16 @@
       try {
         const text = await file.text();
         const data = JSON.parse(text);
+
+        // Fallback: if ticket_id is missing, derive it from the file name (e.g., ticket6.json becomes "ticket6")
+        if (!data.ticket_id) {
+          data.ticket_id = file.name.replace(/\.json$/i, '');
+        }
+
+        data.session_id = "{{session_id}}"; // Ensure session_id is set
+
+        console.log("Uploading ticket:", data);
+
         const response = await fetch('/api/v1/tickets/', {
           method: 'POST',
           headers: {
@@ -340,8 +350,15 @@
           },
           body: JSON.stringify(data)
         });
-        if (!response.ok) throw new Error('Failed to upload ticket');
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error("Server response:", errorMessage);
+          throw new Error('Failed to upload ticket: ' + errorMessage);
+        }
+
         console.log(`Uploaded ${file.name}`);
+        fetchTickets();
       } catch (error) {
         console.error(`Error uploading ticket ${file.name}:`, error);
         alert(`Error uploading ${file.name}: ${error.message}`);

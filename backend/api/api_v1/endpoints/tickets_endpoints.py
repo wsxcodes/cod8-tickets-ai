@@ -26,22 +26,25 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-@router.post("/tickets")
+@router.post("/tickets/")
 @log_endpoint
-async def create_ticket(ticket: dict, history: ChatHistory = Depends(get_existing_history)):
-    file_name = ticket.get("filename")
-    if not file_name:
-        file_name = f"ticket_{time.time_ns()}.json"
-    file_path = TICKETS_DIR / file_name
-    with file_path.open("w") as f:
-        json.dump(ticket, f)
+async def create_ticket(request: Request):
+    data = await request.json()
+    session_id = data.get("session_id")
+
+    ticket_id = data.get("ticket_id")
+    if not ticket_id:
+        return JSONResponse(status_code=400, content={"message": "ticket_id is required"})
+
+    ticket_path = TICKETS_DIR / f"{ticket_id}.json"
+    with ticket_path.open("w") as f:
+        json.dump(data, f, indent=2)
 
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    refresh_response = await load_tickets()
+    refresh_response = await load_tickets(session_id=session_id)
 
     return {
-        "message": "Ticket saved and memory refreshed",
-        "file": str(file_path),
+        "message": "Ticket created and memory refreshed",
         "ticket_count": refresh_response.get("ticket_count")
     }
 
@@ -78,7 +81,6 @@ async def delete_ticket(ticket_name: str, request: Request):
     session_id = request_data.get("session_id")
 
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    # XXX BUG
     refresh_response = await load_tickets(session_id=session_id)
 
     return {
