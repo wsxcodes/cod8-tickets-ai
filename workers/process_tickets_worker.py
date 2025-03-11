@@ -167,7 +167,7 @@ def upload_ticket(ticket: pd.Series):
 
 
 if __name__ == "__main__":
-    filepath = "data/Bank_Design_Equipment_FY2024.csv"
+    filepath = "data/City_of_Colonial_Height_FY2024.csv"
     tickets_df = process_ticket_csv(filepath)
 
     # Debug: Log unique primary ids and actual ticket ids.
