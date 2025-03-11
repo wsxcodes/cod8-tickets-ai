@@ -37,12 +37,8 @@ async def create_ticket(request: Request):
     with ticket_path.open("w") as f:
         json.dump(data, f, indent=2)
 
-    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    refresh_response = await load_tickets(session_id=session_id)
-
     return {
-        "message": "Ticket created and memory refreshed",
-        "ticket_count": refresh_response.get("ticket_count")
+        "message": "Ticket created and memory refreshed"
     }
 
 
@@ -77,12 +73,8 @@ async def delete_ticket(ticket_name: str, request: Request):
     request_data = await request.json()
     session_id = request_data.get("session_id")
 
-    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    refresh_response = await load_tickets(session_id=session_id)
-
     return {
-        "message": "Ticket deleted and memory refreshed",
-        "ticket_count": refresh_response.get("ticket_count")
+        "message": "Ticket deleted and memory refreshed"
     }
 
 

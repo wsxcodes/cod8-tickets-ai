@@ -35,22 +35,14 @@ TICKETS_DIR = config.TICKETS_DIR
 @log_endpoint
 async def support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
-    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    await load_tickets(session_id=session_id)
 
     try:
         if not payload.question.strip():
             raise HTTPException(status_code=400, detail="Empty query was provided")
 
         # Load all tickets to provide context to the AI
-        tickets = []
-        for file in TICKETS_DIR.glob("*.json"):
-            with file.open("r") as f:
-                try:
-                    ticket = json.load(f)
-                    tickets.append(ticket)
-                except Exception:  # Skip files that can't be parsed
-                    continue
+        from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
+        await load_tickets(session_id=session_id)
 
         # Add user question to history
         history.add_user_message(payload.question)
