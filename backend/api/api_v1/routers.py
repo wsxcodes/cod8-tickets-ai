@@ -13,16 +13,16 @@ api_router.include_router(
     tags=["Generic"]
 )
 
-# Search Endpoints
-api_router.include_router(
-    search_endpoints.router,
-    tags=["AI Search (Azure)"]
-)
-
 # LLM Endpoints
 api_router.include_router(
     llm_endpoints.router,
-    tags=["LLM"]
+    tags=["Semantic Kernel"]
+)
+
+# Search Endpoints
+api_router.include_router(
+    search_endpoints.router,
+    tags=["Azure AI Search"]
 )
 
 # RAG Endpoints
