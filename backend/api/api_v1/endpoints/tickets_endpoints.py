@@ -1,5 +1,6 @@
 import json
 import logging
+from pydantic import BaseModel
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
@@ -11,6 +12,10 @@ from backend.decorators import log_endpoint
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+class Question(BaseModel):
+    question: str
+
 
 TICKETS_DIR = config.TICKETS_DIR
 
@@ -88,6 +93,6 @@ async def api_list_tickets():
 
 @router.post("/is_new_ticket")
 @log_endpoint
-async def is_new_ticket():
+async def is_new_ticket(session_id: str, payload: Question):
     # XXX TODO
     ...
