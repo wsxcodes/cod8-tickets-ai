@@ -36,7 +36,7 @@ TICKETS_DIR = config.TICKETS_DIR
 async def support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
     from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
-    refresh_response = await load_tickets(session_id=session_id)
+    await load_tickets(session_id=session_id)
 
     try:
         if not payload.question.strip():
