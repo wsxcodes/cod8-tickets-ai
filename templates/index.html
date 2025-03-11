@@ -394,7 +394,13 @@
         const modal = document.getElementById('ticket-modal');
         const ticketPath = modal.dataset.ticketPath;
         try {
-          const response = await fetch(`/api/v1/tickets/${ticketPath}`, { method: 'DELETE' });
+      const response = await fetch(`/api/v1/tickets/${ticketPath}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ticket_id: "{{ticket_id}}" })
+        });
           const data = await response.json();
           if (!response.ok) throw new Error(data.message || 'Failed to delete ticket');
           alert('Ticket deleted');
