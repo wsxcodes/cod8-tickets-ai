@@ -60,7 +60,6 @@ templates = Jinja2Templates(directory="templates")
 @log_endpoint
 async def read_index(request: Request):
     logger = logging.getLogger(__name__)
-    logger.info("Received request for index page from %s", request.client.host)
 
     session_id = request.session.get("session_id")
     if session_id:
@@ -75,13 +74,15 @@ async def read_index(request: Request):
         import uuid
         session_id = str(uuid.uuid4())
         request.session["session_id"] = session_id
-        logger.info("Generated new session_id: %s", session_id)
+        logger.info("** Generated new session_id: %s", session_id)
 
         from backend.api.api_v1.endpoints.rag_endpoints import \
-            setup_support_assistant
+            setup_support_assistant, load_tickets
         try:
             await setup_support_assistant(session_id)
-            logger.info("Successfully set up support assistant for session_id: %s", session_id)
+            logger.info("** Successfully set up support assistant for session_id: %s", session_id)
+            await load_tickets(session_id)
+            logger.info("** Successfully loaded tickets for session_id: %s", session_id)
         except Exception as e:
             logger.error("Failed to set up support assistant: %s", str(e), exc_info=True)
 

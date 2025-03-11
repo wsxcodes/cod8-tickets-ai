@@ -70,10 +70,7 @@ async def support_enquiry(payload: Question, history: ChatHistory = Depends(get_
 @router.post("/load_tickets_to_memory")
 @log_endpoint
 async def load_tickets(session_id: str, history: ChatHistory = Depends(get_existing_history)):
-    # XXX BUG
     history = get_history(session_id)
-    print("* pica *" * 1000)
-    print(session_id)
     if history is None:
         raise HTTPException(status_code=404, detail="Session history not found")
 
