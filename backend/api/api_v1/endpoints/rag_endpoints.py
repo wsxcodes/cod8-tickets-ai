@@ -84,11 +84,13 @@ async def load_tickets(session_id: str, history: ChatHistory = Depends(get_exist
                 except Exception:  # Skip files that can't be parsed
                     continue
 
-        # Combine ticket info into one context string
-        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-
-        # Store ticket data in history
-        history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
+        if not tickets:
+            history.add_user_message("There are currently no active tickets.")
+        else:
+            # Combine ticket info into one context string
+            tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
+            # Store ticket data in history
+            history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
 
         return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
 
