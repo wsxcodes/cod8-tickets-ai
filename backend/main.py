@@ -67,8 +67,6 @@ async def read_index(request: Request):
     else:
         logger.info("No session_id found, generating a new one.")
 
-    # XXX TODO integrate check if the id exists with the session_histories (!!)
-
     # If no session ID exists, generate a new one
     if not session_id:
         import uuid
