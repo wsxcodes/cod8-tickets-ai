@@ -1,9 +1,9 @@
 import json
 import logging
-from pydantic import BaseModel
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
@@ -12,6 +12,7 @@ from backend.decorators import log_endpoint
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
 
 class Question(BaseModel):
     question: str
@@ -65,7 +66,7 @@ async def list_tickets():
 
 @router.delete("/tickets/{ticket_name:path}")
 @log_endpoint
-async def delete_ticket(ticket_name: str, request: Request):
+async def delete_ticket(ticket_name: str):
     if ticket_name.startswith("ticket_files/"):
         ticket_name = ticket_name[len("ticket_files/"):]
     file_path = TICKETS_DIR / ticket_name
@@ -73,8 +74,6 @@ async def delete_ticket(ticket_name: str, request: Request):
         return {"message": "Ticket not found"}
 
     file_path.unlink()
-
-    request_data = await request.json()
 
     return {
         "message": "Ticket deleted and memory refreshed"
