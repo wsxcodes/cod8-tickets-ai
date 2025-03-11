@@ -37,14 +37,14 @@ api_router.include_router(
     tags=["Tickets"]
 )
 
-# Workers Endpoints
-api_router.include_router(
-    workers_endpoints.router,
-    tags=["Workers"]
-)
-
 # Session Endpoints
 api_router.include_router(
     session_endpoints.router,
     tags=["Session"]
+)
+
+# Workers Endpoints
+api_router.include_router(
+    workers_endpoints.router,
+    tags=["Workers"]
 )
