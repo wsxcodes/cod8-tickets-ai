@@ -72,6 +72,7 @@ class AzureSearchClient:
         }
         return await self._post(url, body)
 
+    # XXX TODO chunking...
     async def upload_document(self, doc_id: str, embedding: list, metadata: dict):
         """
         Upload a single document (or update if ID exists) with vector and metadata.
