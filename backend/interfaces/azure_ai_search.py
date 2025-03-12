@@ -1,8 +1,9 @@
 from urllib.parse import quote
 
 import httpx
-from backend.schemas.llm_schemas import TextToVector
+
 from backend.api.api_v1.endpoints.llm_endpoints import vectorize_endpoint
+from backend.schemas.llm_schemas import TextToVector
 
 
 class AzureSearchClient:
