@@ -124,14 +124,15 @@ async def custom_query_strict(
             response_format=response_format
         )
 
-        # Try to parse the kernel response as JSON
+        # Convert the result to a string and try to parse it as JSON
+        result_str = str(result)
         try:
-            parsed_result = json.loads(result)
+            parsed_result = json.loads(result_str)
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="Kernel response did not follow the strict JSON format.")
 
         # Optionally add the result to history
-        history.add_message(result)
+        history.add_message(result_str)
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
