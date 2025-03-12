@@ -50,6 +50,27 @@ async def hybrid_search(
     return results
 
 
+@router.get("/hybrid_search_with_vectorization")
+@log_endpoint
+async def hybrid_search_with_vectorization(
+    text_query: str = Query(..., description="Text query for vectorization and hybrid search"),
+    top_k: int = Query(10, description="Number of top results to return"),
+    include_vector: bool = Query(True, description="Whether to include vector in the response")
+):
+    """Perform a hybrid search query with vectorization."""
+    results = await search_client.query_with_vectorization(
+        text_query=text_query,
+        top_k=top_k
+    )
+
+    if not include_vector and isinstance(results, list):
+        for result in results:
+            if isinstance(result, dict):
+                result.pop("vector", None)
+
+    return results
+
+
 @router.get("/fulltext_search")
 @log_endpoint
 async def fulltext_search(
