@@ -92,6 +92,20 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/custom_query_strict")
+@log_endpoint
+async def custom_query_strict(
+    session_id: str,
+    payload: Question,
+    system_message: str,
+    history: ChatHistory = Depends(get_existing_history),
+):
+    """
+    Allows querying the AI with a custom system message, enforcing a strict response format.
+    """
+    ...
+
+
 @router.post("/support_workflow")
 @log_endpoint
 async def support_workflow(session_id: str, workflow_step: int, history: ChatHistory = Depends(get_existing_history)):
