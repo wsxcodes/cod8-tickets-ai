@@ -132,7 +132,7 @@ async def custom_query_strict(
             raise HTTPException(status_code=500, detail="Kernel response did not follow the strict JSON format.")
 
         # Optionally add the result to history
-        history.add_message(result_str)
+        history.add_message({"role": "assistant", "content": result_str})
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
