@@ -96,15 +96,49 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 @log_endpoint
 async def custom_query_strict(
     session_id: str,
-    payload: Question,
+    payload: dict,
+    response_format: dict,
     system_message: str,
     history: ChatHistory = Depends(get_existing_history),
 ):
     """
-    Allows querying the AI with a custom system message, enforcing a strict response format.
+    Allows querying the AI with a custom system message and enforces a strict response format.
     """
-    ...
+    history = get_history(session_id)
+    try:
+        # Extract and validate the question
+        question = payload.get("question", "").strip()
+        if not question:
+            raise HTTPException(status_code=400, detail="Empty query was provided")
 
+        # Prepare a temporary history to avoid modifying the original context
+        temp_history = history.copy()
+        temp_history.add_system_message(system_message)
+        temp_history.add_user_message(question)
+
+        # Get the AI response, instructing the kernel to follow a strict response format
+        result = await chat_completion.get_chat_message_content(
+            chat_history=temp_history,
+            settings=execution_settings,
+            kernel=kernel,
+            response_format=response_format
+        )
+
+        # Try to parse the kernel response as JSON
+        try:
+            parsed_result = json.loads(result)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="Kernel response did not follow the strict JSON format.")
+
+        # Optionally add the result to history
+        history.add_message(result)
+
+        # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
+        return parsed_result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 @router.post("/support_workflow")
 @log_endpoint
