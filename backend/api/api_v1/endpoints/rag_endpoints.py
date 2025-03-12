@@ -103,6 +103,22 @@ async def custom_query_strict(
 ):
     """
     Allows querying the AI with a custom system message and enforces a strict response format.
+
+    Example usage:
+        curl -X 'POST' \
+            'http://localhost:8000/api/v1/custom_query_strict?session_id=1&system_message=You%20are%20a%20helpful%20marketing%20assistant.%20Answer%20the%20following%20question%20strictly%20in%20JSON%20format%20with%20exactly%20two%20keys:%20%22headline%22%20(string)%20and%20%22content%22%20(string).%20Do%20not%20include%20any%20additional%20text.' \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -d '{
+            "payload": {"question": "What are the key trends in digital marketing for 2025?"},
+            "response_format": {
+                "response_type": "strict_json",
+                "format_schema": {
+                "headline": "string",
+                "content": "string"
+                }
+            }
+        }'
     """
     history = get_history(session_id)
     try:
