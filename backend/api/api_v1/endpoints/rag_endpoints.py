@@ -121,7 +121,7 @@ async def custom_query_strict(
                     }
                 }
             }'
-    """
+    """  # NoQA
     history = get_history(session_id)
     try:
         # Extract and validate the question
@@ -158,7 +158,7 @@ async def custom_query_strict(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 @router.post("/support_workflow")
 @log_endpoint
