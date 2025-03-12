@@ -72,9 +72,10 @@ class AzureSearchClient:
         }
         return await self._post(url, body)
 
-    async def query_with_vectorization():
-        # XXX TODO
-        ...
+    async def query_with_vectorization(self, top_k: int = 5):
+        """Perform a hybrid search query with vectorization."""
+        # XXX TODO: Implement vectorization logic
+
 
     # XXX TODO chunking...
     async def upload_document(self, doc_id: str, embedding: list, metadata: dict):
