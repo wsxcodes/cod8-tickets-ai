@@ -1,6 +1,8 @@
 from urllib.parse import quote
 
 import httpx
+from backend.schemas.llm_schemas import TextToVector
+from backend.api.api_v1.endpoints.llm_endpoints import vectorize_endpoint
 
 
 class AzureSearchClient:
@@ -72,10 +74,11 @@ class AzureSearchClient:
         }
         return await self._post(url, body)
 
-    async def query_with_vectorization(self, top_k: int = 5):
+    async def query_with_vectorization(self, text_query: str, top_k: int = 5):
         """Perform a hybrid search query with vectorization."""
-        # XXX TODO: Implement vectorization logic
-
+        vector_response = await vectorize_endpoint(TextToVector(text=text_query))
+        embedding = vector_response["vector"]
+        return await self.hybrid_search(text_query=text_query, embedding=embedding, top_k=top_k)
 
     # XXX TODO chunking...
     async def upload_document(self, doc_id: str, embedding: list, metadata: dict):
