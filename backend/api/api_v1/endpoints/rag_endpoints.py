@@ -92,6 +92,7 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# XXX TODO add these on the body parameters......
 @router.post("/custom_query_strict")
 @log_endpoint
 async def custom_query_strict(
