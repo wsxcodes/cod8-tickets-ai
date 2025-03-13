@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 import semantic_kernel as sk
 from openai import OpenAI
