@@ -63,10 +63,15 @@ async def hybrid_search_with_vectorization(
         top_k=top_k
     )
 
-    if not include_vector and isinstance(results, list):
-        for result in results:
-            if isinstance(result, dict):
-                result.pop("vector", None)
+    if not include_vector:
+        if isinstance(results, dict) and "value" in results and isinstance(results["value"], list):
+            for result in results["value"]:
+                if isinstance(result, dict):
+                    result.pop("vector", None)
+        elif isinstance(results, list):
+            for result in results:
+                if isinstance(result, dict):
+                    result.pop("vector", None)
 
     return results
 
