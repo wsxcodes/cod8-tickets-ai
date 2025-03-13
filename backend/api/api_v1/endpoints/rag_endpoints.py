@@ -118,12 +118,9 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
     if workflow_step == 1:
         # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
             system_message += (
-                "You must determine whether I am referring to the same ticket currently being discussed or if I am switching to a different ticket. "
-                "If I mention a specific ticket by number, title, or description that differs from the last discussed ticket, classify this as switching topics. "
-                "Actively compare my question against the last discussed ticket. Do not assume continuation—always check for a reference change. "
-                "If I introduce a new ticket that was previously discussed or an entirely new issue, set 'is_new_ticket' to true. "
-                "If my question continues the discussion about the same ticket, set 'is_new_ticket' to false. "
-                "If uncertain, ask me to clarify whether I am referring to a different ticket."
+                "Determine whether my current question refers to the same ticket we have been discussing or to a new ticket that was not part of our most recent conversation. "
+                "Only if I explicitly mention a ticket (via its ID, title, or description) that is different from the one last discussed should you set 'is_new_ticket' to true; "
+                "otherwise, set it to false. Always assume that unless a new ticket is clearly referenced, I am continuing the discussion about the previously mentioned ticket."
             )  # NoQA
     elif workflow_step == 2:
         # XXX TODO working on this currently
