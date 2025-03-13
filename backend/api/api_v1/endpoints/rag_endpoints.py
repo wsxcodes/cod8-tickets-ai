@@ -109,7 +109,6 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 @log_endpoint
 async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
-    system_message = SETUP_ASSISTANT
 
     if not question:
         raise HTTPException(status_code=400, detail="Empty query was provided")
@@ -117,11 +116,13 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
         # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
-            system_message += (
-                "Determine whether my current question refers to the same ticket we have been discussing or to a new ticket that was not part of our most recent conversation. "
-                "Only if I explicitly mention a ticket (via its ID, title, or description) that is different from the one last discussed should you set 'is_new_ticket' to true; "
-                "otherwise, set it to false. Always assume that unless a new ticket is clearly referenced, I am continuing the discussion about the previously mentioned ticket."
+            system_message = (
+                "Identify the ticket referenced in my current question."
+                "If there is no previously discussed ticket in our conversation, treat the referenced ticket as new and set 'is_new_ticket' to true."
+                "If a ticket has been discussed before, compare the current ticket (by ID, title, or description) with the most recently discussed ticket: "
+                "if they differ, set 'is_new_ticket' to true; if they match, set it to false."
             )  # NoQA
+            system_message += SETUP_ASSISTANT
     elif workflow_step == 2:
         # XXX TODO working on this currently
         ...
