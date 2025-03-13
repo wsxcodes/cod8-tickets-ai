@@ -31,7 +31,7 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     answer: str
-    ticket_id: str
+    context_ticket_id: str
 
 
 TICKETS_DIR = config.TICKETS_DIR
