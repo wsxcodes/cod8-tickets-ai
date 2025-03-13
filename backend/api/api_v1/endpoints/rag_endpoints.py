@@ -124,12 +124,8 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             "When my question explicitly refers to a ticket (by its unique identifier, title, or description), "
             "match it against the JSON ticket records. Then, extract the ticketID from the matching JSON object "
             "and set that as the value for context_ticket_id. "
-            "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty. "
+            "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty."
         )  # NoQA
-
-        # XXX BUG {"answer":"I pick the ticket titled "Mysterious Network Outage" submitted by Jane Doe.","context_ticket_id":"ticket2"}
-        # XXX BUG TODO it needs to take ticketID specifically
-
     elif workflow_step == 2:
         # XXX TODO let me see if I can find similar tickets..
         ...
