@@ -119,11 +119,12 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
         system_message = (
-            SETUP_ASSISTANT + "\n" +  # NoQA
-            "In addition to following the above IT ticketing guidelines, you must identify the ticket referenced in my current question. "
-            "If my question explicitly mentions a ticket by its unique identifier, title, or description that matches one in our historical records, output that ticket's identifier as context_ticket_id. "  # NoQA
-            "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. "
-            "This instruction should work alongside the general assistant setup without disregarding it."
+            SETUP_ASSISTANT +  # NoQA
+            " In addition, examine the JSON data representing the tickets loaded in memory. "
+            "When my question explicitly refers to a ticket (by its unique identifier, title, or description), "
+            "match it against the JSON ticket records. Then, extract the ticketID from the matching JSON object "
+            "and set that as the value for context_ticket_id. "
+            "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty. "
         )  # NoQA
 
         # XXX BUG {"answer":"I pick the ticket titled "Mysterious Network Outage" submitted by Jane Doe.","context_ticket_id":"ticket2"}
