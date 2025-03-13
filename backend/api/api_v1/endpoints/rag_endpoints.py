@@ -183,6 +183,9 @@ async def support_workflow(session_id: str, payload: Question, workflow_step: in
     if workflow_step == 1:
         # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
         system_message += " Additionally, please determine whether the user's query is about creating a new ticket or referencing an existing one. If the conversation is ongoing about a ticket and the user then mentions another ticket that was previously discussed, ensure you recognize this as referencing a different ticket. In your response, set the 'is_new_ticket' flag to true for new ticket inquiries, and false otherwise."  # NoQA
+    if workflow_step == 2:
+        # XXX TODO working on this currently
+        ...
 
     data = {
         "question": payload.question,
