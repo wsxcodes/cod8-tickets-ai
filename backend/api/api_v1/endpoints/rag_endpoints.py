@@ -124,7 +124,7 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             "If my question explicitly mentions a ticket by its unique identifier, title, or description that matches one in our historical records, output that ticket's identifier as context_ticket_id. "  # NoQA
             "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. "
             "This instruction should work alongside the general assistant setup without disregarding it."
-        )  # NoQA        
+        )  # NoQA
     elif workflow_step == 2:
         # XXX TODO let me see if I can find similar tickets..
         ...
@@ -175,6 +175,7 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
 
         # Inject next workflow step into the response
         parsed_result["next_workflow_action_step"] = next_workflow_action_step
+        set_current_context_ticket(session_id=session_id, ticket_id=parsed_result["context_ticket_id"])
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
