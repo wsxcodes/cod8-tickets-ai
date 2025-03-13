@@ -145,6 +145,8 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         )
 
         print("*kurva"*10)
+        print(history)
+        print("*kurva"*10)
         print(system_message)
         print("-----")
         print("execution_settings", execution_settings)
