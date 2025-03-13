@@ -33,6 +33,13 @@ class Question(BaseModel):
 
 TICKETS_DIR = config.TICKETS_DIR
 
+SETUP_ASSISTANT = (
+    "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."
+    "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate."
+    "Do not include any HTML tags—just use Markdown or plain text formatting."
+    "Every question I ask relates to the context provided."
+)
+
 
 @router.post("/generic_support_enquiry")
 @log_endpoint
@@ -163,9 +170,15 @@ async def custom_query_strict(
 @router.post("/support_workflow")
 @log_endpoint
 async def support_workflow(session_id: str, workflow_step: int, history: ChatHistory = Depends(get_existing_history)):
-    # XXX TODO
-    ...
+    system_message = SETUP_ASSISTANT
+    logger.info("System message added for session_id: %s", session_id)
+    if workflow_step == 1:
+        # Perform actions for workflow step 1
+        # XXX TODO
+        pass
 
+    history.add_system_message(SETUP_ASSISTANT)
+        
 
 @router.post("/load_tickets_to_memory")
 @log_endpoint
@@ -223,12 +236,7 @@ async def setup_support_assistant(session_id: str):
         raise HTTPException(status_code=404, detail="Session history not found")
     try:
         # Add system instructions
-        history.add_system_message(
-            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."
-            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate."
-            "Do not include any HTML tags—just use Markdown or plain text formatting."
-            "Every question I ask relates to the context provided."
-        )
+        history.add_system_message(SETUP_ASSISTANT)
         logger.info("System message added for session_id: %s", session_id)
         return {"message": "Support assistant setup successfully"}
     except Exception as e:
