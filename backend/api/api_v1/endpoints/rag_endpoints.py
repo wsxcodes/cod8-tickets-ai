@@ -27,8 +27,11 @@ logger.setLevel(logging.INFO)
 
 class Question(BaseModel):
     question: str
-    response_format: Optional[dict] = None
     system_message: Optional[str] = None
+
+class Answer(BaseModel):
+    answer: str
+    is_new_ticket: bool
 
 
 TICKETS_DIR = config.TICKETS_DIR
@@ -102,53 +105,52 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/custom_query_strict")
+@router.post("/support_workflow")
 @log_endpoint
-async def custom_query_strict(
-    session_id: str,
-    payload: Question,
-    history: ChatHistory = Depends(get_existing_history),
-):
-    """
-    Allows querying the AI with a custom system message and enforces a strict response format.
-
-    Example usage:
-        curl -X 'POST' \
-            'http://localhost:8000/api/v1/custom_query_strict?session_id=1' \
-            -H 'accept: application/json' \
-            -H 'Content-Type: application/json' \
-            -d '{
-                "question": "What are the key trends in digital marketing for 2025?",
-                "system_message": "You are a helpful marketing assistant. Answer the following question strictly in JSON format with exactly two keys: \"headline\" (string) and \"content\" (string). Do not include any additional text.",
-                "response_format": {
-                    "response_type": "strict_json",
-                    "format_schema": {
-                        "headline": "string",
-                        "content": "string"
-                    }
-                }
-            }'
-    """  # NoQA
+async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
-    try:
-        # Extract and validate the question
-        question = payload.question.strip()
-        if not question:
-            raise HTTPException(status_code=400, detail="Empty query was provided")
+    system_message = SETUP_ASSISTANT
 
-        # Prepare a temporary history to avoid modifying the original context
-        temp_history = history.copy()
-        if payload.system_message:
-            temp_history.add_system_message(payload.system_message)
-        temp_history.add_user_message(question)
+    if not question:
+        raise HTTPException(status_code=400, detail="Empty query was provided")
+
+    logger.info("System message added for session_id: %s", session_id)
+    if workflow_step == 1:
+        # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
+            system_message += (
+                "You must determine whether I am referring to the same ticket currently being discussed or if I am switching to a different ticket. "
+                "If I mention a specific ticket by number, title, or description that differs from the last discussed ticket, classify this as switching topics. "
+                "Actively compare my question against the last discussed ticket. Do not assume continuation—always check for a reference change. "
+                "If I introduce a new ticket that was previously discussed or an entirely new issue, set 'is_new_ticket' to true. "
+                "If my question continues the discussion about the same ticket, set 'is_new_ticket' to false. "
+                "If uncertain, ask me to clarify whether I am referring to a different ticket."
+            )  # NoQA
+    elif workflow_step == 2:
+        # XXX TODO working on this currently
+        ...
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
+    
+    try:
+        history.add_system_message(system_message)
+        history.add_user_message(question)
+
+        # Setup response format
+        execution_settings.structured_json_response=True
+        execution_settings.response_format=Answer
 
         # Get the AI response, instructing the kernel to follow a strict response format
         result = await chat_completion.get_chat_message_content(
-            chat_history=temp_history,
+            chat_history=history,
             settings=execution_settings,
-            kernel=kernel,
-            response_format=payload.response_format
+            kernel=kernel
         )
+
+        print("*kurva"*10)
+        print(system_message)
+        print("-----")
+        print("execution_settings", execution_settings)
+        print(result)
 
         # Convert the result to a string and try to parse it as JSON
         result_str = str(result)
@@ -165,38 +167,6 @@ async def custom_query_strict(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/support_workflow")
-@log_endpoint
-async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
-    system_message = SETUP_ASSISTANT
-    response_format = {
-        "response_type": "strict_json",
-        "format_schema": {
-            "answer": "string",
-            "is_new_ticket": "boolean"
-            }
-        }
-    
-    logger.info("System message added for session_id: %s", session_id)
-    if workflow_step == 1:
-        # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
-        system_message += " Additionally, please determine whether the user's query is about creating a new ticket or referencing an existing one. If the conversation is ongoing about a ticket and the user then mentions another ticket that was previously discussed, ensure you recognize this as referencing a different ticket. In your response, set the 'is_new_ticket' flag to true for new ticket inquiries, and false otherwise."  # NoQA
-    elif workflow_step == 2:
-        # XXX TODO working on this currently
-        ...
-    else:
-        raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
-    
-    # Call custom_query_strict with the constructed payload
-    from backend.api.api_v1.endpoints.rag_endpoints import custom_query_strict
-    new_payload = Question(
-        question=question,
-        system_message=system_message,
-        response_format=response_format
-    )
-    return await custom_query_strict(session_id, new_payload, history)
 
 
 @router.post("/load_tickets_to_memory")
