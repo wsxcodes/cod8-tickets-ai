@@ -111,6 +111,7 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 @log_endpoint
 async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
+    next_workflow_action_step = 1
 
     if not question:
         raise HTTPException(status_code=400, detail="Empty query was provided")
@@ -123,9 +124,18 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             "If my question explicitly mentions a ticket by its unique identifier, title, or description that matches one in our historical records, output that ticket's identifier as context_ticket_id. "  # NoQA
             "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. "
             "This instruction should work alongside the general assistant setup without disregarding it."
-        )  # NoQA
+        )  # NoQA        
     elif workflow_step == 2:
-        # XXX TODO working on this currently
+        # XXX TODO let me see if I can find similar tickets..
+        ...
+    elif workflow_step == 3:
+        # XXX TODO let me see if the info in these tickets is of any use for us...
+        ...
+    elif workflow_step == 4:
+        # XXX TODO I found this information useful / these tickets are not much of a use for us...
+        ...
+    elif workflow_step == 5:
+        # XXX TODO resolution suggestion
         ...
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
@@ -155,7 +165,16 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         # Optionally add the result to history
         history.add_message({"role": "assistant", "content": result_str})
 
-        # XXX next_workflow_action_step
+        # Decide on the next action step
+        recent_context_ticket = get_current_context_ticket(session_id=session_id)
+        current_context_ticket = parsed_result["context_ticket_id"]
+        if current_context_ticket:
+            if current_context_ticket != recent_context_ticket:
+                logger.info("Context ticket has changed from %s to %s for session_id: %s", recent_context_ticket, current_context_ticket, session_id)
+                next_workflow_action_step = 2
+
+        # Inject next workflow step into the response
+        parsed_result["next_workflow_action_step"] = next_workflow_action_step
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
