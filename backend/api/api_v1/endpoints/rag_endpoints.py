@@ -155,6 +155,8 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         # Optionally add the result to history
         history.add_message({"role": "assistant", "content": result_str})
 
+        # XXX next_workflow_action_step
+
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
 
