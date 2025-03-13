@@ -9,10 +9,10 @@ from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
 from backend.decorators import log_endpoint
-from backend.dependencies import (chat_completion, execution_settings,
-                                  kernel)
-from backend.session_state import get_history, get_current_context_ticket, set_current_context_ticket
+from backend.dependencies import chat_completion, execution_settings, kernel
 from backend.helpers.chat_helpers import get_existing_history
+from backend.session_state import (get_current_context_ticket, get_history,
+                                   set_current_context_ticket)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
