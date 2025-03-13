@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
@@ -169,7 +169,7 @@ async def custom_query_strict(
 
 @router.post("/support_workflow")
 @log_endpoint
-async def support_workflow(session_id: str, payload: Question, workflow_step: int, history: ChatHistory = Depends(get_existing_history)):
+async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     system_message = SETUP_ASSISTANT
     response_format = {
         "response_type": "strict_json",
@@ -183,20 +183,17 @@ async def support_workflow(session_id: str, payload: Question, workflow_step: in
     if workflow_step == 1:
         # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
         system_message += " Additionally, please determine whether the user's query is about creating a new ticket or referencing an existing one. If the conversation is ongoing about a ticket and the user then mentions another ticket that was previously discussed, ensure you recognize this as referencing a different ticket. In your response, set the 'is_new_ticket' flag to true for new ticket inquiries, and false otherwise."  # NoQA
-    if workflow_step == 2:
+    elif workflow_step == 2:
         # XXX TODO working on this currently
         ...
-
-    data = {
-        "question": payload.question,
-        "response_format": response_format,
-        "system_message": system_message
-    }
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
+    
     # Call custom_query_strict with the constructed payload
     from backend.api.api_v1.endpoints.rag_endpoints import custom_query_strict
     new_payload = Question(
-        question=data["question"],
-        system_message=data["system_message"],
+        question=question,
+        system_message=system_message,
         response_format=response_format
     )
     return await custom_query_strict(session_id, new_payload, history)
