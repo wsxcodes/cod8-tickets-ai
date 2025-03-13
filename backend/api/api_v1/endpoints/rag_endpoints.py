@@ -115,7 +115,7 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
 
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
-        # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
+            # XXX TODO
             system_message = (
                 "Identify the ticket referenced in my current question."
             )  # NoQA
