@@ -181,15 +181,22 @@ async def support_workflow(session_id: str, payload: Question, workflow_step: in
     
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
-        # Perform actions for workflow step 1
-        # XXX TODO
-        pass
+        # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
+        system_message += " Additionally, please determine whether the user's query is about creating a new ticket or referencing an existing one. If the conversation is ongoing about a ticket and the user then mentions another ticket that was previously discussed, ensure you recognize this as referencing a different ticket. In your response, set the 'is_new_ticket' flag to true for new ticket inquiries, and false otherwise."  # NoQA
 
     data = {
         "question": payload.question,
-        "response_format": response_format
+        "response_format": response_format,
+        "system_message": system_message
     }
-    # XXX TODO
+    # Call custom_query_strict with the constructed payload
+    from backend.api.api_v1.endpoints.rag_endpoints import custom_query_strict
+    new_payload = Question(
+        question=data["question"],
+        system_message=data["system_message"],
+        response_format=response_format
+    )
+    return await custom_query_strict(session_id, new_payload, history)
 
 
 @router.post("/load_tickets_to_memory")
