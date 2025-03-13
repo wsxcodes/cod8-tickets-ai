@@ -31,7 +31,7 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     answer: str
-    is_new_ticket: bool
+    ticket_id: str
 
 
 TICKETS_DIR = config.TICKETS_DIR
@@ -118,9 +118,6 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         # Ticket type determination: instruct the assistant to determine if the user's query is about a new ticket or an existing one
             system_message = (
                 "Identify the ticket referenced in my current question."
-                "If there is no previously discussed ticket in our conversation, treat the referenced ticket as new and set 'is_new_ticket' to true."
-                "If a ticket has been discussed before, compare the current ticket (by ID, title, or description) with the most recently discussed ticket: "
-                "if they differ, set 'is_new_ticket' to true; if they match, set it to false."
             )  # NoQA
             system_message += SETUP_ASSISTANT
     elif workflow_step == 2:
@@ -145,11 +142,6 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         )
 
         print("*kurva"*10)
-        print(history)
-        print("*kurva"*10)
-        print(system_message)
-        print("-----")
-        print("execution_settings", execution_settings)
         print(result)
 
         # Convert the result to a string and try to parse it as JSON
