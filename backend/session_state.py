@@ -1,4 +1,5 @@
 from typing import Optional
+
 from semantic_kernel.contents.chat_history import ChatHistory
 
 session_histories = {}
