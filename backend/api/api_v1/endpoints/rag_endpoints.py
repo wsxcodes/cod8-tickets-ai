@@ -125,6 +125,10 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. "
             "This instruction should work alongside the general assistant setup without disregarding it."
         )  # NoQA
+
+        # XXX BUG {"answer":"I pick the ticket titled "Mysterious Network Outage" submitted by Jane Doe.","context_ticket_id":"ticket2"}
+        # XXX BUG TODO it needs to take ticketID specifically
+
     elif workflow_step == 2:
         # XXX TODO let me see if I can find similar tickets..
         ...
