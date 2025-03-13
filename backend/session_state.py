@@ -2,7 +2,6 @@ from typing import Optional
 
 from semantic_kernel.contents.chat_history import ChatHistory
 
-
 # XXX TODO this really should be a persistent storage solution
 session_histories = {}
 context_ticket_ids = {}
