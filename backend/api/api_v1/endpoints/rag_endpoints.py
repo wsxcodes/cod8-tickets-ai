@@ -10,7 +10,8 @@ from semantic_kernel.utils.logging import setup_logging
 from backend import config
 from backend.decorators import log_endpoint
 from backend.dependencies import (chat_completion, execution_settings,
-                                  get_history, kernel)
+                                  kernel)
+from backend.session_state import get_history, get_current_context_ticket, set_current_context_ticket
 from backend.helpers.chat_helpers import get_existing_history
 
 logger = logging.getLogger(__name__)
