@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
@@ -28,6 +28,7 @@ logger.setLevel(logging.INFO)
 class Question(BaseModel):
     question: str
     system_message: Optional[str] = None
+
 
 class Answer(BaseModel):
     answer: str
@@ -115,12 +116,11 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
 
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
-        # XXX TODO
         system_message = (
-            SETUP_ASSISTANT +
-            " In addition to following the above IT ticketing guidelines, you must identify the ticket referenced in my current question. " 
-            "If my question explicitly mentions a ticket by its unique identifier, title, or description that matches one in our historical records, output that ticket's identifier as context_ticket_id. " 
-            "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. " 
+            SETUP_ASSISTANT +  # NoQA
+            " In addition to following the above IT ticketing guidelines, you must identify the ticket referenced in my current question. "
+            "If my question explicitly mentions a ticket by its unique identifier, title, or description that matches one in our historical records, output that ticket's identifier as context_ticket_id. "  # NoQA
+            "Do not fabricate or guess a ticket id if no clear reference is provided; instead, leave context_ticket_id empty or null. "
             "This instruction should work alongside the general assistant setup without disregarding it."
         )  # NoQA
     elif workflow_step == 2:
@@ -128,14 +128,14 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         ...
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
-    
+
     try:
         history.add_system_message(system_message)
         history.add_user_message(question)
 
         # Setup response format
-        execution_settings.structured_json_response=True
-        execution_settings.response_format=Answer
+        execution_settings.structured_json_response = True
+        execution_settings.response_format = Answer
 
         # Get the AI response, instructing the kernel to follow a strict response format
         result = await chat_completion.get_chat_message_content(
@@ -143,9 +143,6 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             settings=execution_settings,
             kernel=kernel
         )
-
-        print("*kurva"*10)
-        print(result)
 
         # Convert the result to a string and try to parse it as JSON
         result_str = str(result)
