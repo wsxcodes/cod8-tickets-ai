@@ -169,16 +169,28 @@ async def custom_query_strict(
 
 @router.post("/support_workflow")
 @log_endpoint
-async def support_workflow(session_id: str, workflow_step: int, history: ChatHistory = Depends(get_existing_history)):
+async def support_workflow(session_id: str, payload: Question, workflow_step: int, history: ChatHistory = Depends(get_existing_history)):
     system_message = SETUP_ASSISTANT
+    response_format = {
+        "response_type": "strict_json",
+        "format_schema": {
+            "answer": "string",
+            "is_new_ticket": "boolean"
+            }
+        }
+    
     logger.info("System message added for session_id: %s", session_id)
     if workflow_step == 1:
         # Perform actions for workflow step 1
         # XXX TODO
         pass
 
-    history.add_system_message(SETUP_ASSISTANT)
-        
+    data = {
+        "question": payload.question,
+        "response_format": response_format
+    }
+    # XXX TODO
+
 
 @router.post("/load_tickets_to_memory")
 @log_endpoint
