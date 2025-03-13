@@ -7,7 +7,8 @@ from semantic_kernel.utils.logging import setup_logging
 from backend import config
 from backend.decorators import log_endpoint
 from backend.dependencies import (chat_completion, execution_settings, kernel,
-                                  openai_client, session_histories)
+                                  openai_client)
+from backend.session_state import session_histories
 from backend.helpers.chat_helpers import get_existing_history
 from backend.schemas.llm_schemas import ChatCompletionRequest, TextToVector
 
