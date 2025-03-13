@@ -224,9 +224,9 @@ async def setup_support_assistant(session_id: str):
     try:
         # Add system instructions
         history.add_system_message(
-            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses. "
-            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate. "
-            "Do not include any HTML tags—just use Markdown or plain text formatting. "
+            "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."
+            "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate."
+            "Do not include any HTML tags—just use Markdown or plain text formatting."
             "Every question I ask relates to the context provided."
         )
         logger.info("System message added for session_id: %s", session_id)
