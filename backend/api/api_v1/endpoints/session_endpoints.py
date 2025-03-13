@@ -5,7 +5,7 @@ from typing import Dict
 from fastapi import APIRouter, Request
 
 from backend.decorators import log_endpoint
-from backend.dependencies import get_history, session_histories
+from backend.session_state import get_history, session_histories
 
 logger = logging.getLogger(__name__)
 
