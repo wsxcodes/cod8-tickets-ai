@@ -128,15 +128,19 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
 
     elif workflow_step == 2:
         # XXX TODO let me see if I can find similar tickets..
+        next_workflow_action_step = 3
         ...
     elif workflow_step == 3:
         # XXX TODO let me see if the info in these tickets is of any use for us...
+        next_workflow_action_step = 4
         ...
     elif workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
+        next_workflow_action_step = 5
         ...
     elif workflow_step == 5:
         # XXX TODO resolution suggestion
+        next_workflow_action_step = 1
         ...
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
