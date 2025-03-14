@@ -1,7 +1,7 @@
 {
     "ticketID": "T-1002",
     "title": "Mysterious Network Outage",
-    "requester": "Jane Doe",
+    "requester": "Alex Mercer",
     "description": "Network keeps dropping like it’s had too much to drink. Router is blinking frantically, but no stable connection available.",
     "status": "Open",
     "priority": "Medium"

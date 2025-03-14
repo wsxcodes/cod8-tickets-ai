@@ -1,7 +1,7 @@
 {
     "ticketID": "T-1005",
     "title": "Laptop Battery Issues",
-    "requester": "Sarah Sparks",
+    "requester": "Sarah Jones",
     "description": "Laptop suddenly drains faster than a sinkhole. Might need a fresh battery or a new power adapter.",
     "status": "Open",
     "priority": "Medium"
