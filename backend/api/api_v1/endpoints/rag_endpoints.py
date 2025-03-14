@@ -9,6 +9,7 @@ from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
 from backend.api.api_v1.endpoints.tickets_endpoints import get_ticket
+from backend.api.api_v1.endpoints.search_endpoints import hybrid_search_with_vectorization
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
 from backend.helpers.chat_helpers import get_existing_history
@@ -113,6 +114,7 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 async def support_workflow(session_id: str, support_workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
     next_workflow_action_step = 1
+    similar_tickets = None
 
     logger.info("System message added for session_id: %s", session_id)
     if support_workflow_step == 1:
@@ -135,6 +137,8 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
     elif support_workflow_step == 3:
         next_workflow_action_step = 4
+        # XXX assesment....
+        system_message = ""
         current_context_ticket = get_current_context_ticket(session_id=session_id)
         ticket_text = ""
         if current_context_ticket:
@@ -144,9 +148,8 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
         if ticket_text:
             logger.info("Ticket text retrieved: %s", ticket_text)
-            # XXX Search
+            similar_tickets = await hybrid_search_with_vectorization(text_query=ticket_text, top_k=5, include_vector=False)
         
-        ...
     elif support_workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
         next_workflow_action_step = 5
@@ -195,6 +198,9 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         # Inject next workflow step into the response
         parsed_result["next_workflow_action_step"] = next_workflow_action_step
         set_current_context_ticket(session_id=session_id, ticket_id=parsed_result["context_ticket_id"])
+
+        if similar_tickets:
+            parsed_result["similar_tickets"] = similar_tickets["value"]["value"]
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
