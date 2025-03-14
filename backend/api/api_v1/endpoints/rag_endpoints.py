@@ -110,12 +110,12 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 
 @router.post("/support_workflow")
 @log_endpoint
-async def support_workflow(session_id: str, workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
+async def support_workflow(session_id: str, support_workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
     history = get_history(session_id)
     next_workflow_action_step = 1
 
     logger.info("System message added for session_id: %s", session_id)
-    if workflow_step == 1:
+    if support_workflow_step == 1:
         if not question:
             raise HTTPException(status_code=400, detail="Empty query was provided")
         system_message = (
@@ -127,31 +127,31 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty."
         )  # NoQA
 
-    elif workflow_step == 2:
+    elif support_workflow_step == 2:
+        next_workflow_action_step = 3
         system_message = "Please analyze the current ticket information and suggest any similar tickets that may provide relevant context."
         question = "Say something like I will analyze the current ticket data thoroughly to identify any similar historical tickets that might provide relevant context to help solving this ticket. But rephrase it."  # NoQA
-        next_workflow_action_step = 3
 
-    elif workflow_step == 3:
+    elif support_workflow_step == 3:
         # XXX TODO let me see if the info in these tickets is of any use for us...
         next_workflow_action_step = 4
         current_context_ticket = get_current_context_ticket(session_id=session_id)
-        current_ticket_obj = await get_ticket(ticket_id=current_context_ticket)
-        print("*"*1000)
-        print(current_context_ticket)
-        print(dir(current_ticket_obj))
-        print(current_ticket_obj.body)
+        if current_context_ticket:
+            response = await get_ticket(ticket_id=current_context_ticket)
+            ticket_json = json.loads(response.body.decode("utf-8"))
+            print("*"*1000)
+            print(ticket_json)
         ...
-    elif workflow_step == 4:
+    elif support_workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
         next_workflow_action_step = 5
         ...
-    elif workflow_step == 5:
+    elif support_workflow_step == 5:
         # XXX TODO resolution suggestion
         next_workflow_action_step = 1
         ...
     else:
-        raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {workflow_step}.")
+        raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {support_workflow_step}.")
 
     try:
         history.add_system_message(system_message)
