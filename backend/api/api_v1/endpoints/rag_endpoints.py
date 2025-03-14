@@ -8,11 +8,11 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
-from backend.helpers.chat_helpers import get_ticket_data
-from backend.api.api_v1.endpoints.search_endpoints import hybrid_search_with_vectorization
+from backend.api.api_v1.endpoints.search_endpoints import \
+    hybrid_search_with_vectorization
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
-from backend.helpers.chat_helpers import get_existing_history
+from backend.helpers.chat_helpers import get_existing_history, get_ticket_data
 from backend.session_state import (get_current_context_ticket, get_history,
                                    set_current_context_ticket)
 
@@ -149,14 +149,14 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             similar_tickets = filtered_similar_tickets
 
         system_message = (
-            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'."
-            "1. Exclude any tickets with a similarity score below 0.03."
-            "2. For any remaining tickets (score ≥ 0.03), provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."
-            "3. If no tickets meet the threshold or if the remaining tickets do not offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."
+            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'."  # NoQA
+            "1. Exclude any tickets with a similarity score below 0.35."
+            "2. For any remaining tickets (score ≥ 0.35), provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
+            "3. If no tickets meet the threshold or if the remaining tickets do not offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."  # NoQA
             "Ensure your response is strictly limited to this analysis or the stated message."
         )
         question = f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}"
-        
+
     elif support_workflow_step == 4:
         next_workflow_action_step = 1
         current_context_ticket = get_current_context_ticket(session_id=session_id)
