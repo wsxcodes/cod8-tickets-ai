@@ -234,6 +234,15 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+    .debug-message {
+      background-color: #333;
+      border: 1px dashed #ff6347;
+      color: #ff6347;
+      padding: 10px;
+      font-family: monospace;
+      margin: 10px 25px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -477,6 +486,11 @@
           aiMessage.classList.add('ai-message');
           aiMessage.innerHTML = marked.parse(data.answer);
           chatWindow.appendChild(aiMessage);
+          // Debug: Display full support_workflow response
+          const debugMessage = document.createElement('pre');
+          debugMessage.classList.add('debug-message');
+          debugMessage.textContent = "DEBUG: " + JSON.stringify(data, null, 2);
+          chatWindow.appendChild(debugMessage);
           // Scroll to bottom after AI response using setTimeout
           setTimeout(() => {
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
