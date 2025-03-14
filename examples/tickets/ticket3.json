@@ -1,8 +1,8 @@
 {
-    "ticketID": "T-1003",
-    "title": "Coffee Machine Whining",
-    "requester": "Captain Brew",
-    "description": "Coffee machine is making dramatic noises. Still works, just sounds like it’s auditioning for a horror flick.",
+    "ticketID": "T-1006",
+    "title": "Office Printer Grievances",
+    "requester": "Martin Paperjam",
+    "description": "Printer refuses to cooperate, jamming every other page. It’s turning office folks into medieval scribes.",
     "status": "Open",
     "priority": "Low"
-  }
+}
