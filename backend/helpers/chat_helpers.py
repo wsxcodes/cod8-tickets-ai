@@ -14,7 +14,7 @@ def get_existing_history(session_id: str) -> ChatHistory:
     return history
 
 
-def get_ticket(ticket_id: str):
+async def get_ticket_data(ticket_id: str):
     response = await get_ticket(ticket_id=ticket_id)
     ticket_json = json.loads(response.body.decode("utf-8"))
     ticket_text = ticket_json.get("title", "") + " " + ticket_json.get("description", "")
