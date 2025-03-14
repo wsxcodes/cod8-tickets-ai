@@ -408,10 +408,11 @@
         }
       });
       document.getElementById('delete-ticket-btn').addEventListener('click', async () => {
-        const modal = document.getElementById('ticket-modal');
-        const ticketPath = modal.dataset.ticketPath;
+      const modal = document.getElementById('ticket-modal');
+      const ticketData = JSON.parse(document.getElementById('ticket-json').textContent);
+      const ticket_id = ticketData.ticketID;
         try {
-      const response = await fetch(`/api/v1/tickets/${ticketPath}`, {
+      const response = await fetch(`/api/v1/tickets/${ticket_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
