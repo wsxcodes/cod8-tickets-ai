@@ -149,17 +149,14 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             similar_tickets = await hybrid_search_with_vectorization(text_query=ticket_text, top_k=5, include_vector=False)
             similar_tickets = similar_tickets["value"]
             # Exclude tickets not meeting the absolute bare minimum threshold
-            print("*"*1000)
-            print(type(similar_tickets))
-            print(dir(similar_tickets))
             filtered_similar_tickets = [ticket for ticket in similar_tickets if ticket["@search.score"] >= 0.03]
+            similar_tickets = filtered_similar_tickets
 
-        # XXX assesment....
         system_message = (
             "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'."
             "1. Exclude any tickets with a similarity score below 0.03."
             "2. For any remaining tickets (score ≥ 0.03), provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."
-            "3. If no tickets meet the threshold or if the remaining tickets do not offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.'"
+            "3. If no tickets meet the threshold or if the remaining tickets do not offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."
             "Ensure your response is strictly limited to this analysis or the stated message."
         )
         question = f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}"
