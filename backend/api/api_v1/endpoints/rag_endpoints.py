@@ -8,7 +8,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
-from backend.helpers.chat_helpers import get_ticket
+from backend.helpers.chat_helpers import get_ticket_data
 from backend.api.api_v1.endpoints.search_endpoints import hybrid_search_with_vectorization
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
@@ -138,7 +138,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
     elif support_workflow_step == 3:
         next_workflow_action_step = 4
         current_context_ticket = get_current_context_ticket(session_id=session_id)
-        ticket_text, ticket_json = get_ticket(ticket_id=current_context_ticket)
+        ticket_text, ticket_json = await get_ticket_data(ticket_id=current_context_ticket)
 
         if ticket_text:
             logger.info("Ticket text retrieved: %s", ticket_text)
@@ -160,7 +160,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
     elif support_workflow_step == 4:
         next_workflow_action_step = 1
         current_context_ticket = get_current_context_ticket(session_id=session_id)
-        ticket_text, ticket_json = get_ticket(ticket_id=current_context_ticket)
+        ticket_text, ticket_json = await get_ticket_data(ticket_id=current_context_ticket)
 
         system_message = SETUP_ASSISTANT
         question = f"Help me to resolve this ticket: {ticket_json}"
