@@ -88,10 +88,3 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
-
-
-@router.post("/is_new_ticket")
-@log_endpoint
-async def is_new_ticket(session_id: str, payload: Question) -> str:
-    # XXX TODO
-    ...
