@@ -463,7 +463,7 @@
           const response = await fetch(`/api/v1/support_workflow?session_id={{session_id}}&support_workflow_step=1`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question })
+            body: JSON.stringify(question)
           });
           if (!response.ok) {
             throw new Error('Network response was not ok');
