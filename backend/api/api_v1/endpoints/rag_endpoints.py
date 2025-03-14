@@ -149,6 +149,8 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         if ticket_text:
             logger.info("Ticket text retrieved: %s", ticket_text)
             similar_tickets = await hybrid_search_with_vectorization(text_query=ticket_text, top_k=5, include_vector=False)
+            # Exclude tickets not meeting the absolute bare minimum threshold
+            similar_tickets = [ticket for ticket in similar_tickets if ticket["@search.score"] >= 0.03]
         
     elif support_workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
@@ -200,7 +202,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         set_current_context_ticket(session_id=session_id, ticket_id=parsed_result["context_ticket_id"])
 
         if similar_tickets:
-            parsed_result["similar_tickets"] = similar_tickets["value"]["value"]
+            parsed_result["similar_tickets"] = similar_tickets["value"]
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
