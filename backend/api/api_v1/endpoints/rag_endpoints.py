@@ -118,7 +118,6 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
     logger.info("System message added for session_id: %s", session_id)
     if support_workflow_step == 1:
-        next_workflow_action_step = 2
         if not question:
             raise HTTPException(status_code=400, detail="Empty query was provided")
         system_message = (
@@ -196,6 +195,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         recent_context_ticket = get_current_context_ticket(session_id=session_id)
         current_context_ticket = parsed_result["context_ticket_id"]
         if current_context_ticket:
+            next_workflow_action_step = 2
             if current_context_ticket != recent_context_ticket:
                 logger.info("Context ticket has changed from %s to %s for session_id: %s", recent_context_ticket, current_context_ticket, session_id)
         else:
