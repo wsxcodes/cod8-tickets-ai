@@ -1,10 +1,10 @@
 import json
-from typing import Union
+
 from fastapi import HTTPException
 from semantic_kernel.contents.chat_history import ChatHistory
 
-from backend.session_state import get_history
 from backend.api.api_v1.endpoints.tickets_endpoints import get_ticket
+from backend.session_state import get_history
 
 
 def get_existing_history(session_id: str) -> ChatHistory:
