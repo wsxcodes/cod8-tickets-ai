@@ -64,12 +64,10 @@ async def list_tickets():
     return JSONResponse(content=tickets)
 
 
-@router.delete("/tickets/{ticket_name:path}")
+@router.delete("/tickets/{ticket_id}")
 @log_endpoint
-async def delete_ticket(ticket_name: str):
-    if ticket_name.startswith("ticket_files/"):
-        ticket_name = ticket_name[len("ticket_files/"):]
-    file_path = TICKETS_DIR / ticket_name
+async def delete_ticket(ticket_id: str):
+    file_path = TICKETS_DIR / f"{ticket_id}.json"
     if not file_path.exists():
         return {"message": "Ticket not found"}
 
@@ -88,3 +86,14 @@ async def api_list_tickets():
         with file.open("r") as f:
             tickets.append(json.load(f))
     return JSONResponse(content=tickets)
+
+
+@router.get("/tickets/{ticket_id}")
+@log_endpoint
+async def get_ticket(ticket_id: str):
+    ticket_path = TICKETS_DIR / f"{ticket_id}.json"
+    if not ticket_path.exists():
+        return JSONResponse(status_code=404, content={"message": "Ticket not found"})
+    with ticket_path.open("r") as f:
+        ticket = json.load(f)
+    return JSONResponse(content=ticket)
