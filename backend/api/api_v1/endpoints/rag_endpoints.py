@@ -127,6 +127,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             "match it against the JSON ticket records. Then, extract the ticketID from the matching JSON object "
             "and set that as the value for context_ticket_id. "
             "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty."
+            "Avoid asking what action user wants to take regarding the ticket."
         )  # NoQA
 
     elif support_workflow_step == 2:
