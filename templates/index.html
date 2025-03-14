@@ -460,7 +460,7 @@
         }, 500);
         chatInput.value = '';
         try {
-          const response = await fetch(`/api/v1/generic_support_enquiry?session_id={{session_id}}`, {
+          const response = await fetch(`/api/v1/support_workflow?session_id={{session_id}}&support_workflow_step=1`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question })
