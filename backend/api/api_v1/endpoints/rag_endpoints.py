@@ -134,14 +134,18 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         question = "Say something like I will analyze the current ticket data thoroughly to identify any similar historical tickets that might provide relevant context to help solving this ticket. But rephrase it."  # NoQA
 
     elif support_workflow_step == 3:
-        # XXX TODO let me see if the info in these tickets is of any use for us...
         next_workflow_action_step = 4
         current_context_ticket = get_current_context_ticket(session_id=session_id)
+        ticket_text = ""
         if current_context_ticket:
             response = await get_ticket(ticket_id=current_context_ticket)
             ticket_json = json.loads(response.body.decode("utf-8"))
-            print("*"*1000)
-            print(ticket_json)
+            ticket_text = ticket_json.get("title", "") + " " + ticket_json.get("description", "")
+
+        if ticket_text:
+            logger.info("Ticket text retrieved: %s", ticket_text)
+            # XXX Search
+        
         ...
     elif support_workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
