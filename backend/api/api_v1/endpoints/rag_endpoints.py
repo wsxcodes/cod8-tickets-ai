@@ -8,6 +8,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 
 from backend import config
+from backend.api.api_v1.endpoints.tickets_endpoints import get_ticket
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
 from backend.helpers.chat_helpers import get_existing_history
@@ -128,7 +129,7 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
 
     elif workflow_step == 2:
         system_message = "Please analyze the current ticket information and suggest any similar tickets that may provide relevant context."
-        question = "Say something like I will analyze the current ticket data thoroughly to identify any similar historical tickets that might provide relevant context to help solving this ticket. But rephrase it."
+        question = "Say something like I will analyze the current ticket data thoroughly to identify any similar historical tickets that might provide relevant context to help solving this ticket. But rephrase it."  # NoQA
         next_workflow_action_step = 3
 
     elif workflow_step == 3:
