@@ -34,9 +34,9 @@ logger.setLevel(logging.INFO)
 async def create_ticket(request: Request):
     data = await request.json()
 
-    ticket_id = data.get("ticket_id")
+    ticket_id = data.get("ticketID")
     if not ticket_id:
-        return JSONResponse(status_code=400, content={"message": "ticket_id is required"})
+        return JSONResponse(status_code=400, content={"message": "ticketID is required"})
 
     ticket_path = TICKETS_DIR / f"{ticket_id}.json"
     with ticket_path.open("w") as f:
