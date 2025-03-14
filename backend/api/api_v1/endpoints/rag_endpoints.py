@@ -135,6 +135,12 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
     elif workflow_step == 3:
         # XXX TODO let me see if the info in these tickets is of any use for us...
         next_workflow_action_step = 4
+        current_context_ticket = get_current_context_ticket(session_id=session_id)
+        current_ticket_obj = await get_ticket(ticket_id=current_context_ticket)
+        print("*"*1000)
+        print(current_context_ticket)
+        print(dir(current_ticket_obj))
+        print(current_ticket_obj.body)
         ...
     elif workflow_step == 4:
         # XXX TODO I found this information useful / these tickets are not much of a use for us...
@@ -179,6 +185,8 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
             if current_context_ticket != recent_context_ticket:
                 logger.info("Context ticket has changed from %s to %s for session_id: %s", recent_context_ticket, current_context_ticket, session_id)
                 next_workflow_action_step = 2
+        else:
+            parsed_result["context_ticket_id"] = recent_context_ticket
 
         # Inject next workflow step into the response
         parsed_result["next_workflow_action_step"] = next_workflow_action_step
@@ -188,6 +196,7 @@ async def support_workflow(session_id: str, workflow_step: int, question: str = 
         return parsed_result
 
     except Exception as e:
+        logger.error("Error in support_workflow: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
