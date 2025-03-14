@@ -212,7 +212,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         set_current_context_ticket(session_id=session_id, ticket_id=parsed_result["context_ticket_id"])
 
         if similar_tickets:
-            parsed_result["similar_tickets"] = similar_tickets
+            parsed_result["closest_historical_tickets"] = similar_tickets
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
