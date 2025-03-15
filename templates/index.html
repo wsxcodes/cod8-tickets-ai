@@ -469,32 +469,46 @@
         }, 500);
         chatInput.value = '';
         try {
-          const response = await fetch(`/api/v1/support_workflow?session_id={{session_id}}&support_workflow_step=1`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(question)
-          });
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          // Clear the "Thinking..." interval and remove it
-          clearInterval(dotInterval);
-          chatWindow.removeChild(thinkingMessage);
-          // AI message
-          const aiMessage = document.createElement('p');
-          aiMessage.classList.add('ai-message');
-          aiMessage.innerHTML = marked.parse(data.answer);
-          chatWindow.appendChild(aiMessage);
-          // Debug: Display full support_workflow response
-          const debugMessage = document.createElement('pre');
-          debugMessage.classList.add('debug-message');
-          debugMessage.textContent = "DEBUG: " + JSON.stringify(data, null, 2);
-          chatWindow.appendChild(debugMessage);
-          // Scroll to bottom after AI response using setTimeout
-          setTimeout(() => {
+          let currentStep = 1;
+          let data;
+          let firstResponse = true;
+          do {
+            const response = await fetch(`/api/v1/support_workflow?session_id={{session_id}}&support_workflow_step=${currentStep}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(question)
+            });
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            data = await response.json();
+ 
+            if (firstResponse) {
+              // On the first response, clear the Thinking indicator
+              clearInterval(dotInterval);
+              chatWindow.removeChild(thinkingMessage);
+              firstResponse = false;
+            }
+ 
+            // Display AI message for this workflow step
+            const aiMessage = document.createElement('p');
+            aiMessage.classList.add('ai-message');
+            aiMessage.innerHTML = marked.parse(data.answer);
+            chatWindow.appendChild(aiMessage);
+ 
+            // Debug: Display full support_workflow response for this step (excluding 'answer')
+            const debugMessage = document.createElement('pre');
+            debugMessage.classList.add('debug-message');
+            let debugData = Object.assign({}, data);
+            delete debugData.answer;
+            debugMessage.textContent = "DEBUG: " + JSON.stringify(debugData, null, 2);
+            chatWindow.appendChild(debugMessage);
+ 
+            // Scroll to bottom after appending each step's response
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-          }, 50);
+ 
+            currentStep = data.next_workflow_action_step;
+          } while (currentStep != 1);
         } catch (error) {
           console.error('Error:', error);
           clearInterval(dotInterval);
@@ -503,9 +517,7 @@
           errorMessage.classList.add('ai-message');
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
           chatWindow.appendChild(errorMessage);
-          setTimeout(() => {
-            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-          }, 50);
+          chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         }
       }
       // Submit on Enter key
