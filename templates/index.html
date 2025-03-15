@@ -277,7 +277,6 @@
       <input type="text" placeholder="Enter your question here..">
         <button>Send</button>
       </div>
-      <font size=5 color="red">{{session_id}}</font>
     </div>
   </div>
   <!-- Modal for displaying ticket content -->
@@ -482,14 +481,7 @@
               throw new Error('Network response was not ok');
             }
             data = await response.json();
- 
-            if (firstResponse) {
-              // On the first response, clear the Thinking indicator
-              clearInterval(dotInterval);
-              chatWindow.removeChild(thinkingMessage);
-              firstResponse = false;
-            }
- 
+  
             // Display AI message for this workflow step
             const aiMessage = document.createElement('p');
             aiMessage.classList.add('ai-message');
@@ -506,9 +498,16 @@
  
             // Scroll to bottom after appending each step's response
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+            if (thinkingMessage.parentNode) {
+              chatWindow.appendChild(thinkingMessage);
+            }
  
             currentStep = data.next_workflow_action_step;
           } while (currentStep != 1);
+        clearInterval(dotInterval);
+        if (thinkingMessage.parentNode) {
+          chatWindow.removeChild(thinkingMessage);
+        }
         } catch (error) {
           console.error('Error:', error);
           clearInterval(dotInterval);
