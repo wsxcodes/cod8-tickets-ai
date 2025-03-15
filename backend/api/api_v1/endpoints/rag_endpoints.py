@@ -158,16 +158,12 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         question = f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}"
 
     elif support_workflow_step == 4:
-        next_workflow_action_step = 5
+        next_workflow_action_step = 1
         current_context_ticket = get_current_context_ticket(session_id=session_id)
         ticket_text, ticket_json = await get_ticket_data(ticket_id=current_context_ticket)
 
         system_message = SETUP_ASSISTANT
         question = f"Help me to resolve this ticket: {ticket_json}"
-
-    elif support_workflow_step == 5:
-        next_workflow_action_step = 1
-        # XXX TODO plain setup_assistant instructions no step_1 fluff......
 
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported workflow step: {support_workflow_step}.")
