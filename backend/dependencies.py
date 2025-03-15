@@ -21,4 +21,5 @@ chat_completion = AzureChatCompletion(
     deployment_name=config.DEPLOYMENT_NAME,
     endpoint=config.OPENAI_ENDPOINT,
     api_key=config.OPENAI_API_KEY,
+    api_version=config.AZURE_AI_API_VERSION
 )
