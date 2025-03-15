@@ -133,7 +133,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
     elif support_workflow_step == 2:
         next_workflow_action_step = 3
         system_message = "Please analyze the current ticket information and suggest any similar tickets that may provide relevant context."
-        question = "Say something like I will analyze the current ticket data thoroughly to identify any similar historical tickets that might provide relevant context to help solving this ticket. But rephrase it."  # NoQA
+        question = "Say something like: I'll analyze the ticket and compare it with similar historical tickets to check for any useful information."  # NoQA
 
     elif support_workflow_step == 3:
         next_workflow_action_step = 4
