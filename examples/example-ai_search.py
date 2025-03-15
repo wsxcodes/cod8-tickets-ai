@@ -10,7 +10,7 @@ search_client = AzureSearchClient(
     service_url=config.AZURE_AI_SEARCH_SERVICE,
     index_name="ticket_index",
     api_key=config.AZURE_AI_SEARCH_API_KEY,
-    api_version=config.AZURE_AI_API_VERSION,
+    api_version=config.AZURE_AI_SEARCH_API_VERSION,
     vector_field="vector"
 )
 
