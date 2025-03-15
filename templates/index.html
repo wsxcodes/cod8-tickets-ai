@@ -493,6 +493,9 @@
             debugMessage.classList.add('debug-message');
             let debugData = Object.assign({}, data);
             delete debugData.answer;
+            if (debugData.next_workflow_action_step === 1) {
+              delete debugData.next_workflow_action_step;
+            }
             debugMessage.textContent = "DEBUG: " + JSON.stringify(debugData, null, 2);
             chatWindow.appendChild(debugMessage);
  
