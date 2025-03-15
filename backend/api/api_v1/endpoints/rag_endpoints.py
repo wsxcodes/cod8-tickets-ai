@@ -196,9 +196,9 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         # Decide on the next action step
         recent_context_ticket = get_current_context_ticket(session_id=session_id)
         current_context_ticket = parsed_result["context_ticket_id"]
-        if current_context_ticket and next_workflow_action_step == 1:
-            next_workflow_action_step = 2
+        if current_context_ticket:
             if current_context_ticket != recent_context_ticket:
+                next_workflow_action_step = 2
                 logger.info("Context ticket has changed from %s to %s for session_id: %s", recent_context_ticket, current_context_ticket, session_id)
         else:
             parsed_result["context_ticket_id"] = recent_context_ticket
