@@ -243,6 +243,82 @@
       margin: 10px 25px;
       white-space: pre-wrap;
     }
+    .add-ticket-form {
+      background-color: #2f2f2f;
+      padding: 15px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+    .add-ticket-form h2 {
+      margin-bottom: 10px;
+    }
+    .add-ticket-form input,
+    .add-ticket-form textarea,
+    .add-ticket-form select,
+    .add-ticket-form button {
+      width: 100%; /* Ensures elements take full width */
+      background-color: #3a3a3a;
+      color: #ffffff;
+      border: 1px solid #555;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-sizing: border-box; /* Prevents width issues due to padding */
+      text-align: left; /* Ensures text starts from the left */
+    }
+    .add-ticket-form textarea {
+      height: 80px;
+    }
+    .add-ticket-form button {
+      width: calc(100% - 16px); /* Ensures it aligns with input fields */
+      max-width: 100%;
+      background-color: #3f3f3f;
+      color: #ffffff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      box-sizing: border-box; /* Ensures padding doesn’t affect width */
+    }
+    .add-ticket-form button:hover {
+      background-color: #4a4a4a;
+    }
+    #add-ticket-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    #add-ticket-modal .modal-content {
+      background-color: #2f2f2f;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 4px;
+      width: 80%;
+      max-width: 400px;
+      color: #ffffff;
+      text-align: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+    #add-ticket-modal .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #add-ticket-modal .close-button:hover {
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -255,6 +331,7 @@
         Click to upload or drag and drop
         <br><small>JSON files only</small>
       </div>
+      <button id="open-add-ticket-modal" class="open-modal-btn">Add Ticket</button>
       <div class="tickets">
         <h2>Tickets</h2>
         <ul id="ticket-list">
@@ -287,6 +364,25 @@
       <button id="delete-ticket-btn">Delete Ticket</button>
     </div>
   </div>
+
+  <div id="add-ticket-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-add-ticket-modal" class="close-button">&times;</span>
+      <h2>Add Ticket</h2>
+      <form id="add-ticket-form" class="add-ticket-form">
+        <input type="text" id="ticket-title" placeholder="Ticket Title" required>
+        <textarea id="ticket-description" placeholder="Description" required></textarea>
+        <select id="ticket-priority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <input type="text" id="ticket-requester" placeholder="Requester" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
@@ -481,13 +577,13 @@
               throw new Error('Network response was not ok');
             }
             data = await response.json();
-  
+
             // Display AI message for this workflow step
             const aiMessage = document.createElement('p');
             aiMessage.classList.add('ai-message');
             aiMessage.innerHTML = marked.parse(data.answer);
             chatWindow.appendChild(aiMessage);
- 
+
             // Debug: Display full support_workflow response for this step (excluding 'answer')
             const debugMessage = document.createElement('pre');
             debugMessage.classList.add('debug-message');
@@ -498,13 +594,13 @@
             }
             debugMessage.textContent = "DEBUG: " + JSON.stringify(debugData, null, 2);
             chatWindow.appendChild(debugMessage);
- 
+
             // Scroll to bottom after appending each step's response
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
             if (thinkingMessage.parentNode) {
               chatWindow.appendChild(thinkingMessage);
             }
- 
+
             currentStep = data.next_workflow_action_step;
           } while (currentStep != 1);
         clearInterval(dotInterval);
@@ -530,6 +626,26 @@
       });
       // Submit on Send button click
       sendButton.addEventListener('click', sendChatMessage);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const addTicketModal = document.getElementById('add-ticket-modal');
+      const openAddTicketBtn = document.getElementById('open-add-ticket-modal');
+      const closeAddTicketBtn = document.getElementById('close-add-ticket-modal');
+
+      openAddTicketBtn.addEventListener('click', () => {
+        addTicketModal.style.display = 'block';
+      });
+
+      closeAddTicketBtn.addEventListener('click', () => {
+        addTicketModal.style.display = 'none';
+      });
+
+      window.addEventListener('click', (e) => {
+        if (e.target === addTicketModal) {
+          addTicketModal.style.display = 'none';
+        }
+      });
     });
   </script>
 </body>
