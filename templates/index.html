@@ -256,8 +256,7 @@
     }
     .add-ticket-form input,
     .add-ticket-form textarea,
-    .add-ticket-form select,
-    .add-ticket-form button {
+    .add-ticket-form select {
       width: 100%; /* Ensures elements take full width */
       background-color: #3a3a3a;
       color: #ffffff;
@@ -268,12 +267,8 @@
       box-sizing: border-box; /* Prevents width issues due to padding */
       text-align: left; /* Ensures text starts from the left */
     }
-    .add-ticket-form textarea {
-      height: 80px;
-    }
     .add-ticket-form button {
-      width: calc(100% - 16px); /* Ensures it aligns with input fields */
-      max-width: 100%;
+      width: 100%;
       background-color: #3f3f3f;
       color: #ffffff;
       border: none;
@@ -281,7 +276,11 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
-      box-sizing: border-box; /* Ensures padding doesn’t affect width */
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .add-ticket-form textarea {
+      /* height: 80px; */
     }
     .add-ticket-form button:hover {
       background-color: #4a4a4a;
@@ -303,7 +302,7 @@
       padding: 20px;
       border-radius: 4px;
       width: 80%;
-      max-width: 400px;
+      max-width: 860px;
       color: #ffffff;
       text-align: center;
       position: relative;
@@ -371,7 +370,7 @@
       <h2>Add Ticket</h2>
       <form id="add-ticket-form" class="add-ticket-form">
         <input type="text" id="ticket-title" placeholder="Ticket Title" required>
-        <textarea id="ticket-description" placeholder="Description" required></textarea>
+        <textarea id="ticket-description" placeholder="Description" required rows="30"></textarea>
         <select id="ticket-priority">
           <option value="Low">Low</option>
           <option value="Medium">Medium</option>
@@ -437,11 +436,6 @@
       try {
         const text = await file.text();
         const data = JSON.parse(text);
-
-        // Fallback: if ticket_id is missing, derive it from the file name (e.g., ticket6.json becomes "ticket6")
-        if (!data.ticket_id) {
-          data.ticket_id = file.name.replace(/\.json$/i, '');
-        }
 
         data.session_id = "{{session_id}}"; // Ensure session_id is set
 
