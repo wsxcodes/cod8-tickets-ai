@@ -36,6 +36,7 @@ class Question(BaseModel):
 class Answer(BaseModel):
     answer: str
     context_ticket_id: str
+    function_call: Optional[str] = None
 
 
 TICKETS_DIR = config.TICKETS_DIR
@@ -242,6 +243,7 @@ async def load_tickets(session_id: str, history: ChatHistory = Depends(get_exist
             tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
             # Store ticket data in history
             history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
+            logger.info(f"tickets_context = {tickets_context}")
 
         return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
 
