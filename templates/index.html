@@ -400,7 +400,7 @@
               <div class="ticket-icon" style="background-color: ${color};"></div>
               <div class="ticket-details">
                 <div class="ticket-id-requester">
-                  ${ticket.ticketID} - ${ticket.requester}
+                  ${ticket.ticket_id} - ${ticket.requester}
                 </div>
                 <div class="ticket-title">
                   ${ticket.title}
@@ -508,7 +508,7 @@
       document.getElementById('delete-ticket-btn').addEventListener('click', async () => {
       const modal = document.getElementById('ticket-modal');
       const ticketData = JSON.parse(document.getElementById('ticket-json').textContent);
-      const ticket_id = ticketData.ticketID;
+      const ticket_id = ticketData.ticket_id;
         try {
       const response = await fetch(`/api/v1/tickets/${ticket_id}`, {
           method: 'DELETE',

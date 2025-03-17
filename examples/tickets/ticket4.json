@@ -1,5 +1,5 @@
 {
-    "ticketID": "T-1007",
+    "ticket_id": "T-1007",
     "title": "Email Client Random Crashes",
     "requester": "Diana Inboxes",
     "description": "Email client keeps spontaneously combusting. Random crashes at the worst times, losing half-written rants.",
