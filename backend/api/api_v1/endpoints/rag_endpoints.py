@@ -12,7 +12,7 @@ from backend.api.api_v1.endpoints.search_endpoints import \
     hybrid_search_with_vectorization
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
-from backend.helpers.chat_helpers import get_existing_history, get_ticket_data
+from backend.helpers.chat_helpers import get_existing_history, get_ticket_data, get_chat_completion_content
 from backend.session_state import (get_current_context_ticket, get_history,
                                    set_current_context_ticket)
 
@@ -179,11 +179,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         execution_settings.response_format = Answer
 
         # Get the AI response, instructing the kernel to follow a strict response format
-        result = await chat_completion.get_chat_message_content(
-            chat_history=history,
-            settings=execution_settings,
-            kernel=kernel
-        )
+        result = await get_chat_completion_content(history=history, execution_settings=execution_settings, kernel=kernel)
 
         # Convert the result to a string and try to parse it as JSON
         result_str = str(result)
@@ -211,6 +207,32 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
         if similar_tickets:
             parsed_result["semantic_ticket_matches"] = similar_tickets
+
+        function_call = parsed_result.get("function_call") or None
+        if function_call:
+            if function_call == "email_escalation":
+                escalation_payload = Question(
+                    question="Write short escalation email about this ticket to L2. Sign it as [name]. Leave out subject, provide just the email body."
+                )
+                history.add_user_message(escalation_payload.question)
+                result = await get_chat_completion_content(
+                    history=history,
+                    execution_settings=execution_settings,
+                    kernel=kernel
+                )
+
+                print("*" * 1000)
+                print("result:", result)
+                
+                answer_obj = Answer(
+                    answer=f"I have escalated {current_context_ticket} to T2.",
+                    context_ticket_id=current_context_ticket,
+                    function_call="email_escalation",
+                    support_workflow_step=1
+                )
+                parsed_result = answer_obj.dict()
+                parsed_result["next_workflow_action_step"] = 1
+
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
