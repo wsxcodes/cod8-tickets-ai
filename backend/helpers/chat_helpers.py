@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend.api.api_v1.endpoints.tickets_endpoints import get_ticket
-from backend.dependencies import chat_completion, execution_settings, kernel
+from backend.dependencies import chat_completion
 from backend.session_state import get_history
 
 
