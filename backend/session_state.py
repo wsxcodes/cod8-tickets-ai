@@ -1,7 +1,6 @@
 from typing import Optional
 
 from semantic_kernel.contents.chat_history import ChatHistory
-from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
 
 # XXX TODO this really should be a persistent storage solution
 session_histories = {}
