@@ -214,7 +214,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         if function_call:
             if function_call == "email_escalation":
                 escalation_payload = Question(
-                    question="Write short escalation email about this ticket to L2. Sign it as [name]. Leave out subject, provide just the email body."
+                    question="Write short escalation email about this ticket to L2. Sign it as Jakub. Leave out subject, provide just the email body."
                 )
                 history.add_user_message(escalation_payload.question)
                 result = await get_chat_completion_content(
