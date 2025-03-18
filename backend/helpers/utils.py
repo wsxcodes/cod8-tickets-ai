@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 def send_email(to_addr: str, subject: str, body: str):
     smtp_host = config.SMTP_SERVER
     smtp_port = config.SMTP_PORT
