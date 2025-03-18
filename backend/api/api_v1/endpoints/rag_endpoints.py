@@ -10,6 +10,8 @@ from semantic_kernel.utils.logging import setup_logging
 from backend import config
 from backend.api.api_v1.endpoints.search_endpoints import \
     hybrid_search_with_vectorization
+from backend.api.api_v1.endpoints.tickets_endpoints import delete_ticket
+from backend.helpers.utils import send_email
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
 from backend.helpers.chat_helpers import get_existing_history, get_ticket_data, get_chat_completion_content
@@ -220,18 +222,24 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
                     execution_settings=execution_settings,
                     kernel=kernel
                 )
+                result = json.loads(str(result))
 
-                print("*" * 1000)
-                print("result:", result)
-                
+                ticket_text, ticket_json = await get_ticket_data(ticket_id=current_context_ticket)
+                email_subject = f"Escalation: Ticket {current_context_ticket} - {ticket_json["title"]}"
+                send_email(to_addr="janfilipsgt@gmail.com", subject=email_subject, body=result["answer"])
+
+                logger.info(f"Deleting ticket {current_context_ticket}")
+                await delete_ticket(ticket_id=current_context_ticket)
+
                 answer_obj = Answer(
                     answer=f"I have escalated {current_context_ticket} to T2.",
-                    context_ticket_id=current_context_ticket,
-                    function_call="email_escalation",
-                    support_workflow_step=1
+                    context_ticket_id="",
+                    function_call="email_escalation"
                 )
                 parsed_result = answer_obj.dict()
                 parsed_result["next_workflow_action_step"] = 1
+                current_context_ticket = None
+                set_current_context_ticket(session_id=session_id, ticket_id="")
 
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
