@@ -243,7 +243,6 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
                 current_context_ticket = None
                 set_current_context_ticket(session_id=session_id, ticket_id="")
 
-
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
 
