@@ -571,6 +571,9 @@
               throw new Error('Network response was not ok');
             }
             data = await response.json();
+            if (data.function_call === "email_escalation") {
+              fetchTickets();
+            }
 
             // Display AI message for this workflow step
             const aiMessage = document.createElement('p');
