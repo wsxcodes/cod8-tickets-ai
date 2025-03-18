@@ -1,12 +1,11 @@
 from typing import Optional
 
 from semantic_kernel.contents.chat_history import ChatHistory
+from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
 
 # XXX TODO this really should be a persistent storage solution
 session_histories = {}
 context_ticket_ids = {}
-
-# XXX TODO zresetovat historiu (a znovu nasetapovat veci) ked context_ticket changes
 
 
 def get_history(session_id: str) -> ChatHistory:
