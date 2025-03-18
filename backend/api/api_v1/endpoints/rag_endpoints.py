@@ -232,6 +232,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
                 logger.info(f"Deleting ticket {current_context_ticket}")
                 await delete_ticket(ticket_id=current_context_ticket)
+                # XXX TODO refresh tickets memory!
 
                 answer_obj = Answer(
                     answer=f"I have escalated {current_context_ticket} to T2.",
