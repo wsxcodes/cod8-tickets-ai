@@ -11,10 +11,12 @@ from backend import config
 from backend.api.api_v1.endpoints.search_endpoints import \
     hybrid_search_with_vectorization
 from backend.api.api_v1.endpoints.tickets_endpoints import delete_ticket
-from backend.helpers.utils import send_email
 from backend.decorators import log_endpoint
 from backend.dependencies import chat_completion, execution_settings, kernel
-from backend.helpers.chat_helpers import get_existing_history, get_ticket_data, get_chat_completion_content
+from backend.helpers.chat_helpers import (get_chat_completion_content,
+                                          get_existing_history,
+                                          get_ticket_data)
+from backend.helpers.utils import send_email
 from backend.session_state import (get_current_context_ticket, get_history,
                                    set_current_context_ticket)
 
