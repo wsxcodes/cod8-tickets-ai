@@ -5,6 +5,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 
 from backend.api.api_v1.endpoints.tickets_endpoints import get_ticket
 from backend.session_state import get_history
+from backend.dependencies import chat_completion, execution_settings, kernel
 
 
 def get_existing_history(session_id: str) -> ChatHistory:
@@ -19,3 +20,11 @@ async def get_ticket_data(ticket_id: str):
     ticket_json = json.loads(response.body.decode("utf-8"))
     ticket_text = ticket_json.get("title", "") + " " + ticket_json.get("description", "")
     return ticket_text, ticket_json
+
+
+async def get_chat_completion_content(history, execution_settings, kernel):
+    return await chat_completion.get_chat_message_content(
+                chat_history=history,
+                settings=execution_settings,
+                kernel=kernel
+            )
