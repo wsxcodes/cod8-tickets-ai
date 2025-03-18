@@ -46,6 +46,7 @@ SETUP_ASSISTANT = (
     "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate."
     "Do not include any HTML tags—just use Markdown or plain text formatting."
     "Every question I ask relates to the context provided."
+    "When I ask you to escalate an issue, respond with function_call 'email_escalation'."
 )
 
 
