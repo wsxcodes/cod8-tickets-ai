@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from semantic_kernel.contents.chat_history import ChatHistory
@@ -5,6 +6,11 @@ from semantic_kernel.contents.chat_history import ChatHistory
 # XXX TODO this really should be a persistent storage solution
 session_histories = {}
 context_ticket_ids = {}
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_history(session_id: str) -> ChatHistory:
