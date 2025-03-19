@@ -419,6 +419,7 @@
             try {
               const res = await fetch(`/${ticketPath}`);
               const ticketData = await res.json();
+              delete ticketData.session_id;
               const prettyJSON = JSON.stringify(ticketData, null, 2);
               document.getElementById('ticket-json').textContent = prettyJSON;
               document.getElementById('ticket-modal').style.display = 'block';
