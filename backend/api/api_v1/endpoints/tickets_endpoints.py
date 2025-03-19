@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from semantic_kernel.utils.logging import setup_logging
+
 from backend import config
 from backend.decorators import log_endpoint
 from backend.session_state import refresh_all_session_tickets
@@ -41,7 +42,7 @@ async def create_ticket(request: Request):
     ticket_path = TICKETS_DIR / f"{ticket_id}.json"
     with ticket_path.open("w") as f:
         json.dump(data, f, indent=2)
-    
+
     await refresh_all_session_tickets()
 
     return {
