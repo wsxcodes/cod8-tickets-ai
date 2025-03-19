@@ -177,14 +177,13 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             filtered_similar_tickets = [ticket for ticket in similar_tickets if ticket["@search.score"] >= SIMILAR_TICKETS_THRESHOLD]
             similar_tickets = filtered_similar_tickets
 
-        system_message = (
-            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'."  # NoQA
-            f"1. Exclude any tickets with a similarity score below {SIMILAR_TICKETS_THRESHOLD}."
-            f"2. For any remaining tickets (score ≥ {SIMILAR_TICKETS_THRESHOLD}), provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
-            "3. If no tickets meet the threshold or if the remaining tickets do not offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."  # NoQA
-            "Ensure your response is strictly limited to this analysis or the stated message."
+        system_message = SETUP_ASSISTANT
+        question = (
+            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'.\n"  # NoQA
+            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents.\n"  # NoQA
+            "Ensure your response is strictly limited to this analysis or the stated message.\n"
+            f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}\n"
         )
-        question = f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}"
 
     elif support_workflow_step == 4:
         next_workflow_action_step = 1
