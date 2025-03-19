@@ -76,7 +76,6 @@ def load_tickets_and_update_history(history):
     return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
 
 
-
 @router.post("/generic_support_enquiry")
 @log_endpoint
 async def generic_support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
