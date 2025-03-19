@@ -38,7 +38,8 @@ async def refresh_all_session_tickets() -> None:
     """
     Refresh and load tickets for every session_id in the session_histories.
     """
-    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets_and_update_history  # This is to avoid circular import
+    from backend.api.api_v1.endpoints.rag_endpoints import \
+        load_tickets_and_update_history  # This is to avoid circular import
 
     for session_id in session_histories:
         history = get_history(session_id)
