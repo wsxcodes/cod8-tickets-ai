@@ -1,8 +1,8 @@
 import asyncio
+import glob
 import logging
 import os
 import sys
-import glob
 
 import pandas as pd
 from openai import OpenAI
