@@ -42,6 +42,8 @@ async def create_ticket(request: Request):
     with ticket_path.open("w") as f:
         json.dump(data, f, indent=2)
 
+    # XXX force-refresh memory for all
+
     return {
         "message": "Ticket created and memory refreshed"
     }
@@ -70,6 +72,8 @@ async def delete_ticket(ticket_id: str):
     file_path = TICKETS_DIR / f"{ticket_id}.json"
     if not file_path.exists():
         return {"message": "Ticket not found"}
+
+    # XXX force-refresh memory for all
 
     file_path.unlink()
 
