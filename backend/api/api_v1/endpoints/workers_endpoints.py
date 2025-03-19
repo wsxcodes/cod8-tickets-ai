@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/import_historical_tickets")
 @log_endpoint
-async def import_historical_tickets(csv_filename: str = "data/City_of_Colonial_Height_FY2024.csv"):
+async def import_historical_tickets(csv_folder_path: str):
     """
     Generate a vectorized knowledgebase from historical support tickets.
     """
