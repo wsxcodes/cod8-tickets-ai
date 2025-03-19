@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import sys
+import glob
 
 import pandas as pd
 from openai import OpenAI
@@ -172,14 +173,36 @@ async def upload_ticket(ticket: pd.Series):
 
 
 if __name__ == "__main__":
-    filepath = "data/City_of_Colonial_Height_FY2024.csv"
-    tickets_df = process_ticket_csv(filepath)
+    # Use glob to list all CSV files in the target directory
+    directory = "data/OneDrive_1_19-03-2025/"
+    csv_files = glob.glob(os.path.join(directory, "*.csv"))
+    logger.info(f"Found CSV files: {csv_files}")
 
-    # Debug: Log unique primary ids and actual ticket ids.
-    unique_ids = tickets_df['id'].unique()
-    unique_ticket_ids = tickets_df['ticket_id'].unique()
-    logger.info(f"Unique primary ids: {unique_ids}")
-    logger.info(f"Unique actual ticket ids: {unique_ticket_ids}")
+    dfs = []
+    for file in csv_files:
+        logger.info(f"Processing file: {file}")
+        df = process_ticket_csv(file)
+        dfs.append(df)
+
+    if dfs:
+        # Combine all processed dataframes
+        tickets_df = pd.concat(dfs, ignore_index=True)
+        # Group tickets by 'ticket_id' across files to combine duplicate records
+        tickets_df = tickets_df.groupby("ticket_id", as_index=False).agg({
+            "title": "first",
+            "company_name": "first",
+            "date_entered": "first",
+            "discussion": lambda x: " ".join(x.dropna().astype(str)),
+            "type": "first",
+            "priority": "first",
+            "source": "first",
+            "team": "first",
+            "vector": "first"
+        })
+        tickets_df.insert(0, "id", [str(i) for i in range(1, len(tickets_df) + 1)])
+    else:
+        logger.info("No CSV files found in directory. Exiting.")
+        sys.exit(1)
 
     logger.info("Processed ticket data:")
     logger.info(tickets_df.head())
