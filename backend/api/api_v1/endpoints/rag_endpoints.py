@@ -54,6 +54,29 @@ SETUP_ASSISTANT = (
 )
 
 
+def load_tickets_and_update_history(history):
+    tickets = []
+    for file in TICKETS_DIR.glob("*.json"):
+        with file.open("r") as f:
+            try:
+                ticket = json.load(f)
+                tickets.append(ticket)
+            except Exception:  # Skip files that can't be parsed
+                continue
+
+    if not tickets:
+        history.add_user_message("There are currently no active tickets.")
+    else:
+        # Combine ticket info into one context string
+        tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
+        # Store ticket data in history
+        history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
+        logger.info(f"tickets_context = {tickets_context}")
+
+    return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
+
+
+
 @router.post("/generic_support_enquiry")
 @log_endpoint
 async def generic_support_enquiry(session_id: str, payload: Question, history: ChatHistory = Depends(get_existing_history)):
@@ -264,25 +287,7 @@ async def load_tickets(session_id: str, history: ChatHistory = Depends(get_exist
         raise HTTPException(status_code=404, detail="Session history not found")
 
     try:
-        tickets = []
-        for file in TICKETS_DIR.glob("*.json"):
-            with file.open("r") as f:
-                try:
-                    ticket = json.load(f)
-                    tickets.append(ticket)
-                except Exception:  # Skip files that can't be parsed
-                    continue
-
-        if not tickets:
-            history.add_user_message("There are currently no active tickets.")
-        else:
-            # Combine ticket info into one context string
-            tickets_context = "\n".join([json.dumps(ticket) for ticket in tickets])
-            # Store ticket data in history
-            history.add_user_message(f"Here is the context of all existing tickets:\n{tickets_context}")
-            logger.info(f"tickets_context = {tickets_context}")
-
-        return {"message": "Tickets loaded into memory successfully", "ticket_count": len(tickets)}
+        return load_tickets_and_update_history(history)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
