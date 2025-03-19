@@ -180,12 +180,13 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         history.clear()
         load_tickets_and_update_history(history)
 
-        system_message = SETUP_ASSISTANT
-        question = (
-            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket."  # NoQA
-            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
-            "2. If no tickets offer clear, useful information, briefly mention that explicitly, but still squeeze out at least some small insight or suggestion based on the historical tickets, even if it's minimal."           
+        system_message = SETUP_ASSISTANT + (
+            " You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. "  # NoQA
+            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents. "  # NoQA
+            "2. If no tickets offer clear, useful information, briefly mention that explicitly, but still squeeze out at least some small insight or suggestion based on the historical tickets, even if it's minimal. "
             "Ensure your response is strictly limited to this analysis or the stated message."
+        )
+        question = (
             f"Current ticket: {ticket_json}\nHistorical tickets: {similar_tickets}"
          )
 
