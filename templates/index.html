@@ -579,12 +579,6 @@
               fetchTickets();
             }
 
-            // Display AI message for this workflow step
-            const aiMessage = document.createElement('p');
-            aiMessage.classList.add('ai-message');
-            aiMessage.innerHTML = marked.parse(data.answer);
-            chatWindow.appendChild(aiMessage);
-
             // Debug: Display full support_workflow response for this step (excluding 'answer')
             const debugMessage = document.createElement('pre');
             debugMessage.classList.add('debug-message');
@@ -595,6 +589,12 @@
             }
             debugMessage.textContent = "DEBUG: " + JSON.stringify(debugData, null, 2);
             chatWindow.appendChild(debugMessage);
+
+            // Display AI message for this workflow step
+            const aiMessage = document.createElement('p');
+            aiMessage.classList.add('ai-message');
+            aiMessage.innerHTML = marked.parse(data.answer);
+            chatWindow.appendChild(aiMessage);
 
             // Scroll to bottom after appending each step's response
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
