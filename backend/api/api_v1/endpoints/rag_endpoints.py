@@ -179,7 +179,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
         system_message = SETUP_ASSISTANT
         question = (
-            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. Each ticket has a similarity score in the field '@search.score'."  # NoQA
+            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket."  # NoQA
             "2. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
             "3. If no tickets meet offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."  # NoQA
             "Ensure your response is strictly limited to this analysis or the stated message."
