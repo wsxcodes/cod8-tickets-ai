@@ -177,12 +177,14 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             filtered_similar_tickets = [ticket for ticket in similar_tickets if ticket["@search.score"] >= SIMILAR_TICKETS_THRESHOLD]
             similar_tickets = filtered_similar_tickets
 
+        history.clear()
+        load_tickets_and_update_history(history)
+
         system_message = SETUP_ASSISTANT
         question = (
             "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket."  # NoQA
-            "2. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
-            "3. If no tickets meet offer clear, useful information, simply respond with: 'Unfortunately, the historical ticket data doesn't provide much useful insight for resolving the current issue.' - but rephrase it."  # NoQA
-            "Ensure your response is strictly limited to this analysis or the stated message."
+            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents."  # NoQA
+            "2. If no tickets offer clear, useful information, briefly mention that explicitly, but still squeeze out at least some small insight or suggestion based on the historical tickets, even if it's minimal."            "Ensure your response is strictly limited to this analysis or the stated message."
          )
 
     elif support_workflow_step == 4:
