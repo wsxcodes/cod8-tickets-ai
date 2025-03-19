@@ -64,7 +64,6 @@ async def generic_support_enquiry(session_id: str, payload: Question, history: C
             raise HTTPException(status_code=400, detail="Empty query was provided")
 
         # Load all tickets to provide context to the AI
-        from backend.api.api_v1.endpoints.rag_endpoints import load_tickets
         await load_tickets(session_id=session_id)
 
         # Add user question to history
