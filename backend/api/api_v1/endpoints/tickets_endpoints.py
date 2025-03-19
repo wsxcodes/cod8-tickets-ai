@@ -5,9 +5,9 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from semantic_kernel.utils.logging import setup_logging
-
 from backend import config
 from backend.decorators import log_endpoint
+from backend.session_state import refresh_all_session_tickets
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,8 @@ async def create_ticket(request: Request):
     ticket_path = TICKETS_DIR / f"{ticket_id}.json"
     with ticket_path.open("w") as f:
         json.dump(data, f, indent=2)
-
-    # XXX force-refresh memory for all
+    
+    await refresh_all_session_tickets()
 
     return {
         "message": "Ticket created and memory refreshed"
@@ -73,9 +73,9 @@ async def delete_ticket(ticket_id: str):
     if not file_path.exists():
         return {"message": "Ticket not found"}
 
-    # XXX force-refresh memory for all
-
     file_path.unlink()
+
+    await refresh_all_session_tickets()
 
     return {
         "message": "Ticket deleted and memory refreshed"
