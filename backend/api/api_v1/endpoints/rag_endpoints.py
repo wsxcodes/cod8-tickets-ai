@@ -48,11 +48,11 @@ class Answer(BaseModel):
 TICKETS_DIR = config.TICKETS_DIR
 
 SETUP_ASSISTANT = (
-    "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses."
-    "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate."
-    "Do not include any HTML tags—just use Markdown or plain text formatting."
-    "Every question I ask relates to the context provided."
-    "When I ask you to escalate an issue, respond with function_call 'email_escalation'."
+    "You are an expert in IT ticketing. Provide clear, concise, and technically accurate responses.\n"
+    "Format your answers neatly using Markdown lists, headings, or line breaks as appropriate.\n"
+    "Do not include any HTML tags—just use Markdown or plain text formatting.\n"
+    "Every question I ask relates to the context provided.\n"
+    "When I ask you to escalate an issue, respond with function_call 'email_escalation'.\n"
 )
 
 
@@ -151,12 +151,12 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             raise HTTPException(status_code=400, detail="Empty query was provided")
         system_message = (
             SETUP_ASSISTANT +  # NoQA
-            " In addition, examine the JSON data representing the tickets loaded in memory. "
-            "When my question explicitly refers to a ticket (by its unique identifier, title, or description), "
-            "match it against the JSON ticket records. Then, extract the ticket_id from the matching JSON object "
-            "and set that as the value for context_ticket_id. "
-            "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty."
-            "Avoid asking what action user wants to take regarding the ticket."
+            "In addition, examine the JSON data representing the tickets loaded in memory.\n"
+            "When my question explicitly refers to a ticket (by its unique identifier, title, or description),\n"
+            "match it against the JSON ticket records. Then, extract the ticket_id from the matching JSON object\n"
+            "and set that as the value for context_ticket_id.\n"
+            "If there is no clear match, do not fabricate a ticket id; instead, return context_ticket_id as null or leave it empty.\n"
+            "Avoid asking what action user wants to take regarding the ticket.\n"
         )  # NoQA
 
     elif support_workflow_step == 2:
@@ -181,9 +181,9 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
         load_tickets_and_update_history(history)
 
         system_message = SETUP_ASSISTANT + (
-            " You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket. "  # NoQA
-            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents. "  # NoQA
-            "2. If no tickets offer clear, useful information, briefly mention that explicitly, but still squeeze out at least some small insight or suggestion based on the historical tickets, even if it's minimal. "
+            "You are an IT support expert tasked with analyzing historical tickets to determine if they offer any useful insight for resolving the current ticket.\n"  # NoQA
+            "1. Provide a brief analysis focused solely on identifying any directly actionable insights for resolving the current ticket. Do not include any detailed summaries or digests of the ticket contents.\n"  # NoQA
+            "2. If no tickets offer clear, useful information, briefly mention that explicitly, but still squeeze out at least some small insight or suggestion based on the historical tickets, even if it's minimal.\n"
             "Ensure your response is strictly limited to this analysis or the stated message."
         )
         question = (
