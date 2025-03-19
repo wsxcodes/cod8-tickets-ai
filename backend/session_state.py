@@ -32,3 +32,12 @@ def set_current_context_ticket(session_id: str, ticket_id: str) -> None:
     Set or update the current (active) ticket ID for the given session.
     """
     context_ticket_ids[session_id] = ticket_id
+
+
+async def refresh_all_session_tickets(history: ChatHistory) -> None:
+    """
+    Refresh and load tickets for every session_id in the session_histories.
+    """
+    for session_id in session_histories:
+        # XXX TODO
+        ...
