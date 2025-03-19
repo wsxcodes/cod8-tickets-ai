@@ -172,6 +172,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
             similar_tickets = await hybrid_search_with_vectorization(text_query=ticket_text, top_k=5, include_vector=False)
             similar_tickets = similar_tickets["value"]
 
+        # XXX TODO decomission history.clear from here, utilise history clear on when context ticket changes.
         history.clear()
         load_tickets_and_update_history(history)
 
@@ -270,6 +271,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
                 set_current_context_ticket(session_id=session_id, ticket_id="")
 
         # XXX TODO zresetovat historiu (a znovu nasetapovat veci) ked context_ticket changes
+        # XXX TODO record important info on the system message (e.g. name of who is using the system, other info..)
 
         # Return the parsed JSON object directly (ensuring it has exactly the expected keys)
         return parsed_result
