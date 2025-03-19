@@ -1,9 +1,11 @@
 import logging
 import smtplib
 from email.mime.text import MIMEText
-
+from backend.session_state import session_histories
 from semantic_kernel.utils.logging import setup_logging
+from semantic_kernel.contents.chat_history import ChatHistory
 
+ 
 from backend import config
 
 # Set up logging for the kernel
