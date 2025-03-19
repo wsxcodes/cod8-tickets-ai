@@ -234,6 +234,7 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
 
         if similar_tickets:
             parsed_result["semantic_ticket_matches"] = similar_tickets
+            parsed_result["similar_tickets_search_score_threshold"] = SIMILAR_TICKETS_THRESHOLD
 
         function_call = parsed_result.get("function_call") or None
         if function_call:
