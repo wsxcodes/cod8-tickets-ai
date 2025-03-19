@@ -644,6 +644,36 @@
           addTicketModal.style.display = 'none';
         }
       });
+      // Handle Add Ticket form submission
+      document.getElementById('add-ticket-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('ticket-title').value;
+        const description = document.getElementById('ticket-description').value;
+        const priority = document.getElementById('ticket-priority').value;
+        const requester = document.getElementById('ticket-requester').value;
+        const ticket_id = 'T-' + Math.floor(Math.random() * 10000);
+        const data = { ticket_id, title, description, requester, priority, status: 'Open' };
+
+        try {
+        const response = await fetch('/api/v1/tickets/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) {
+            const errorMsg = await response.text();
+            alert('Failed to add ticket: ' + errorMsg);
+            return;
+          }
+          alert('Ticket added successfully');
+          document.getElementById('add-ticket-modal').style.display = 'none';
+          document.getElementById('add-ticket-form').reset();
+          fetchTickets();
+        } catch (error) {
+          console.error(error);
+          alert('Error adding ticket: ' + error.message);
+        }
+      });
     });
   </script>
 </body>
