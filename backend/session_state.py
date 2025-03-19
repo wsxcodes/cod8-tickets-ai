@@ -34,10 +34,12 @@ def set_current_context_ticket(session_id: str, ticket_id: str) -> None:
     context_ticket_ids[session_id] = ticket_id
 
 
-async def refresh_all_session_tickets(history: ChatHistory) -> None:
+async def refresh_all_session_tickets() -> None:
     """
     Refresh and load tickets for every session_id in the session_histories.
     """
+    from backend.api.api_v1.endpoints.rag_endpoints import load_tickets_and_update_history  # This is to avoid circular import
+
     for session_id in session_histories:
-        # XXX TODO
-        ...
+        history = get_history(session_id)
+        load_tickets_and_update_history(history)
