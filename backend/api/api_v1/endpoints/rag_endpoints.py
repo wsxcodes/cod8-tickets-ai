@@ -136,6 +136,10 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# XXX nevidi tickety pre jednotlivich zakaznikov
+# XXX nech ide na step 2 vo workflow len ked je k tomu vyzvaty (nech procesuje ticket len ked ho poprosis nech ho procesuje)
+# XXX rozjebany add ticket
+
 @router.post("/support_workflow")
 @log_endpoint
 async def support_workflow(session_id: str, support_workflow_step: int, question: str = Body(...), history: ChatHistory = Depends(get_existing_history)):
