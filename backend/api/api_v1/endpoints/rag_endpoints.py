@@ -138,7 +138,6 @@ async def custom_query(session_id: str, payload: Question, system_message: str, 
 
 # XXX nevidi tickety pre jednotlivich zakaznikov
 # XXX nech ide na step 2 vo workflow len ked je k tomu vyzvaty (nech procesuje ticket len ked ho poprosis nech ho procesuje)
-# XXX rozjebany add ticket
 
 @router.post("/support_workflow")
 @log_endpoint
@@ -256,7 +255,6 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
                 ticket_text, ticket_json = await get_ticket_data(ticket_id=current_context_ticket)
                 email_subject = f"Escalation: Ticket {current_context_ticket} - {ticket_json["title"]}"
                 send_email(to_addr="jakub.kudlacek@cod8.io", subject=email_subject, body=result["answer"])
-                send_email(to_addr="janfilipsgt@gmail.com", subject=email_subject, body=result["answer"])
 
                 logger.info(f"Deleting ticket {current_context_ticket}")
                 await delete_ticket(ticket_id=current_context_ticket)
