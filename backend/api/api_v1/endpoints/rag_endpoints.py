@@ -146,6 +146,11 @@ async def support_workflow(session_id: str, support_workflow_step: int, question
     next_workflow_action_step = 1
     similar_tickets = None
 
+    ###############################################################################################################################################
+    # XXX TODO this endpoint is a work in progress laying out just the concept really
+    # XXX TODO refactor
+    ###############################################################################################################################################
+
     logger.info("System message added for session_id: %s", session_id)
     if support_workflow_step == 1:
         if not question:
