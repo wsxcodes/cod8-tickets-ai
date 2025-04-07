@@ -234,6 +234,91 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+    .debug-message {
+      background-color: #333;
+      border: 1px dashed #ff6347;
+      color: #ff6347;
+      padding: 10px;
+      font-family: monospace;
+      margin: 10px 25px;
+      white-space: pre-wrap;
+    }
+    .add-ticket-form {
+      background-color: #2f2f2f;
+      padding: 15px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+    .add-ticket-form h2 {
+      margin-bottom: 10px;
+    }
+    .add-ticket-form input,
+    .add-ticket-form textarea,
+    .add-ticket-form select {
+      width: 100%; /* Ensures elements take full width */
+      background-color: #3a3a3a;
+      color: #ffffff;
+      border: 1px solid #555;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-sizing: border-box; /* Prevents width issues due to padding */
+      text-align: left; /* Ensures text starts from the left */
+    }
+    .add-ticket-form button {
+      width: 100%;
+      background-color: #3f3f3f;
+      color: #ffffff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .add-ticket-form textarea {
+      /* height: 80px; */
+    }
+    .add-ticket-form button:hover {
+      background-color: #4a4a4a;
+    }
+    #add-ticket-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    #add-ticket-modal .modal-content {
+      background-color: #2f2f2f;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 4px;
+      width: 80%;
+      height: 550px;
+      max-width: 860px;
+      color: #ffffff;
+      text-align: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+    #add-ticket-modal .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #add-ticket-modal .close-button:hover {
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -246,13 +331,17 @@
         Click to upload or drag and drop
         <br><small>JSON files only</small>
       </div>
+      <button id="open-add-ticket-modal" class="open-modal-btn">Add Ticket</button>
       <div class="tickets">
         <h2>Tickets</h2>
         <ul id="ticket-list">
           <!-- Tickets will be loaded here -->
         </ul>
       </div>
+      <br/>
+      <font color="grey" size="2">Version 0.1.6</font>
     </div>
+
     <!-- Right side: AI Chat -->
     <div class="right-panel">
       <div class="chat-header">
@@ -265,7 +354,7 @@
         </p>
       </div>
       <div class="chat-input">
-        <input type="text" placeholder="Enter your question here..">
+      <input type="text" placeholder="Enter your question here..">
         <button>Send</button>
       </div>
     </div>
@@ -275,8 +364,28 @@
     <div class="modal-content">
       <span id="close-modal" class="close-button">&times;</span>
       <pre id="ticket-json"></pre>
+      <button id="delete-ticket-btn">Delete Ticket</button>
     </div>
   </div>
+
+  <div id="add-ticket-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-add-ticket-modal" class="close-button">&times;</span>
+      <h2>Add Ticket</h2>
+      <form id="add-ticket-form" class="add-ticket-form">
+        <input type="text" id="ticket-title" placeholder="Ticket Title" required>
+        <textarea id="ticket-description" placeholder="Description" required rows="12"></textarea>
+        <select id="ticket-priority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <input type="text" id="ticket-requester" placeholder="Requester" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     // Function to fetch tickets from the API and update the UI.
     async function fetchTickets() {
@@ -295,7 +404,7 @@
               <div class="ticket-icon" style="background-color: ${color};"></div>
               <div class="ticket-details">
                 <div class="ticket-id-requester">
-                  ${ticket.ticketID} - ${ticket.requester}
+                  ${ticket.ticket_id} - ${ticket.requester}
                 </div>
                 <div class="ticket-title">
                   ${ticket.title}
@@ -309,10 +418,12 @@
         document.querySelectorAll('.ticket-link').forEach(link => {
           link.addEventListener('click', async (e) => {
             e.preventDefault();
-            const ticketPath = link.getAttribute('data-path');
+          const ticketPath = link.getAttribute('data-path');
+          document.getElementById('ticket-modal').dataset.ticketPath = ticketPath;
             try {
               const res = await fetch(`/${ticketPath}`);
               const ticketData = await res.json();
+              delete ticketData.session_id;
               const prettyJSON = JSON.stringify(ticketData, null, 2);
               document.getElementById('ticket-json').textContent = prettyJSON;
               document.getElementById('ticket-modal').style.display = 'block';
@@ -330,6 +441,11 @@
       try {
         const text = await file.text();
         const data = JSON.parse(text);
+
+        data.session_id = "{{session_id}}"; // Ensure session_id is set
+
+        console.log("Uploading ticket:", data);
+
         const response = await fetch('/api/v1/tickets/', {
           method: 'POST',
           headers: {
@@ -337,8 +453,15 @@
           },
           body: JSON.stringify(data)
         });
-        if (!response.ok) throw new Error('Failed to upload ticket');
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error("Server response:", errorMessage);
+          throw new Error('Failed to upload ticket: ' + errorMessage);
+        }
+
         console.log(`Uploaded ${file.name}`);
+        fetchTickets();
       } catch (error) {
         console.error(`Error uploading ticket ${file.name}:`, error);
         alert(`Error uploading ${file.name}: ${error.message}`);
@@ -387,6 +510,28 @@
           modal.style.display = 'none';
         }
       });
+      document.getElementById('delete-ticket-btn').addEventListener('click', async () => {
+      const modal = document.getElementById('ticket-modal');
+      const ticketData = JSON.parse(document.getElementById('ticket-json').textContent);
+      const ticket_id = ticketData.ticket_id;
+        try {
+      const response = await fetch(`/api/v1/tickets/${ticket_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ session_id: "{{session_id}}" })
+        });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.message || 'Failed to delete ticket');
+          alert('Ticket deleted');
+          modal.style.display = 'none';
+          fetchTickets();
+        } catch (err) {
+          console.error('Error deleting ticket:', err);
+          alert('Error deleting ticket: ' + err.message);
+        }
+      });
       // --- Chat functionality ---
       const chatInput = document.querySelector('.chat-input input');
       const sendButton = document.querySelector('.chat-input button');
@@ -418,27 +563,53 @@
         }, 500);
         chatInput.value = '';
         try {
-          const response = await fetch('/api/v1/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question })
-          });
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          // Clear the "Thinking..." interval and remove it
-          clearInterval(dotInterval);
-          chatWindow.removeChild(thinkingMessage);
-          // AI message
-          const aiMessage = document.createElement('p');
-          aiMessage.classList.add('ai-message');
-          aiMessage.innerHTML = marked.parse(data.answer);
-          chatWindow.appendChild(aiMessage);
-          // Scroll to bottom after AI response using setTimeout
-          setTimeout(() => {
+          let currentStep = 1;
+          let data;
+          let firstResponse = true;
+          do {
+            const response = await fetch(`/api/v1/support_workflow?session_id={{session_id}}&support_workflow_step=${currentStep}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(question)
+            });
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            data = await response.json();
+            if (data.function_call === "email_escalation") {
+              fetchTickets();
+            }
+
+            // Debug: Display full support_workflow response for this step (excluding 'answer')
+            const debugMessage = document.createElement('pre');
+            debugMessage.classList.add('debug-message');
+            let debugData = Object.assign({}, data);
+            delete debugData.answer;
+            if (debugData.next_workflow_action_step === 1) {
+              delete debugData.next_workflow_action_step;
+            }
+            if (debugData.function_call === null) { delete debugData.function_call; }
+            debugMessage.textContent = "DEBUG: " + JSON.stringify(debugData, null, 2);
+            chatWindow.appendChild(debugMessage);
+
+            // Display AI message for this workflow step
+            const aiMessage = document.createElement('p');
+            aiMessage.classList.add('ai-message');
+            aiMessage.innerHTML = marked.parse(data.answer);
+            chatWindow.appendChild(aiMessage);
+
+            // Scroll to bottom after appending each step's response
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-          }, 50);
+            if (thinkingMessage.parentNode) {
+              chatWindow.appendChild(thinkingMessage);
+            }
+
+            currentStep = data.next_workflow_action_step;
+          } while (currentStep != 1);
+        clearInterval(dotInterval);
+        if (thinkingMessage.parentNode) {
+          chatWindow.removeChild(thinkingMessage);
+        }
         } catch (error) {
           console.error('Error:', error);
           clearInterval(dotInterval);
@@ -447,9 +618,7 @@
           errorMessage.classList.add('ai-message');
           errorMessage.textContent = 'Oops, something went wrong. Looks like the system is as reliable as a leaky faucet.';
           chatWindow.appendChild(errorMessage);
-          setTimeout(() => {
-            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
-          }, 50);
+          chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         }
       }
       // Submit on Enter key
@@ -460,6 +629,56 @@
       });
       // Submit on Send button click
       sendButton.addEventListener('click', sendChatMessage);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const addTicketModal = document.getElementById('add-ticket-modal');
+      const openAddTicketBtn = document.getElementById('open-add-ticket-modal');
+      const closeAddTicketBtn = document.getElementById('close-add-ticket-modal');
+
+      openAddTicketBtn.addEventListener('click', () => {
+        addTicketModal.style.display = 'block';
+      });
+
+      closeAddTicketBtn.addEventListener('click', () => {
+        addTicketModal.style.display = 'none';
+      });
+
+      window.addEventListener('click', (e) => {
+        if (e.target === addTicketModal) {
+          addTicketModal.style.display = 'none';
+        }
+      });
+      // Handle Add Ticket form submission
+      document.getElementById('add-ticket-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('ticket-title').value;
+        const description = document.getElementById('ticket-description').value;
+        const priority = document.getElementById('ticket-priority').value;
+        const requester = document.getElementById('ticket-requester').value;
+        const ticket_id = 'T-' + Math.floor(Math.random() * 10000);
+        const data = { ticket_id, title, description, requester, priority, status: 'Open' };
+
+        try {
+        const response = await fetch('/api/v1/tickets/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) {
+            const errorMsg = await response.text();
+            alert('Failed to add ticket: ' + errorMsg);
+            return;
+          }
+          alert('Ticket added successfully');
+          document.getElementById('add-ticket-modal').style.display = 'none';
+          document.getElementById('add-ticket-form').reset();
+          fetchTickets();
+        } catch (error) {
+          console.error(error);
+          alert('Error adding ticket: ' + error.message);
+        }
+      });
     });
   </script>
 </body>

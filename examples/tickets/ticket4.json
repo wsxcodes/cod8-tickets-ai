@@ -1,8 +1,8 @@
 {
-    "ticketID": "T-1004",
-    "title": "Old Server Upgrade",
-    "requester": "Rick Danger",
-    "description": "Server’s seen better days—running on steam and prayers. Upgrading could boost performance, possibly bringing in bigger clients.",
+    "ticket_id": "T-1007",
+    "title": "Email Client Random Crashes",
+    "requester": "Diana Inboxes",
+    "description": "Email client keeps spontaneously combusting. Random crashes at the worst times, losing half-written rants.",
     "status": "Open",
-    "priority": "High"
+    "priority": "Medium"
 }

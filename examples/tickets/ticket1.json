@@ -1,8 +1,8 @@
 {
-    "ticketID": "T-1001",
-    "title": "Broken Monitor",
-    "requester": "Max Power",
-    "description": "Monitor decided to give up on life mid-project. Black screen, no revival possible. Possibly a hardware funeral needed.",
+    "ticket_id": "T-1002",
+    "title": "Mysterious Network Outage",
+    "requester": "Alex Mercer",
+    "description": "Network keeps dropping like it’s had too much to drink. Router is blinking frantically, but no stable connection available.",
     "status": "Open",
-    "priority": "High"
+    "priority": "Medium"
 }

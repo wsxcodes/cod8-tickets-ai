@@ -1,8 +1,8 @@
 {
-    "ticketID": "T-1002",
-    "title": "Mysterious Network Outage",
-    "requester": "Jane Doe",
-    "description": "Network keeps dropping like it’s had too much to drink. Router is blinking frantically, but no stable connection available.",
+    "ticket_id": "T-1005",
+    "title": "Laptop Battery Issues",
+    "requester": "Sarah Jones",
+    "description": "Laptop suddenly drains faster than a sinkhole. Might need a fresh battery or a new power adapter.",
     "status": "Open",
     "priority": "Medium"
 }

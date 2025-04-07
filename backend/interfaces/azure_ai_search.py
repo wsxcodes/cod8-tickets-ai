@@ -1,43 +1,88 @@
 from urllib.parse import quote
 
-import requests
+import httpx
+
+from backend.api.api_v1.endpoints.llm_endpoints import vectorize_endpoint
+from backend.schemas.llm_schemas import TextToVector
 
 
 class AzureSearchClient:
     """
-    Client for Azure AI Search that supports vector embeddings and hybrid search.
+    Async client for Azure AI Search that supports vector embeddings and hybrid search.
     """
 
     def __init__(self, service_url: str, index_name: str, api_key: str,
                  vector_field: str, key_field: str = "id",
                  api_version: str = "2024-07-01"):
-        """
-        Initialize the AzureSearchClient.
-
-        Parameters:
-        - service_url: Azure Search service URL.
-        - index_name: Name of the index to target.
-        - api_key: Admin API key for Azure Search (for authentication).
-        - vector_field: Name of the vector field in the index (e.g., 'contentVector').
-        - key_field: Name of the key field (document ID field, default 'id').
-        - api_version: API version for Azure Search endpoints (default '2024-07-01').
-        """
         self.service_url = service_url
         self.api_key = api_key
         self.api_version = api_version
         self.index_name = index_name
         self.vector_field = vector_field
         self.key_field = key_field
-
-        # Base URL for search service endpoints
         self.base_url = service_url
-        # Common header with API key (admin key required for write operations)
         self.headers = {
             "Content-Type": "application/json",
             "api-key": api_key
         }
 
-    def upload_document(self, doc_id: str, embedding: list, metadata: dict):
+    async def _post(self, url: str, json: dict):
+        """Helper function to make async POST requests."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=self.headers, json=json)
+            response.raise_for_status()
+            return response.json()
+
+    async def hybrid_search(self, text_query: str = None, embedding: list = None, top_k: int = 5):
+        """Perform hybrid search using both keyword and vector similarity."""
+        url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
+        body = {
+            "search": text_query or "*",
+            "top": top_k
+        }
+        if embedding is not None:
+            body["vectorQueries"] = [
+                {
+                    "kind": "vector",
+                    "fields": self.vector_field,
+                    "vector": embedding,
+                    "k": top_k
+                }
+            ]
+        return await self._post(url, body)
+
+    async def fulltext_search(self, text_query: str, top_k: int = 5):
+        """Perform a full-text search using keyword search only."""
+        url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
+        body = {
+            "search": text_query,
+            "top": top_k
+        }
+        return await self._post(url, body)
+
+    async def vector_search(self, embedding: list, top_k: int = 5):
+        """Perform a vector-based search using similarity matching."""
+        url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
+        body = {
+            "vectorQueries": [
+                {
+                    "kind": "vector",
+                    "fields": self.vector_field,
+                    "vector": embedding,
+                    "k": top_k
+                }
+            ]
+        }
+        return await self._post(url, body)
+
+    async def query_with_vectorization(self, text_query: str, top_k: int = 5):
+        """Perform a hybrid search query with vectorization."""
+        vector_response = await vectorize_endpoint(TextToVector(text=text_query))
+        embedding = vector_response["vector"]
+        return await self.hybrid_search(text_query=text_query, embedding=embedding, top_k=top_k)
+
+    # XXX TODO chunking...
+    async def upload_document(self, doc_id: str, embedding: list, metadata: dict):
         """
         Upload a single document (or update if ID exists) with vector and metadata.
 
@@ -63,156 +108,54 @@ class AzureSearchClient:
 
         payload = {"value": [document]}
         url = f"{self.base_url}/indexes/{self.index_name}/docs/index?api-version={self.api_version}"
-        response = requests.post(url, headers=self.headers, json=payload)
-        try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=self.headers, json=payload)
             response.raise_for_status()  # Raise HTTP errors (4xx, 5xx).
-        except requests.exceptions.HTTPError as e:
-            # Azure Search returns JSON with error details on failure
-            error_info = response.text
-            raise RuntimeError(f"Upload failed: {error_info}") from e
 
-        # Azure responds with status per document in 'value' array.
-        result = response.json()
-        if ("value" in result and len(result["value"]) > 0
-                and result["value"][0].get("status") is True):  # NoQA
-            return True
-        else:
-            err = result["value"][0] if "value" in result and result["value"] else result
-            raise RuntimeError(f"Upload error: {err}")
-
-    def hybrid_search(self, text_query: str = None, embedding: list = None, top_k: int = 5):
-        """
-        Perform a hybrid search using both keyword and vector similarity.
-
-        Parameters:
-        - text_query: Keyword search query (None or empty for no keyword filtering).
-        - embedding: Vector embedding for similarity search (None for text-only search).
-        - top_k: Number of top results to return from vector search (and merged results).
-
-        Returns:
-        - List of matching documents (with their fields) sorted by relevance.
-        """
-        if text_query is None:
-            text_query = "*"  # Use wildcard to match all if no text query.
-        # Base search URL (using POST for complex queries).
-        url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
-        body = {
-            "search": text_query,
-            "top": top_k
-        }
-        # If embedding provided, include vector query.
-        if embedding is not None:
-            body["vectorQueries"] = [
-                {
-                    "kind": "vector",
-                    "fields": self.vector_field,
-                    "vector": embedding,
-                    "k": top_k
-                }
-            ]
-        # Use POST for search; include API key in headers (query key suffices for search).
-        response = requests.post(url, headers=self.headers, json=body)
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise RuntimeError(f"Search request failed: {response.text}") from e
-
-        # Parse results: Azure returns 'value' list of documents.
-        results = response.json()
-        return results.get("value", [])
-
-    def delete_document(self, doc_id: str):
-        """
-        Delete a document by its ID.
-
-        Parameters:
-        - doc_id: Identifier of the document to delete.
-
-        Returns:
-        - True if deletion succeeded, False if document not found, else raises on error.
-        """
-        # Azure requires an indexing payload with @search.action = delete.
-        document = {
-            "@search.action": "delete",
-            self.key_field: doc_id
-        }
-        payload = {"value": [document]}
-        url = f"{self.base_url}/indexes/{self.index_name}/docs/index?api-version={self.api_version}"
-        response = requests.post(url, headers=self.headers, json=payload)
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise RuntimeError(f"Delete failed: {response.text}") from e
-
-        result = response.json()
-        if ("value" in result and len(result["value"]) > 0):
-            status_entry = result["value"][0]
-            if status_entry.get("status") is True:
+            # Azure responds with status per document in 'value' array.
+            result = response.json()
+            if ("value" in result and len(result["value"]) > 0
+                    and result["value"][0].get("status") is True):  # NoQA
                 return True
-            # If document not found, Azure returns status false and 404 code.
-            if status_entry.get("statusCode") == 404:
-                return False
-            # Other errors
-            raise RuntimeError(f"Delete error: {status_entry}")
-        # If no detailed info, assume failure
-        return False
+            else:
+                err = result["value"][0] if "value" in result and result["value"] else result
+                raise RuntimeError(f"Upload error: {err}")
 
-    def get_document(self, doc_id: str):
-        """
-        Retrieve a document by its ID (lookup operation).
-
-        Parameters:
-        - doc_id: Identifier of the document to retrieve.
-
-        Returns:
-        - Document (dict) if found, or None if not found.
-        """
-        # Use lookup API (GET). Need to quote the key to handle special chars.
+    async def get_document(self, doc_id: str):
+        """Retrieve a document by its ID."""
         key_param = quote(doc_id, safe='')
         url = f"{self.base_url}/indexes/{self.index_name}/docs/{key_param}?api-version={self.api_version}"
-        response = requests.get(url, headers=self.headers)
-        if response.status_code == 404:
-            return None  # Document not found.
-        try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+            if response.status_code == 404:
+                return None
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise RuntimeError(f"Lookup failed: {response.text}") from e
-        return response.json()
+            return response.json()
 
-    def list_documents(self, batch_size: int = 1000):
-        """
-        List all documents in the index.
-
-        Parameters:
-        - batch_size: Number of documents to retrieve per request (max 1000).
-
-        Returns:
-        - List of all documents in the index.
-        """
-        # Azure Search returns a maximum of 1000 results per query. Use '*' to match all docs.
+    async def list_documents(self, batch_size: int = 1000, limit: int = None, offset: int = 0):
+        """List documents in the index with optional limit and offset."""
         all_docs = []
-        skip = 0
+        skip = offset
         while True:
+            top = batch_size
+            if limit is not None:
+                remaining = limit - len(all_docs)
+                if remaining <= 0:
+                    break
+                top = min(batch_size, remaining)
             url = f"{self.base_url}/indexes/{self.index_name}/docs/search?api-version={self.api_version}"
             body = {
-                "search": "*",    # Wildcard search to get all docs.
-                "select": "*",    # Retrieve all fields (fields must be marked retrievable).
-                "top": batch_size,
+                "search": "*",
+                "select": "*",
+                "top": top,
                 "skip": skip
             }
-            response = requests.post(url, headers=self.headers, json=body)
-            try:
-                response.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                raise RuntimeError(f"List documents failed: {response.text}") from e
-            results = response.json()
+            results = await self._post(url, body)
             docs = results.get("value", [])
             if not docs:
                 break
             all_docs.extend(docs)
-            # Check for continuation token or manual skip
-            if "@odata.nextLink" in results or len(docs) == batch_size:
-                skip += batch_size
-                continue
-            break
-        return all_docs
+            if len(docs) < top:
+                break
+            skip += top
+        return all_docs[:limit] if limit else all_docs

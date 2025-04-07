@@ -1,3 +1,5 @@
+import asyncio
+import glob
 import logging
 import os
 import sys
@@ -22,6 +24,7 @@ azure_client = AzureSearchClient(
     service_url=config.AZURE_AI_SEARCH_SERVICE,
     index_name=INDEX_NAME,
     api_key=config.AZURE_AI_SEARCH_API_KEY,
+    api_version=config.AZURE_AI_SEARCH_API_VERSION,
     vector_field="vector"
 )
 
@@ -43,6 +46,7 @@ def process_ticket_csv(filename):
         "Status",
         "Company_Name",
         "Date_Entered",
+        "Discussion",
         "Type",
         "ServiceLocation",
         "Priority",
@@ -50,6 +54,7 @@ def process_ticket_csv(filename):
         "Team"
     ]
     df = pd.read_csv(filename, dtype={"TicketNbr": str})
+    df.rename(columns={"Textbox112": "Discussion"}, inplace=True)
 
     missing_columns = set(required_columns) - set(df.columns)
     if missing_columns:
@@ -71,34 +76,66 @@ def process_ticket_csv(filename):
     # Add a placeholder for the vector.
     df_subset["vector"] = None
 
+    # Rename the relevant columns to lowercase.
+    df_subset.rename(
+        columns={
+            "Company_Name": "company_name",
+            "Date_Entered": "date_entered",
+            "Type": "type",
+            "Priority": "priority",
+            "Source": "source",
+            "Team": "team",
+            "Discussion": "discussion"
+        },
+        inplace=True
+        )
+
+    # Rename the "Summary" column to "title".
+    df_subset.rename(columns={"Summary": "title"}, inplace=True)
+
     # Define final column order as per the updated schema.
     final_order = [
         "id",
         "ticket_id",
         "vector",
-        "Summary",
-        "Status_Description",
-        "Status",
-        "Company_Name",
-        "Date_Entered",
-        "Type",
-        "ServiceLocation",
-        "Priority",
-        "Source",
-        "Team"
+        "title",
+        "company_name",
+        "date_entered",
+        "discussion",
+        "type",
+        "priority",
+        "source",
+        "team"
     ]
     df_final = df_subset[[col for col in final_order if col in df_subset.columns]]
-    return df_final
+
+    # Group rows by ticket_id to accumulate discussion from multiple records.
+    df_grouped = df_final.groupby("ticket_id", as_index=False).agg({
+        "title": "first",
+        "company_name": "first",
+        "date_entered": "first",
+        "discussion": lambda x: " ".join(x.dropna().astype(str)),
+        "type": "first",
+        "priority": "first",
+        "source": "first",
+        "team": "first",
+        "vector": "first"
+    })
+    df_grouped.sort_values(by="ticket_id", ascending=False, inplace=True)
+    # Recalculate sequential primary id for grouped records.
+    df_grouped.insert(0, "id", [str(i) for i in range(1, len(df_grouped) + 1)])
+    df_grouped = df_grouped[final_order]
+    return df_grouped
 
 
 def vectorize_ticket(ticket: pd.Series) -> pd.Series:
     """
-    Vectorizes the ticket's Summary field using OpenAI embeddings and stores the result in 'vector'.
+    Vectorizes the ticket's title field using OpenAI embeddings and stores the result in 'vector'.
     """
     logger.info(f"Vectorizing ticket {ticket['id']} (actual ticket id: {ticket.get('ticket_id', 'N/A')})")
-    text_to_embed = ticket.get("Summary", "")
+    text_to_embed = ticket.get("title", "")
     if not text_to_embed:
-        logger.info(f"No summary for ticket {ticket['id']}. Skipping vectorization.")
+        logger.info(f"No title for ticket {ticket['id']}. Skipping vectorization.")
         return ticket
 
     try:
@@ -114,7 +151,7 @@ def vectorize_ticket(ticket: pd.Series) -> pd.Series:
     return ticket
 
 
-def upload_ticket(ticket: pd.Series):
+async def upload_ticket(ticket: pd.Series):
     """
     Uploads the ticket document to Azure Search.
     """
@@ -122,30 +159,62 @@ def upload_ticket(ticket: pd.Series):
         doc_id = str(ticket["id"])
         # Prepare metadata excluding the vector field.
         metadata = ticket.drop("vector").to_dict() if "vector" in ticket else ticket.to_dict()
-        azure_client.upload_document(
+        upload_success = await azure_client.upload_document(
             doc_id=doc_id,
             embedding=ticket["vector"],
             metadata=metadata
         )
-        logger.info(f"Uploaded ticket {doc_id}")
+        if upload_success:
+            logger.info(f"Uploaded ticket {doc_id} successfully")
+        else:
+            logger.error(f"Upload failed for ticket {doc_id}: Upload result was not successful")
     except Exception as e:
         logger.info(f"Error uploading ticket {ticket.get('id', 'unknown')}: {e}")
 
 
 if __name__ == "__main__":
-    filepath = "data/Bank Design & Equipment FY2024.csv"
-    tickets_df = process_ticket_csv(filepath)
+    # Use glob to list all CSV files in the target directory
+    directory = "data/OneDrive_1_19-03-2025/"
+    csv_files = glob.glob(os.path.join(directory, "*.csv"))
+    logger.info(f"Found CSV files: {csv_files}")
 
-    # Debug: Log unique primary ids and actual ticket ids.
-    unique_ids = tickets_df['id'].unique()
-    unique_ticket_ids = tickets_df['ticket_id'].unique()
-    logger.info(f"Unique primary ids: {unique_ids}")
-    logger.info(f"Unique actual ticket ids: {unique_ticket_ids}")
+    dfs = []
+    for file in csv_files:
+        logger.info(f"Processing file: {file}")
+        df = process_ticket_csv(file)
+        dfs.append(df)
+
+    if dfs:
+        # Combine all processed dataframes
+        tickets_df = pd.concat(dfs, ignore_index=True)
+        # Group tickets by 'ticket_id' across files to combine duplicate records
+        tickets_df = tickets_df.groupby("ticket_id", as_index=False).agg({
+            "title": "first",
+            "company_name": "first",
+            "date_entered": "first",
+            "discussion": lambda x: " ".join(x.dropna().astype(str)),
+            "type": "first",
+            "priority": "first",
+            "source": "first",
+            "team": "first",
+            "vector": "first"
+        })
+        tickets_df.insert(0, "id", [str(i) for i in range(1, len(tickets_df) + 1)])
+    else:
+        logger.info("No CSV files found in directory. Exiting.")
+        sys.exit(1)
 
     logger.info("Processed ticket data:")
     logger.info(tickets_df.head())
 
-    for idx, ticket in tickets_df.iterrows():
-        logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
-        ticket = vectorize_ticket(ticket)
-        upload_ticket(ticket)
+    async def main():
+        for idx, ticket in tickets_df.iterrows():
+            logger.info(f"Processing row {idx} with primary id: {ticket['id']} and actual ticket id: {ticket['ticket_id']}")
+            logger.info(ticket)
+            logger.info(f"Discussion length: {len(ticket['discussion']) if isinstance(ticket['discussion'], str) else 'N/A'}")
+            logger.info(f"Starting vectorization for ticket {ticket['id']}")
+            ticket = vectorize_ticket(ticket)
+            logger.info(f"Starting upload for ticket {ticket['id']}")
+            await upload_ticket(ticket)
+
+    asyncio.run(main())

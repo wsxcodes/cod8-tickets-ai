@@ -1,0 +1,46 @@
+import logging
+from typing import Optional
+
+from semantic_kernel.contents.chat_history import ChatHistory
+
+# XXX TODO this really should be a persistent storage solution
+session_histories = {}
+context_ticket_ids = {}
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def get_history(session_id: str) -> ChatHistory:
+    if session_id not in session_histories:
+        session_histories[session_id] = ChatHistory()
+    return session_histories[session_id]
+
+
+def get_current_context_ticket(session_id: str) -> Optional[str]:
+    """
+    Retrieve the current (active) ticket ID for the given session.
+    Returns None if no ticket has been set.
+    """
+    return context_ticket_ids.get(session_id)
+
+
+def set_current_context_ticket(session_id: str, ticket_id: str) -> None:
+    """
+    Set or update the current (active) ticket ID for the given session.
+    """
+    context_ticket_ids[session_id] = ticket_id
+
+
+async def refresh_all_session_tickets() -> None:
+    """
+    Refresh and load tickets for every session_id in the session_histories.
+    """
+    from backend.api.api_v1.endpoints.rag_endpoints import \
+        load_tickets_and_update_history  # This is to avoid circular import
+
+    for session_id in session_histories:
+        history = get_history(session_id)
+        load_tickets_and_update_history(history)

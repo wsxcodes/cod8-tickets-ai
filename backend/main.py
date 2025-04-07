@@ -1,52 +1,36 @@
 import logging
-import os
 
-import semantic_kernel as sk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from semantic_kernel.connectors.ai.function_choice_behavior import \
-    FunctionChoiceBehavior
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
-    AzureChatPromptExecutionSettings
-from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.utils.logging import setup_logging
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend import config
 from backend.api.api_v1.routers import api_router
+from backend.decorators import log_endpoint
 
 API_V1_STR = "/api/v1"
 
-# Initialize the kernel
-kernel = sk.Kernel()
+# Set up logging for the kernel
+setup_logging()
 
-# Use environment variables from the working example
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_ENDPOINT = os.getenv("OPENAI_ENDPOINT")
-DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
-
-# Create the Azure Chat Completion service using the working example’s parameters
-chat_completion = AzureChatCompletion(
-    deployment_name=DEPLOYMENT_NAME,
-    endpoint=OPENAI_ENDPOINT,
-    api_key=OPENAI_API_KEY,
-)
-
-kernel.add_service(chat_completion)
+# Ensure logging is properly configured
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Set up logging for the kernel
 setup_logging()
 logging.getLogger("kernel").setLevel(logging.DEBUG)
 
 app = FastAPI(
-    title="COD8 Neural API",
+    title="COD8 Neural IT Support Tickets API",
     openapi_url=f"{API_V1_STR}/openapi.json",
     docs_url="/docs",
-    redoc_url=None
+    redoc_url="/redocs"
 )
 
 # Configure CORS
@@ -66,20 +50,42 @@ app.add_middleware(
 # Include routers
 app.include_router(api_router, prefix=API_V1_STR)
 
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/ticket_files", StaticFiles(directory="tickets"), name="ticket_files")
+app.mount("/ticket_files", StaticFiles(directory="data/tickets"), name="ticket_files")
 
 templates = Jinja2Templates(directory="templates")
 
-history = ChatHistory()
-execution_settings = AzureChatPromptExecutionSettings()
-execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto()
 
-
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@log_endpoint
 async def read_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    logger = logging.getLogger(__name__)
+
+    session_id = request.session.get("session_id")
+    if session_id:
+        logger.info("Existing session_id found: %s", session_id)
+    else:
+        logger.info("No session_id found, generating a new one.")
+
+    # If no session ID exists, generate a new one
+    if not session_id:
+        import uuid
+        session_id = str(uuid.uuid4())
+        request.session["session_id"] = session_id
+        logger.info("** Generated new session_id: %s", session_id)
+
+        from backend.api.api_v1.endpoints.rag_endpoints import (
+            load_tickets, setup_support_assistant)
+        try:
+            await setup_support_assistant(session_id)
+            logger.info("** Successfully set up support assistant for session_id: %s", session_id)
+            await load_tickets(session_id)
+            logger.info("** Successfully loaded tickets for session_id: %s", session_id)
+        except Exception as e:
+            logger.error("Failed to set up support assistant: %s", str(e), exc_info=True)
+
+    logger.info("Rendering index page with session_id: %s", session_id)
+    return templates.TemplateResponse("index.html", {"request": request, "session_id": session_id})
 
 
 if __name__ == "__main__":

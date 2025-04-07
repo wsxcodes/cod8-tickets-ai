@@ -70,7 +70,7 @@ RUN pip install --upgrade pip \
 # Copy the entire project directory
 COPY . /code
 WORKDIR /code
-RUN mkdir /code/tickets
+RUN mkdir /code/data/tickets
 
 RUN ls -la
 
@@ -85,4 +85,4 @@ COPY .env.devel .env
 # Expose ports
 EXPOSE 80 443
 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "backend.main:app", "--bind", "0.0.0.0:80"]
